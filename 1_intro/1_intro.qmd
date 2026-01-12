@@ -1,0 +1,1785 @@
+---
+title: "Lecture 1: Introduction"
+subtitle: "L2 - Statistics"
+author: "Gustave Kenedi"
+date: "2026-01-13"
+institute: "This lecture is heavily inspired by those of Marion Monnet, Youssef Souidi and Kyle Butts."
+format:
+  revealjs:
+    self-contained: true
+    css: css/custom-styles.css
+    theme: [simple, css/custom.scss]
+    highlight-style: github
+    slide-number: true
+    footer: "Lecture 1: Introduction"
+    logo: img/logo_cy_transparent.png
+    code-overflow: wrap
+    execute:
+      echo: true
+      eval: true
+      cache: true
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| echo: false
+#| output: false
+source("../assets/r/common_loading.R")
+```
+
+## Welcome to this course! {.pause}
+
+. . .
+
+- I joined [CYU]{.hi_blue} in September 2025
+
+- PhD Sciences Po (2023), postdoc in London (2023-2025)
+
+- **Applied microeconomist**, working on [intergenerational mobility]{.hi_purple} and [educational inequalities]{.hi_purple}
+
+- I use statistics and `R` programming daily
+
+- If interested, you can find my research on my [website](https://gustavekenedi.github.io/)
+
+. . .
+
+- **First time** teaching this course
+$\rightarrow$ doing my best, [mistakes]{.hi_cranberry} are possible
+
+. . .
+
+- [Icebreaker:]{.hi_yellow} tennis (Federer) fan, podcast listener, economics nerd
+
+. . .
+
+- **Introduce yourselves**, and where you’re from 🙂
+
+
+## About the course
+
+. . .
+
+**Objectives:**
+
+- Give you a background on **statistical theory** and their **application**
+
+- Teach you how to perform **statistical analyses** in the `R` programming language
+
+- Prepare you to succeed in **econometrics courses**
+
+. . .
+
+**Prerequisites:**
+
+- Probability theory
+
+- **Appetite for learning**, enthusiasm, hard work, and perseverance
+
+. . .
+
+**What you'll learn:**
+
+-   Manipulate, summarize and visualize data with R
+
+-   The main tools of [statistical inference]{.hi_purple}
+
+## A quick word about in-class technology and learning
+
+. . .
+
+![](img/cellphone_ban_florida.jpeg){height="540" fig-align="center"}
+
+[Source: [NBER Digest (2025), *School Cell Phone Bans and Student Achievement*](https://www.nber.org/digest/202512/school-cell-phone-bans-and-student-achievement?page=1&perPage=50)]{.fig_source}
+
+## A quick word about in-class technology and learning
+
+![](img/dynarski_computer_class.png){height="540" fig-align="center"}
+
+[Source: [Dynarski (2017)](https://www.brookings.edu/articles/for-better-learning-in-college-lectures-lay-down-the-laptop-and-pick-up-a-pen/)]{.fig_source}
+
+## A quick word about in-class technology and learning
+
+![](img/ednext_XVII_4_carter_fig02-small.jpg){height="540" fig-align="center"}
+
+[Source: [Carter, Gerrnberg and Walker (2017), Should Professors Ban Laptops?, *Education Next*](https://www.educationnext.org/should-professors-ban-laptops-classroom-computer-use-affects-student-learning-study/)]{.fig_source}
+
+## A quick word about in-class technology and learning
+
+- I'm not saying you should *not* use your laptop/tablet in class
+
+- You should use it [wisely]{.hi_purple}
+
+- Listen to me, ask questions, and look at the class slides
+
+- Don't randomly check your [phone]{.hi_purple} to see if you have notifications (I'm the same, trust me!)
+
+- When doing `R` try to focus on the task at hand
+
+## Today's lecture
+
+::: {.outline_text}
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Why is statistics useful?](#stats_useful)
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[2. The data science process](#data_process)
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[3. R101](#r101)
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[4. Your first `R` plot](#first_plot)
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[5. Anatomy of a `data.frame`](#anatomy)
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[6. Course details](#course_details)
+
+:::
+
+
+# Why is statistics useful? {.slide_inverse #stats_useful}
+
+## What is *statistics*?
+
+. . .
+
+[Statistics gives us a way of linking _economic theory_ with the real world through data analysis]{.hi_purple}
+
+- How did prices change after the tax increase?
+
+- How did students respond to tuition fees?
+
+- Does more education lead to higher wages?
+
+. . .
+
+[Statistics allows us to translate datasets into usable information]{.hi_cranberry}
+
+- Summary statistics help describe large groups of data
+
+- Use statistics to make predictions
+
+- Statistics helps us inform our decision making
+
+# Real-world examples
+
+## Measuring intergenerational mobility
+
+. . .
+
+![](img/cef_rrc_us_fr.png){height="550" fig-align="center"}
+
+[Source: [Kenedi and Sirugue (2023)](https://www.ipp.eu/wp-content/uploads/2024/07/NoteIPP_Intergenerational-income-mobilityVEN.pdf)]{.fig_source}
+
+. . . 
+
+<p style = "margin-bottom: -2.5cm;"></p>
+
+$\rightarrow$ to summarize this relationship, we use **percentile ranks**
+
+## How to meet CO2 emissions target?
+
+. . .
+
+![](img/emissions_us.png){height="550" fig-align="center"}
+
+[Source: [World Inequality Report 2022](https://wir2022.wid.world/chapter-6/)]{.fig_source}
+
+## How to meet CO2 emissions target?
+
+![](img/emissions_fr.png){height="550" fig-align="center"}
+
+[Source: [World Inequality Report 2022](https://wir2022.wid.world/chapter-6/)]{.fig_source}
+
+## How to meet CO2 emissions target?
+
+![](img/emissions_china.png){height="550" fig-align="center"}
+
+[Source: [World Inequality Report 2022](https://wir2022.wid.world/chapter-6/)]{.fig_source}
+
+## How to meet CO2 emissions target?
+
+![](img/emissions_india.png){height="550" fig-align="center"}
+
+[Source: [World Inequality Report 2022](https://wir2022.wid.world/chapter-6/)]{.fig_source}
+
+## How to meet CO2 emissions target?
+
+- CO2 emissions are highly unequally distributed among the population
+
+- Per capita emissions are higher in developed countries
+
+- Within countries, richer people emit more CO2
+
+- Huge implications for public policies aiming to adress this issue
+
+- To summarize these informations, the World Inequality Report uses **quantiles**
+
+## Massive decline in extreme poverty
+
+![](img/share-of-population-in-extreme-poverty){height="550" fig-align="center"}
+
+[Source: [Our World in Data](https://ourworldindata.org/grapher/share-of-population-in-extreme-poverty)]{.fig_source}
+
+## Massive decline in extreme poverty
+
+![](img/total-population-living-in-extreme-poverty-by-world-region.png){height="550" fig-align="center"}
+
+[Source: [Our World in Data](https://ourworldindata.org/grapher/total-population-living-in-extreme-poverty-by-world-region)]{.fig_source}
+
+## Massive decline in extreme poverty
+
+- The share and number of people living in extreme poverty went through a dramatic reduction during the last 35 years
+
+- However, this evolution does not apply equally to all regions
+
+- The vast majority of remaining extreme poverty is in Sub-Saharan Africa
+
+- To summarize this information, Our World in Data uses **statistical measures of evolution**
+
+## Forecasting election results
+
+![](img/us_elections.png)
+
+[Source: [Andrew Gelman](https://statmodeling.stat.columbia.edu/2020/08/14/new-fivethirtyeight-com-election-forecast/)]{.fig_source}
+
+## Forecasting election results
+
+- Biden was predicted to obtain 55% of the vote vs 45% for Trump in August 2020
+
+- To say so, the following statistical tools were used: **mean**, standard deviation, normal distribution, **confidence intervals**
+
+## Today's lecture
+
+::: {.outline_text}
+
+[1. Why is statistics useful?](#stats_useful) $\checkmark$
+
+[2. The data science process](#data_process)
+
+[3. R101](#r101)
+
+[4. Your first `R` plot](#first_plot)
+
+[5. Anatomy of a `data.frame`](#anatomy)
+
+[6. Course details](#course_details)
+
+:::
+
+# The data science process {.slide_inverse #data_process}
+
+## The data science process {transition="fade-in"}
+
+![](img/data_science_process.png){height="300" fig-align="center"}
+
+## Step 1: import data {transition="fade-in" auto-animate=true auto-animate-easing="ease-in-out"}
+
+![](img/data_science_process.png){height="300" fig-align="center"}
+
+[Step 1: Import]{.hi_purple}: load a data file
+
+::: {data-id="box1" style="background: #785EF0; opacity: 0.4; width: 80px; height: 50px; margin: 20px; position: absolute; top: 160px; left: 90px"}
+:::
+
+## Step 2: tidy data {transition="fade-in" auto-animate=true auto-animate-easing="ease-in-out"}
+
+![](img/data_science_process.png){height="300" fig-align="center"}
+
+[Step 1: Import]{.hi_purple}: load a data file
+
+[Step 2: Tidy]{.hi_blue}: each column $\rightarrow$ a variable; each row $\rightarrow$ an observation
+
+::: {data-id="box1" style="background: #648FFF; opacity: 0.4; width: 55px; height: 50px; margin: 20px; position: absolute; top: 160px; left: 245px"}
+:::
+
+## Step 3: transform data {transition="fade-in" auto-animate=true auto-animate-easing="ease-in-out"}
+
+![](img/data_science_process.png){height="300" fig-align="center"}
+
+[Step 1: Import]{.hi_purple}: load a data file
+
+[Step 2: Tidy]{.hi_blue}: each column $\rightarrow$ a variable; each row $\rightarrow$ an observation
+
+[Step 3: Transform]{.hi_yellow}: filter data, create new variables, compute summary stats
+
+::: {data-id="box1" style="background: #FFB000; opacity: 0.4; width: 120px; height: 50px; margin: 20px; position: absolute; top: 160px; left: 375px"}
+:::
+
+## Step 3: transform data {transition="fade-in" auto-animate=true auto-animate-easing="ease-in-out"}
+
+![](img/data_science_process.png){height="300" fig-align="center"}
+
+[Step 1: Import]{.hi_purple}: load a data file
+
+[Step 2: Tidy]{.hi_blue}: each column $\rightarrow$ a variable; each row $\rightarrow$ an observation
+
+[Step 3: Transform]{.hi_yellow}: filter data, create new variables, compute summary stats
+
+::: {data-id="box1" style="background: #b2a080; opacity: 0.4; width: 250px; height: 50px; margin: 20px; position: absolute; top: 160px; left: 245px"}
+:::
+[Data wrangling]{style="font-style: italic; color: #b2a080; position: absolute; top: 140px; left: 245px"}
+
+## Step 4: visualize data {transition="fade-in" auto-animate=true auto-animate-easing="ease-in-out"}
+
+![](img/data_science_process.png){height="300" fig-align="center"}
+
+[Step 1: Import]{.hi_purple}: load a data file
+
+[Step 2: Tidy]{.hi_blue}: each column $\rightarrow$ a variable; each row $\rightarrow$ an observation
+
+[Step 3: Transform]{.hi_yellow}: filter data, create new variables, compute summary stats
+
+[Step 4: Visualize]{.hi_cranberry}: produce plots to understand the data
+
+::: {data-id="box1" style="background: #DC267F; opacity: 0.4; width: 110px; height: 50px; margin: 20px; position: absolute; top: 90px; left: 560px"}
+:::
+
+## Step 5: model data {transition="fade-in" auto-animate=true auto-animate-easing="ease-in-out"}
+
+![](img/data_science_process.png){height="300" fig-align="center"}
+
+[Step 1: Import]{.hi_purple}: load a data file
+
+[Step 2: Tidy]{.hi_blue}: each column $\rightarrow$ a variable; each row $\rightarrow$ an observation
+
+[Step 3: Transform]{.hi_yellow}: filter data, create new variables, compute summary stats
+
+[Step 4: Visualize]{.hi_cranberry}: produce plots to understand the data
+
+[Step 5: Model]{.hi_coral}: make assumptions about data to answer question
+
+::: {data-id="box1" style="background: #FE6100; opacity: 0.4; width: 80px; height: 50px; margin: 20px; position: absolute; top: 220px; left: 515px"}
+:::
+
+## Step 6: communicate {transition="fade-in" auto-animate=true auto-animate-easing="ease-in-out"}
+
+![](img/data_science_process.png){height="300" fig-align="center"}
+
+[Step 1: Import]{.hi_purple}: load a data file
+
+[Step 2: Tidy]{.hi_blue}: each column $\rightarrow$ a variable; each row $\rightarrow$ an observation
+
+[Step 3: Transform]{.hi_yellow}: filter data, create new variables, compute summary stats
+
+[Step 4: Visualize]{.hi_cranberry}: produce plots to understand the data
+
+[Step 5: Model]{.hi_coral}: make assumptions about data to answer question
+
+[Step 6: Communicate]{.hi_green}: communicate results to others
+
+::: {data-id="box1" style="background: #23CD49; opacity: 0.4; width: 160px; height: 50px; margin: 20px; position: absolute; top: 160px; left: 770px"}
+:::
+
+## The data science process {transition="fade-in" auto-animate=true auto-animate-easing="ease-in-out"}
+
+[Step 1: Import]{.hi_purple}: load a data file
+
+[Step 2: Tidy]{.hi_blue}: each column $\rightarrow$ a variable; each row $\rightarrow$ an observation
+
+[Step 3: Transform]{.hi_yellow}: filter data, create new variables, compute summary stats
+
+[Step 4: Visualize]{.hi_cranberry}: produce plots to understand the data
+
+[Step 5: Model]{.hi_coral}: make assumptions about data to answer question
+
+[Step 6: Communicate]{.hi_green}: communicate results to others
+
+. . .
+
+To undertake all these steps we need a [tool]{.hi_purple}.
+
+. . .
+
+$\rightarrow$ we will use the programming language `R`
+
+## Today's lecture
+
+::: {.outline_text}
+
+[1. Why is statistics useful?](#stats_useful) $\checkmark$
+
+[2. The data science process](#data_process) $\checkmark$
+
+[3. R101](#r101)
+
+[4. Your first `R` plot](#first_plot)
+
+[5. Anatomy of a `data.frame`](#anatomy)
+
+[6. Course details](#course_details)
+
+:::
+
+
+# R 101 {.slide_inverse #r101}
+
+## What is `R`?
+
+::: {.incremental}
+
+* R is a **programming language** and free software environment for **statistical computing and graphics**
+
+* The R language is widely (and increasingly) used in **academic and non-academic research** in fields like:
+
+  * economics, statistics, biostatistics
+  
+* Things you can do with R:
+
+  * [Reports](https://quarto-dev.github.io/quarto-gallery/page-layout/tufte.html)
+  * [Nice plots](https://www.r-graph-gallery.com/bubble_chart_interactive_ggplotly.html)
+  * [Interactive dashboards](https://beta.suptracker.org/?tab=page_accueil&type_bac=tous)
+  * [Art](https://www.data-to-art.com/)
+  * [These slides]()
+  
+:::
+
+## Why are we using `R`? ^[This list has been inspired by [Ed Rubin's](https://github.com/edrubin/EC421S19).]
+
+::: {.incremental}
+1. [Free]{.hi_blue} and [open source]{.hi_blue}: saves both you and the university 💸.
+
+1. [Very flexible and powerful]{.hi_purple}: adaptable to nearly any task (data cleaning, data visualization, statistics, econometrics, spatial data analysis, machine learning, web scraping, etc.).
+
+1. [Thriving online community]{.hi_yellow}: (almost) always have a [solution](https://stackoverflow.com/questions/tagged/r) to your problem(s), AIs very good as well.
+
+1. [Very valuable and useful tool]{.hi_cranberry}: worth putting in the work ^[Learning `R` definitely requires time and effort but it's worth it, trust me!].
+:::
+
+## The `RStudio` interface {transition="fade-in" auto-animate=true auto-animate-easing="ease-in-out"}
+
+- `R`: a [programming language]{.hi_purple}
+
+- `RStudio` or `posit.cloud`: an [integrated development environment]{.hi_blue} (IDE) to work with `R`.
+
+. . .
+
+::: {data-id="image"}
+![](img/posit_cloud_ide.png){width="75%" fig-align="center"}
+:::
+
+## The `RStudio` interface {transition="fade-in" auto-animate=true auto-animate-easing="ease-in-out"}
+
+- `R`: a [programming language]{.hi_purple}
+
+- `RStudio` or `posit.cloud`: an [integrated development environment]{.hi_blue} (IDE) to work with `R`.
+
+::: {data-id="image"}
+![](img/posit_cloud_ide_console.png){width="75%" fig-align="center"}
+:::
+
+## The `console` panel {transition="fade-in" auto-animate=true auto-animate-easing="ease-in-out"}
+
+:::: {.columns}
+::: {.column width="50%"}
+
+:::  {.fragment}
+
+- This is where you communicate with R
+
+  - You can write instructions after the `>`, press enter and R will execute
+  
+  - Try with **1 + 1**:
+  
+:::
+
+:::  {.fragment}
+  
+```{r}
+1 + 1
+```
+
+:::
+
+:::  {.fragment}
+
+- You can also write comments with `#`
+
+```{r}
+# 1 + 1 this code will not run
+```
+
+:::
+
+:::
+
+::: {.column width="50%"}
+::: {data-id="image"}
+![](img/posit_cloud_ide_console.png)
+:::
+:::
+:::
+
+## The `environment` panel {transition="fade-in"}
+
+:::: {.columns}
+::: {.column width="50%"}
+
+:::  {.fragment}
+
+- This is your `data` objects are stored
+
+  - For instance we can assign a value to an `object` using `<-`
+  
+:::
+
+:::  {.fragment}
+  
+```{r}
+x <- 1
+x
+```
+:::
+
+:::  {.fragment}
+
+Your environment should now have an object called `x`, which takes value 1
+:::
+:::
+
+::: {.column width="50%"}
+![](img/posit_cloud_ide_environment.png)
+:::
+:::
+
+. . .
+
+:::: {.columns}
+:::{.column width="50%}
+
+Now that the object `x` is stored in your environment, you can use it:
+
+```{r}
+x + 1
+```
+:::
+
+:::{.column .fragment width="50%}
+ 
+You can also modify that object at any point:
+
+```{r}
+x <- x + 1
+x
+```
+:::
+:::
+
+## The `files/plots/...` panel {transition="fade-in"}
+
+:::: {.columns}
+::: {.column width="50%"}
+
+::: {.incremental}
+
+  - **Files:** shows your [working directory]{.hi_purple}
+  - **Plots:** where R returns plots
+  - **Packages:** library of tools that we can load if needed
+  - **Help:** documentation on R functions
+  
+:::
+
+:::
+
+::: {.column width="50%"}
+![](img/posit_cloud_ide_panel.png)
+:::
+:::
+
+:::: {.columns}
+::: {.column width="50%" .fragment}
+
+- Enter `?getwd()` in the console to see what a help file looks like
+
+```{r}
+?getwd()
+```
+
+:::
+
+::: {.column width="50%" .fragment}
+
+- The help page:
+
+  - *describes* what the command does
+  - *explains* the different parameters of the command
+  - gives *examples* of how to use the command
+
+:::
+:::
+
+## Collaboration is encouraged!
+
+![](img/gator_error.jpg)
+
+## Your turn! #1 {.slide_task}
+
+{{< countdown "5:00" top=0 right=0 >}}
+
+1. Create a new R script (File $\rightarrow$ New File $\rightarrow$ R Script). Save it somewhere as `lecture_intro.R`.
+
+2. Type the following code in your script and run it. To run the code press `Ctrl` or `Cmd` + `Enter` (you can either highlight the code or just put your cursor at the end of the line)
+```{r}
+#| eval: false
+4 * 8
+```
+
+3. Type the following code in your script and run it. What happens if you only run the first line of the code?
+```{r}
+#| eval: false
+x = 5 # equivalently x <- 5
+x
+```
+[Congratulations]{.hi_yellow}, you have created your first `R` "object"! Everything is an object in R! Objects are assigned using `=` or `<-`.
+
+4. Create a new object named `x_3` to which you assign the cube of `x`. Note that to assign you need to use `=` or `<-`. What is `x_3` equal to?
+
+## `R` Packages {.pause}
+
+- `R` users contribute add-on data and functions as *packages* $\rightarrow$ a bit like apps
+
+- Installing packages is easy! Just use the `install.packages` function:
+
+```{r}
+#| eval: false
+
+install.packages("tidyverse") # we will use the tidyverse a lot!
+```
+
+- The `tidyverse` package is **now installed** on your computer: you won't have to do it again
+
+. . .
+
+- To *use* the contents of a package, we must load it from our library using `library`:
+
+```{r}
+#| eval: false
+
+library(tidyverse)
+```
+
+- Each time you start a **new R session**, you'll have to load the packages you need with `library()`
+
+. . .
+
+- To make it clear which package an object comes from you can use the package name followed by two colons, e.g. `dplyr::mutate()`
+
+## Today's lecture
+
+::: {.outline_text}
+
+[1. Why is statistics useful?](#stats_useful) $\checkmark$
+
+[2. The data science process](#data_process) $\checkmark$
+
+[3. R101](#r101) $\checkmark$
+
+[4. Your first `R` plot](#first_plot)
+
+[5. Anatomy of a `data.frame`](#anatomy)
+
+[6. Course details](#course_details)
+
+:::
+
+# Your first `R` plot {.slide_inverse #first_plot}
+
+## CO2 emissions per capita over time
+
+Our goal is to [analyze data]{.hi_purple} and [do statistics]{.hi_blue}, not calculate `1 + 1`!
+
+. . .
+
+Let's analyse CO2 emissions data from [Our World in Data](https://ourworldindata.org/)
+
+![](img/co2-emissions-per-capita.png){width="55%" fig-align="center"}
+
+. . .
+
+$\rightarrow$ [Today's challenge:]{.hi_purple} reproduce the figure above! 
+
+## What you're probably thinking
+
+![](img/thats_impossible.gif){fig-align="center"}
+
+## Step 1: import the data
+
+You can download the dataset from [here](https://www.dropbox.com/scl/fi/3jefa7xz8fyvqh76e0k9l/co2_emissions_historical.csv?rlkey=tnmt8l607igvm5fany7xzutdu&dl=1).
+
+- Note: this is a `.csv` file (for _Comma Separated Values_) $\rightarrow$ think of it as a dumbed down version of Excel file (`.xls`/`.xlsx`)
+
+- Let's have a look at the first 5 rows of the raw csv file:
+
+```{r}
+#| eval: false
+entity,code,year,annual_co2_emissions_per_capita
+Afghanistan,AFG,1949,0.0019921463
+Afghanistan,AFG,1950,0.010837197
+Afghanistan,AFG,1951,0.011625335
+Afghanistan,AFG,1952,0.011467511
+```
+
+- Each row of data corresponds to a country
+
+- The first row contains the column names
+
+- In each row, values are separated by a __comma__
+
+. . .
+
+[How the heck do I get this into `R`?]{.hi_purple}
+
+## Importing data
+
+To **import** stuff in `R` we use **read** functions.
+
+The read function dedicated to .csv files is `read.csv()`:
+
+```{r}
+#| eval: true
+#| error: true
+co2_emissions <- read.csv("data\co2_emissions_historical.csv")
+```
+
+[Error!]{.hi_cranberry} Who can guess what the problem is?
+
+. . .
+
+"\\" must be the other way $\rightarrow$ "/"
+
+```{r}
+co2_emissions <- read.csv("data/co2_emissions_historical.csv")
+# co2_emissions <- read.csv(file = "data/co2_emissions_historical.csv") does the same thing
+```
+
+You can also load the data from the link directly:
+
+```{r}
+#| output: asis
+#| eval: false
+
+co2_emissions <- read.csv("https://www.dropbox.com/scl/fi/3jefa7xz8fyvqh76e0k9l/co2_emissions_historical.csv?rlkey=tnmt8l607igvm5fany7xzutdu&dl=1")
+```
+
+## Your turn! #2 {.slide_task}
+
+{{< countdown "5:00" top=0 right=0 >}}
+
+1. Load the CO2 emissions dataset in a new object `co2_emissions`. (Hint: objects are created using `=` or `<-`.)
+
+2. Ensure that `co2_emissions` is a `data.frame` by running:
+
+```{r}
+#| eval: false
+
+class(co2_emissions) # check class of object
+```
+
+3. Find out what the variables contained in `co2_emissions` by running:
+
+```{r}
+#| eval: false
+
+names(co2_emissions) # obtain variable names
+```
+
+4. View the contents of `co2_emissions` by clicking on `co2_emissions` in your environment or by running the code below. What do the different variables correspond to?
+
+```{r}
+#| eval: false
+
+View(co2_emissions)
+```
+
+[Congratulations]{.hi_yellow}, you have imported your first dataset in `R`!
+
+## Step 2: inspecting the data
+
+- Before creating our plot, let's get quickly inspect the data.
+
+- The first thing we can do is to print the top rows using the `head()` function:
+
+```{r}
+head(co2_emissions)
+```
+
+- This is a very simple dataset: only 4 variables
+
+## Step 2: inspecting the data
+
+- We can also look at the data's structure:
+
+```{r}
+str(co2_emissions)
+```
+
+. . .
+
+$\rightarrow$ 22,976 observations and 4 variables
+
+::: {.callout-important}
+## Definitions:
+**Variable:** _quantity, quality, or property that you can measure._
+
+**Observation:** _set of measurements made under similar conditions. An observation will contain several values, each associated with a different variable. We’ll sometimes refer to an observation as a data point._
+:::
+
+. . .
+
+$\rightarrow$ Variables are: `entity`, `code`, `year`, `annual_co2_emissions_per_capita`
+
+$\rightarrow$ Class of variables: number (`int`, `num`), text (`char`)
+
+$\rightarrow$ First few values seem coherent
+
+## Step 3: graph ingredients
+
+:::: {.columns}
+::: {.column width="50%"}
+
+![](img/co2-emissions-per-capita.png){height="400"}
+
+:::
+
+::: {.column width="50%"}
+
+**Ingredients:**
+
+- only 5 countries
+
+- line plot
+
+- plot title and subtitle
+
+- other styling elements:
+
+    - legend in graph,
+    - y-axis unit,
+    - specific years in x-axis
+
+:::
+:::
+
+## Achievable in 10 minutes (ok ok maybe 20)
+
+:::: {.columns}
+::: {.column width="50%"}
+
+**Original version:**
+
+![](img/co2-emissions-per-capita.png){height="400"}
+
+:::
+
+::: {.column width="50%"}
+
+**My version:**
+
+```{r}
+#| echo: false
+#| fig-height: 8
+
+library(ggtext)
+
+keep_countries <- c("United States", "China", "United Kingdom", "France", "India")
+
+country_labs <- co2_emissions |> 
+  filter(entity %in% keep_countries) |> 
+  filter(year == 2024)
+
+co2_emissions |> 
+  filter(entity %in% keep_countries) |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita,
+             color = entity)) +
+  geom_line() +
+  geom_text(data = country_labs,
+            aes(label = entity, x = 2026), hjust = 0, size = 5) +
+  scale_x_continuous(breaks = c(seq(1750, 2000, 50), 2024), expand = expansion(mult = c(0, .3))) +
+  scale_y_continuous(lim = c(0, 25), labels = scales::unit_format(unit = "t"), expand = expansion(mult = c(0, .05))) +
+  scale_color_manual(values = c("#6B3D8E", "#852F38", "#2B8163", "#4B6899", "#966b38")) +
+  coord_cartesian(clip = "off") +
+  labs(x = NULL,
+       y = NULL,
+       color = "Country:",
+       title = "CO2 emissions per capita",
+       subtitle = "Carbon dioxyde (CO2) emissions from burning fossil fuels and industrial processes. This includes\nemissions from transport, electricity generation, and heating, but not land-use change.",
+       caption = "**Data source:** Global Carbon Budget (2025); Population based on various sources (2024)<br>OurWorldinData.org/co2-and-greenhouse-gas-emissions | CC BY") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        text = element_text(size = 16),
+        axis.ticks.x = element_line(color = "gray62"),
+        axis.line.x = element_line(color = "gray62"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_line(linetype = 2),
+        plot.title = element_text(face = "bold", size = 20),
+        plot.subtitle = element_text(color = "gray40", size = 12),
+        plot.caption = element_markdown(color = "gray60", hjust = 0, size = 10, lineheight = 2))
+```
+
+:::
+:::
+
+Not perfect, but close enough
+
+## Let's build the graph together
+
+## Start with your `data.frame` {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+co2_emissions # data.frame will we use for the graph
+```
+
+## Initiate `ggplot` {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "2"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+co2_emissions |> 
+  ggplot() # start a graph
+```
+
+## Add `x-axis` variable {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "2"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+co2_emissions |> 
+  ggplot(aes(x = year)) # x-axis = year variable
+```
+
+## Add `y-axis` variable {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "3"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+co2_emissions |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita)) # y-axis
+```
+
+## Plot data as `line` {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "4"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+co2_emissions |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita)) +
+  geom_line() # line plot
+```
+
+## `Filter` to only keep relevant countries {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "2,3,4"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+co2_emissions |> 
+  filter(entity %in% c("United States", "China", 
+                       "United Kingdom", "France",
+                       "India")) |> # keep only 5 relevant countries
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita)) +
+  geom_line()
+```
+
+## One `color` per country {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "7"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+co2_emissions |> 
+  filter(entity %in% c("United States", "China", 
+                       "United Kingdom", "France",
+                       "India")) |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita,
+             color = entity)) + # one line per country
+  geom_line()
+```
+
+## Remove axes `labels` {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "9,10"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+co2_emissions |> 
+  filter(entity %in% c("United States", "China", 
+                       "United Kingdom", "France",
+                       "India")) |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita,
+             color = entity)) +
+  geom_line() +
+  labs(x = NULL, # no x-axis
+       y = NULL) # no y-axis
+```
+
+## Add plot `title`, `subtitle` and `legend title` {.slide_code transition="none"}
+
+```{r .code-overflow-wrap}
+#| output-location: column
+#| code-line-numbers: "11,12,13"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+co2_emissions |> 
+  filter(entity %in% c("United States", "China", 
+                       "United Kingdom", "France",
+                       "India")) |>
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita,
+             color = entity)) +
+  geom_line() +
+  labs(x = NULL,
+       y = NULL,
+       color = "Country:", # legend for color
+       title = "CO2 emissions per capita", #title
+       subtitle = "Carbon dioxyde (CO2) emissions from burning fossil fuels and industrial processes.\nThis includes emissions from transport, electricity generation, and heating, but not land-use change.") # subtitle
+```
+
+## Change ggplot `theme` {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "15"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+co2_emissions |> 
+  filter(entity %in% c("United States", "China", 
+                       "United Kingdom", "France",
+                       "India")) |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita,
+             color = entity)) +
+  geom_line() +
+  labs(x = NULL,
+       y = NULL,
+       color = "Country:",
+       title = "CO2 emissions per capita",
+       subtitle = "Carbon dioxyde (CO2) emissions from burning fossil fuels and industrial processes.\nThis includes emissions from transport, electricity generation, and heating, but not land-use change.") +
+  theme_minimal(base_size = 16) # minimal theme with text size 16
+```
+
+## Add 2024 to `x-axis` breaks {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "9"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+co2_emissions |> 
+  filter(entity %in% c("United States", "China", 
+                       "United Kingdom", "France",
+                       "India")) |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita,
+             color = entity)) +
+  geom_line() +
+  scale_x_continuous(breaks = c(1750, 1800, 1850, 1900, 1950, 2000, 2024)) + # x-axis breaks
+  labs(x = NULL,
+       y = NULL,
+       color = "Country:",
+       title = "CO2 emissions per capita",
+       subtitle = "Carbon dioxyde (CO2) emissions from burning fossil fuels and industrial processes.\nThis includes emissions from transport, electricity generation, and heating, but not land-use change.") +
+  theme_minimal(base_size = 16)
+```
+
+## Full `code` {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+library(ggtext)
+
+keep_countries <- c("United States", "China", "United Kingdom", "France", "India")
+
+country_labs <- co2_emissions |> 
+  filter(entity %in% keep_countries) |> 
+  filter(year == 2024)
+
+co2_emissions |> 
+  filter(entity %in% keep_countries) |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita,
+             color = entity)) +
+  geom_line() +
+  geom_text(data = country_labs,
+            aes(label = entity, x = 2026), hjust = 0, size = 5) +
+  scale_x_continuous(breaks = c(seq(1750, 2000, 50), 2024), expand = expansion(mult = c(0, .3))) +
+  scale_y_continuous(lim = c(0, 25), labels = scales::label_number(suffix = " t"), expand = expansion(mult = c(0, .05))) +
+  scale_color_manual(values = c("#6B3D8E", "#852F38", "#2B8163", "#4B6899", "#966b38")) +
+  coord_cartesian(clip = "off") +
+  labs(x = NULL,
+       y = NULL,
+       color = "Country:",
+       title = "CO2 emissions per capita",
+       subtitle = "Carbon dioxyde (CO2) emissions from burning fossil fuels and industrial processes. This includes\nemissions from transport, electricity generation, and heating, but not land-use change.",
+       caption = "**Data source:** Global Carbon Budget (2025); Population based on various sources (2024)<br>OurWorldinData.org/co2-and-greenhouse-gas-emissions | CC BY") +
+  theme_minimal(base_size = 16) +
+  theme(legend.position = "none",
+        text = element_text(size = 16),
+        axis.ticks.x = element_line(color = "gray62"),
+        axis.line.x = element_line(color = "gray62"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_line(linetype = 2),
+        plot.title = element_text(face = "bold", size = 20),
+        plot.subtitle = element_text(color = "gray40", size = 12),
+        plot.caption = element_markdown(color = "gray60", hjust = 0, size = 10, lineheight = 2))
+```
+
+## Your turn! #3 {.slide_task}
+
+{{< countdown "10:00" top=0 right=0 >}}
+
+1. Copy the code from slide 51 and run the code
+
+2. Add your country to the graph. If your country is already plotted, add one of your choice. _Hint:_
+
+```{r}
+#| eval: false
+#| code-line-numbers: "4"
+
+c("United States", "China", 
+  "United Kingdom", "France",
+  "India",
+  "MyCountry")
+```
+
+3. Add the following code to your graph. What does this do?
+
+```{r}
+#| eval: false
+
+  + geom_point()
+```
+
+4. Load [this](https://www.dropbox.com/scl/fi/hkjwayxaq46oqataxpe5p/co2_emissions_historical_with_total.csv?rlkey=uzmt8e1bampskzc7bpp1vimbz&dl=1) dataset. It contains `co2_emissions` with an additional variable. What is it?
+
+```{r}
+#| eval: false
+
+co2_emissions_new <- read.csv("https://www.dropbox.com/scl/fi/hkjwayxaq46oqataxpe5p/co2_emissions_historical_with_total.csv?rlkey=uzmt8e1bampskzc7bpp1vimbz&dl=1")
+```
+
+5. Adapt the plot code so that the `y-axis` corresponds to annual CO2 emissions (instead of per capita).
+
+## [Lesson 1]{.hi_yellow} of statistics: units matter!
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{r}
+#| output-location: column
+#| fig-height: 10
+#| echo: false
+
+co2_emissions |> 
+  filter(entity %in% keep_countries) |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita,
+             color = entity)) +
+  geom_line() +
+  geom_text(data = country_labs,
+            aes(label = entity, x = 2026), hjust = 0, size = 5) +
+  scale_x_continuous(breaks = c(seq(1750, 2000, 50), 2024), expand = expansion(mult = c(0, .3))) +
+  scale_y_continuous(lim = c(0, 25), labels = scales::unit_format(unit = "t"), expand = expansion(mult = c(0, .05))) +
+  scale_color_manual(values = c("#6B3D8E", "#852F38", "#2B8163", "#4B6899", "#966b38")) +
+  coord_cartesian(clip = "off") +
+  labs(x = NULL,
+       y = NULL,
+       color = "Country:",
+       title = "CO2 emissions per capita",
+       subtitle = "Carbon dioxyde (CO2) emissions from burning fossil fuels and industrial processes. This includes\nemissions from transport, electricity generation, and heating, but not land-use change.",
+       caption = "**Data source:** Global Carbon Budget (2025); Population based on various sources (2024)<br>OurWorldinData.org/co2-and-greenhouse-gas-emissions | CC BY") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        text = element_text(size = 16),
+        axis.ticks.x = element_line(color = "gray62"),
+        axis.line.x = element_line(color = "gray62"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_line(linetype = 2),
+        plot.title = element_text(face = "bold", size = 20),
+        plot.subtitle = element_text(color = "gray40", size = 12),
+        plot.caption = element_markdown(color = "gray60", hjust = 0, size = 10, lineheight = 2))
+```
+
+:::
+
+::: {.column width="50%"}
+
+```{r}
+#| output-location: column
+#| fig-height: 10
+#| echo: false
+
+co2_emissions_new <- read.csv("data/co2_emissions_historical_with_total.csv")
+
+country_labs <- co2_emissions_new |> 
+  filter(entity %in% keep_countries) |> 
+  filter(year == 2024)
+
+co2_emissions_new |> 
+  filter(entity %in% keep_countries) |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions/1000000000,
+             color = entity)) +
+  geom_line() +
+  geom_text(data = country_labs,
+            aes(label = entity, x = 2026), hjust = 0, size = 5) +
+  scale_x_continuous(breaks = c(seq(1750, 2000, 50), 2024), expand = expansion(mult = c(0, .3))) +
+  scale_y_continuous(expand = expansion(mult = c(0, .05))) +
+  scale_color_manual(values = c("#6B3D8E", "#852F38", "#2B8163", "#4B6899", "#966b38")) +
+  coord_cartesian(clip = "off") +
+  labs(x = NULL,
+       y = "Billion tons",
+       color = "Country:",
+       title = "CO2 emissions",
+       subtitle = "Carbon dioxyde (CO2) emissions from burning fossil fuels and industrial processes. This includes\nemissions from transport, electricity generation, and heating, but not land-use change.",
+       caption = "**Data source:** Global Carbon Budget (2025); Population based on various sources (2024)<br>OurWorldinData.org/co2-and-greenhouse-gas-emissions | CC BY") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        text = element_text(size = 16),
+        axis.ticks.x = element_line(color = "gray62"),
+        axis.line.x = element_line(color = "gray62"),
+        axis.title.y = element_text(hjust = 1, color = "gray40", size = 12),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_line(linetype = 2),
+        plot.title = element_text(face = "bold", size = 20),
+        plot.subtitle = element_text(color = "gray40", size = 12),
+        plot.caption = element_markdown(color = "gray60", hjust = 0, size = 10, lineheight = 2))
+```
+
+:::
+:::
+
+## Today's lecture
+
+::: {.outline_text}
+
+[1. Why is statistics useful?](#stats_useful) $\checkmark$
+
+[2. The data science process](#data_process) $\checkmark$
+
+[3. R101](#r101) $\checkmark$
+
+[4. Your first `R` plot](#first_plot) $\checkmark$
+
+[5. Anatomy of a `data.frame`](#anatomy)
+
+[6. Course details](#course_details)
+
+:::
+
+# Anatomy of a `data.frame` {.slide_inverse #anatomy}
+
+## Data.frame structure
+
+Recall our data's `str`ucture:
+
+```{r}
+str(co2_emissions)
+```
+
+$\rightarrow$ what do `chr`, `int`, `num` actually mean?
+
+## Data types
+
+:::: {.columns .incremental}
+::: {.column width="33%"}
+**Numeric** (`num`, `int`)
+
+$\rightarrow$ numbers:
+
+```{r}
+class(3)
+class(-3.14159)
+```
+:::
+
+::: {.column width="33%" .fragment}
+**Character** (`chr`)
+
+$\rightarrow$ strings of text (`""`):
+
+```{r}
+class("CY Cergy")
+class("2025")
+```
+
+[Important]{.hi_cranberry}: numbers are coerced to character if surrounded by `"`.
+:::
+
+::: {.column width="33%" .fragment}
+**Logical** (`logi`)
+
+$\rightarrow$ `TRUE` or `FALSE`:
+
+```{r}
+3 > 4
+class(T) # T = TRUE
+```
+
+[Logical operators:]{.hi_yellow}
+
+- equal to: `==`
+- in: `%in%`
+- comparisons: `>`, `<`, `>=`, `<=`
+- `&` (and), `|` (or), `!` (not)
+
+:::
+:::
+
+. . .
+
+[Very important:]{.hi_purple} `NA` (_not available_) corresponds to a `missing value`
+
+## Guess the output
+
+**What is the output of this code?**
+
+```{r}
+#| eval: false
+
+as.numeric("2026")
+```
+
+. . .
+
+```{r}
+#| echo: false
+
+as.numeric("2026")
+```
+
+. . .
+
+**What about?**
+
+```{r}
+#| eval: false
+
+as.character(2026-2025)
+```
+
+. . .
+
+```{r}
+#| echo: false
+
+as.character(2026-2025)
+```
+
+. . .
+
+**Last one:**
+
+```{r}
+#| eval: false
+
+as.character(2026>2025)
+```
+
+. . .
+
+```{r}
+#| echo: false
+
+as.character(2026>2025)
+```
+
+
+## Vectors {.pause}
+
+There's one element we haven't discussed: what are these `$`?
+
+```{r}
+str(co2_emissions)
+```
+
+::: {data-id="box1" style="background: #785EF0; opacity: 0.4; width: 20px; height: 90px; margin: 20px; position: absolute; top: 162px; left: -9px"}
+:::
+
+. . .
+
+- refers to the fact that `$` allows to [extract a variable]{.hi_purple} from a dataset
+
+```{r}
+head(co2_emissions$year, n = 100) # first 100 elements of the year variable
+```
+
+. . .
+
+$\rightarrow$ we call these objects [vectors]{.hi_purple}
+
+## Vectors
+
+- Vectors are basically sequences of values that have the same class
+
+- R won't let you create a vector containing elements of different classes
+
+- We can create vectors using `c`oncatenate function:
+
+```{r}
+c(1,2,3,4,5)
+```
+
+. . .
+
+What will this code yield?
+
+```{r}
+#| eval: false
+
+
+c("Hello World", 2026, FALSE)
+```
+
+. . .
+```{r}
+#| echo: false
+
+
+c("Hello World", 2026, FALSE)
+```
+
+. . .
+
+$\rightarrow$ coercion to unique types!
+
+. . .
+
+- Operations apply to all vector elements:
+
+:::: {.columns}
+::: {.column width="50%"}
+```{r}
+c(1, 2, 3)/3
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+3/c(1, 2, 3)
+```
+:::
+:::
+
+## Subsetting
+
+- `$` is not the only way to extract a variable from a dataset
+
+- You can also make use of the `[ ]` subsetting operator
+
+$$\text{data}[\text{row}, \:\:\text{columns}] $$
+
+- Inside the brackets, indicate what you want to keep using:
+
+  - **Indices:** e.g., the third column has index 3
+  - **Logical:** a vector of TRUE and FALSE
+  - **Names:** they must be in quotation marks
+  
+. . . 
+
+:::: {.columns}
+::: {.column width="50%"}
+Example:
+
+```{r}
+co2_emissions[1, c("entity", "year")]
+```
+:::
+
+::: {.column width="50%"}
+Brackets also work for vectors:
+```{r}
+vec <- c(3, 2, 1)
+vec[c(1, 3)]
+```
+:::
+:::
+
+## Your turn! #4 {.slide_task}
+
+{{< countdown "10:00" top=0 right=0 >}}
+
+1. Keep only observations for the `United States` in `1995` from `co2_emissions`. _Hint:_ remember that to access a variable you need to use `$`, i.e.:
+
+```{r}
+#| eval: false
+
+co2_emissions[co2_emissions$entity == "COUNTRY"]
+```
+
+2. Create a new object containing `co2_emissions`' rows 10 to 20. You can create sequences using `a:b`.
+
+```{r}
+1:10
+```
+
+3. Load [this](https://www.dropbox.com/scl/fi/bbvlq2rwab5nxg617pn5l/co2_emissions_historical_with_gdp.csv?rlkey=mobgeqdhmjr8owvkchctsvqu7&dl=1) dataset in an object called `co2_emissions_gdp`. It contains `co2_emissions` as well as a column for GDP (in 2015 dollars).
+
+4. Create a `co2_emissions_per_gdp` variable equal to annual CO2 emissions per dollar of GDP by running the following code:
+
+```{r}
+#| eval: false
+co2_emissions_gdp$co2_emissions_per_gdp <- co2_emissions_gdp$annual_co2_emissions / co2_emissions_gdp$gdp_constant_2015_us
+```
+
+Congratulations, you've created your first variable!
+
+## Today's lecture
+
+::: {.outline_text}
+
+[1. Why is statistics useful?](#stats_useful) $\checkmark$
+
+[2. The data science process](#data_process) $\checkmark$
+
+[3. R101](#r101) $\checkmark$
+
+[4. Your first `R` plot](#first_plot) $\checkmark$
+
+[5. Anatomy of a `data.frame`](#anatomy) $\checkmark$
+
+[6. Course details](#course_details)
+
+:::
+
+# Course details {.slide_inverse #course_details}
+
+## This course
+
+- Teach you the basics of [statistics]{.hi_purple}.
+
+. . .
+
+- Equip you with a framework to think more deeply about [inference]{.hi_purple}: drawing conclusions about a *`population`* from a *`sample`*.
+
+. . .
+
+- Introduce you to the `R` software environment.
+
+. . .
+
+- ⚠️ This is not a course about R.
+
+## Grading
+
+1. Short **Moodle quizzes** $\rightarrow$ 4 x 5% = 20%
+
+. . .
+
+2.  Statistics **data project** $\rightarrow$ 40%
+
+. . .
+
+3. **Final exam** $\rightarrow$ 40%
+
+. . .
+
+### Details about data project:
+
+- Produce short (~10 pages max, include code) statistical analysis in groups of 2
+
+- Analyze data of your choice to understand a specific question
+
+- Follow data science process: import, tidy, transform, visualize, model
+
+- Demonstrate that you understand concepts learned in class
+
+- Have fun!
+
+
+## Syllabus
+
+:::: {.columns}
+::: {.column width="50%"}
+
+Lecture 1. [Introduction to R]{.hi_purple} (today)
+
+*Moodle quiz 1 (after lecture 2)*
+
+Lectures 2 and 3. [Summarizing and visualizing data]{.hi_purple}
+
+*Moodle quiz 2*
+
+Lecture 4. [Sampling and inferential statistics]{.hi_purple}
+
+Lecture 5. [Confidence intervals]{.hi_purple}
+
+:::
+
+::: {.column width="50%"}
+
+*Moodle quiz 3*
+
+Lecture 6. [Hypothesis testing]{.hi_purple}
+
+Lecture 7. [Statistical power]{.hi_purple}
+
+*Moodle quiz 4*
+
+Lecture 8 [Correlation and causality]{.hi_purple}
+
+*Statistics data project*
+
+Lecture 9 [Linear regression]{.hi_purple}
+
+*Final exam*
+
+:::
+:::
+
+
+## Course materials and useful resources
+
+**Course materials:**
+
+- on github and on Moodle
+
+**Useful resources:**
+
+- [R for Data Sciences](https://r4ds.hadley.nz/)
+
+- [ModernDive](https://moderndive.com/v2/)
+
+- [Awesome R Learning Resources](https://github.com/iamericfletcher/awesome-r-learning-resources)
+
+- [Kyle Butts Econ 3818](https://github.com/kylebutts/CUBoulder_3818?tab=readme-ov-file#economics-3818-fall-2021-introduction-to-statistics-with-computer-applications)
+
+## Course policies
+
+[*Be nice. Be honest. Don't cheat.*]{.hi_purple}
+
+. . .
+
+(BTW you should apply these principles outside of the classroom as well `#lifeadvice` 😉)
+
+. . .
+
+Office hours: Tuesdays and Thursdays 4-5pm $\rightarrow$ book slot [here](https://calendly.com/gustavekenedi/30min)
+
+:::: {.columns}
+::: {.column width="50%"}
+
+[**Slack**]{.hi_cranberry}
+
+We will **exclusively** use Slack for our interactions.
+
+Please **_DO NOT_** contact me by email (unless there's a legitimate reason to).
+
+I will be checking Slack sparingly so please help one another!
+
+:::
+
+::: {.column width="50%" .fragment}
+
+[**Class conduct and expectations**]{.hi_cranberry}
+
+*Late work:* Won't be accepted unless you have a very good reason.
+
+*Cheating:* You will get 0. Just don't cheat, it's honestly not worth it.
+
+*Work in groups:* You can/should work in groups of 2-3 on the quizzes.
+
+:::
+:::
+
+## Some words about AI
+
+**Generative AI is useful but ethically questionnable**
+
+- I use it in my research and for my teaching preparation
+
+- Powerful tool that you should learn to use [efficiently and carefully]{.hi_purple}
+
+- AI does NOT replace coding from scratch, thinking, and hard work!
+
+- [Ethical questions:]{.hi_purple} energy use, intellectual property
+
+. . .
+
+**Generative AI is often wrong and has a terrible mindset**
+
+- Always keep in mind that AI hallucinates very easily $\rightarrow$ **double-check**!
+
+- It (still) lacks the `ability to doubt`, navigate nuances, and be rigorous
+
+. . .
+
+**What I ask from you**
+
+- For the statistics data project, tell me broadly how you used AI
+
+- Be honest, you will not be penalized
+
+## Last but not least: mental health
+
+> [*Pay attention to your mental health in the same way you would your physical health.*]{.hi_purple}
+
+Seeking help is a sign of perceptive self-awareness, [not weakness](https://www.nytimes.com/2020/09/24/well/mind/cord-jefferson-emmy-black-mental-health.html).
+
+Don't hesitate to [reach out]{.hi_purple} to your friends, family, any professor (including myself!) if you feel the need.
+
+CYU offers free and confidential [psychological support services](https://www.cyu.fr/vie-campus/soin-aide#section-service-de-sante-etudiante-sse}{psychological support services) with professionals.
+
+# See you next week!
+
+
