@@ -37,6 +37,8 @@ source("../assets/r/common_loading.R")
 
 - PhD Sciences Po (2023), postdoc in London (2023-2025)
 
+. . .
+
 - **Applied microeconomist**, working on [intergenerational mobility]{.hi_purple} and [educational inequalities]{.hi_purple}
 
 - I use statistics and `R` programming daily
@@ -89,33 +91,41 @@ $\rightarrow$ doing my best, [mistakes]{.hi_cranberry} are possible
 
 . . .
 
-![](img/cellphone_ban_florida.jpeg){height="540" fig-align="center"}
+![](img/cellphone_ban_florida.jpeg){height="30%" fig-align="center"}
 
 [Source: [NBER Digest (2025), *School Cell Phone Bans and Student Achievement*](https://www.nber.org/digest/202512/school-cell-phone-bans-and-student-achievement?page=1&perPage=50)]{.fig_source}
 
 ## A quick word about in-class technology and learning
 
-![](img/dynarski_computer_class.png){height="540" fig-align="center"}
+:::: {.columns}
+::: {.column width="70%"}
+
+![](img/dynarski_computer_class.png){height="60%" fig-align="center"}
 
 [Source: [Dynarski (2017)](https://www.brookings.edu/articles/for-better-learning-in-college-lectures-lay-down-the-laptop-and-pick-up-a-pen/)]{.fig_source}
 
-## A quick word about in-class technology and learning
+:::
 
-![](img/ednext_XVII_4_carter_fig02-small.jpg){height="540" fig-align="center"}
+::: {.column width="30%" .fragment}
+
+![](img/ednext_XVII_4_carter_fig02-small.jpg){height="30%" fig-align="center"}
 
 [Source: [Carter, Gerrnberg and Walker (2017), Should Professors Ban Laptops?, *Education Next*](https://www.educationnext.org/should-professors-ban-laptops-classroom-computer-use-affects-student-learning-study/)]{.fig_source}
 
-## A quick word about in-class technology and learning
+:::
+:::
 
-- I'm not saying you should *not* use your laptop/tablet in class
+## A quick word about in-class technology and learning {.pause}
 
-- You should use it [wisely]{.hi_purple}
+- I'm not saying you should *not* use your laptop/tablet in class $\rightarrow$ we need them to do the in-class tasks!
 
-- Listen to me, ask questions, and look at the class slides
+- I want to nudge you to use it [wisely]{.hi_purple}
 
-- Don't randomly check your [phone]{.hi_purple} to see if you have notifications (I'm the same, trust me!)
+. . .
 
-- When doing `R` try to focus on the task at hand
+- Listen, ask questions, and look at the board rather than your screen
+
+- When doing `R` tasks try to focus on the task at hand
 
 ## Today's lecture
 
@@ -214,17 +224,11 @@ $\rightarrow$ to summarize this relationship, we use **percentile ranks**
 
 [Source: [World Inequality Report 2022](https://wir2022.wid.world/chapter-6/)]{.fig_source}
 
-## How to meet CO2 emissions target?
+. . .
 
-- CO2 emissions are highly unequally distributed among the population
+<p style = "margin-bottom: -2.5cm;"></p>
 
-- Per capita emissions are higher in developed countries
-
-- Within countries, richer people emit more CO2
-
-- Huge implications for public policies aiming to adress this issue
-
-- To summarize these informations, the World Inequality Report uses **quantiles**
+$\rightarrow$ to summarize these data, the World Inequality Report uses **quantiles**
 
 ## Massive decline in extreme poverty
 
@@ -238,27 +242,26 @@ $\rightarrow$ to summarize this relationship, we use **percentile ranks**
 
 [Source: [Our World in Data](https://ourworldindata.org/grapher/total-population-living-in-extreme-poverty-by-world-region)]{.fig_source}
 
-## Massive decline in extreme poverty
+. . .
 
-- The share and number of people living in extreme poverty went through a dramatic reduction during the last 35 years
+<p style = "margin-bottom: -2.5cm;"></p>
 
-- However, this evolution does not apply equally to all regions
-
-- The vast majority of remaining extreme poverty is in Sub-Saharan Africa
-
-- To summarize this information, Our World in Data uses **statistical measures of evolution**
+$\rightarrow$ to summarize this information, OWD uses **statistical measures of evolution**
 
 ## Forecasting election results
 
-![](img/us_elections.png)
+![](img/us_elections.png){width="450" fig-align="center"}
+
+<p style = "margin-bottom: 1cm;"></p>
 
 [Source: [Andrew Gelman](https://statmodeling.stat.columbia.edu/2020/08/14/new-fivethirtyeight-com-election-forecast/)]{.fig_source}
 
-## Forecasting election results
+. . . 
 
-- Biden was predicted to obtain 55% of the vote vs 45% for Trump in August 2020
+<p style = "margin-bottom: -2.8cm;"></p>
 
-- To say so, the following statistical tools were used: **mean**, standard deviation, normal distribution, **confidence intervals**
+$\rightarrow$ the following statistical tools are used: **mean**, standard deviation, normal distribution, **confidence intervals**
+
 
 ## Today's lecture
 
@@ -934,7 +937,7 @@ co2_emissions |>
 
 Not perfect, but close enough
 
-## Let's build the graph together
+$\rightarrow$ Let's build the graph [together]{.hi_purple}
 
 ## Start with your `data.frame` {.slide_code transition="none"}
 
@@ -1638,13 +1641,15 @@ Congratulations, you've created your first variable!
 
 - Produce short (~10 pages max, include code) statistical analysis in groups of 2
 
-- Analyze data of your choice to understand a specific question
+- Analyze real-world data of your choice to understand a specific question
 
 - Follow data science process: import, tidy, transform, visualize, model
 
 - Demonstrate that you understand concepts learned in class
 
 - Have fun!
+
+- Specific guidelines coming soon 🙂
 
 
 ## Syllabus
@@ -1692,7 +1697,7 @@ Lecture 9 [Linear regression]{.hi_purple}
 
 **Course materials:**
 
-- on github and on Moodle
+- on [Github](https://github.com/gustavekenedi/L2-Statistics?tab=readme-ov-file#slides) and on Moodle (soon!)
 
 **Useful resources:**
 
@@ -1779,6 +1784,24 @@ Seeking help is a sign of perceptive self-awareness, [not weakness](https://www.
 Don't hesitate to [reach out]{.hi_purple} to your friends, family, any professor (including myself!) if you feel the need.
 
 CYU offers free and confidential [psychological support services](https://www.cyu.fr/vie-campus/soin-aide#section-service-de-sante-etudiante-sse}{psychological support services) with professionals.
+
+## Today's lecture
+
+::: {.outline_text}
+
+[1. Why is statistics useful?](#stats_useful) $\checkmark$
+
+[2. The data science process](#data_process) $\checkmark$
+
+[3. R101](#r101) $\checkmark$
+
+[4. Your first `R` plot](#first_plot) $\checkmark$
+
+[5. Anatomy of a `data.frame`](#anatomy) $\checkmark$
+
+[6. Course details](#course_details) $\checkmark$
+
+:::
 
 # See you next week!
 
