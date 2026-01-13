@@ -1,0 +1,126 @@
+/* Custom Theme for ECON 3818 Quarto Presentation */
+
+/* Color palette (adjust to match your xaringan theme) */
+:root {
+  --color-purple: #785EF0;
+  --color-blue: #648FFF;
+  --color-yellow: #FFB000;
+  --color-cranberry: #DC267F;
+  --color-coral: #FE6100;
+  --color-green: #23CD49;
+  --color-alice: #F0F8FF;
+  --color-slate: #708090;
+}
+
+/* Typography */
+body {
+  font-family: 'Fira Sans', sans-serif;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Merriweather', serif;
+}
+
+/* Color classes - match xaringan styling */
+.hi_purple {
+  color: var(--color-purple);
+  font-weight: bold;
+}
+
+.hi_blue {
+  color: var(--color-blue);
+  font-weight: bold;
+}
+
+.hi_yellow {
+  color: var(--color-yellow);
+  font-weight: bold;
+}
+
+.hi_cranberry {
+  color: var(--color-cranberry);
+  font-weight: bold;
+}
+
+.hi_coral {
+  color: var(--color-coral);
+  font-weight: bold;
+}
+
+.hi_green {
+  color: var(--color-green);
+  font-weight: bold;
+}
+
+.hi_alice {
+  color: var(--color-alice);
+  font-weight: bold;
+}
+
+.hi_slate {
+  color: var(--color-slate);
+  font-weight: bold;
+}
+
+/* Section slides */
+.reveal .slide_inverse {
+  background: var(--color-cranberry);
+  color: white;
+}
+
+.reveal .slide_inverse h1,
+.reveal .slide_inverse h2 {
+  color: white;
+}
+
+
+.reveal .slide_task {
+  background: var(--color-purple);
+  color: white;
+}
+
+.reveal .slide_task h1,
+.reveal .slide_task h2 {
+  color: white;
+}
+
+.reveal .slide_code {
+  margin-left:-5em;
+  margin-right:-5em;
+}
+
+.slide_code_chunk {
+  width: 132%;
+}
+
+.fig_source {
+  font-weight: italic;
+  color: grey;
+  font-size: 12pt;
+}
+
+.pause ul {
+  margin-bottom: 0 !important;
+}
+
+.outline_text {
+  font-size: 30pt;
+}
+
+/* Code highlighting */
+/* applies to all `` text */
+/*
+.reveal pre {
+  width: 100%;
+  font-size: 0.55em;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.3);
+}
+
+.reveal code {
+  color: var(--color-cranberry);
+  background-color: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+*/

@@ -1,0 +1,2970 @@
+---
+title: "Lecture 2: Summarizing and Visualizing Data"
+subtitle: "L2 - Statistics"
+author: "Gustave Kenedi"
+date: "2026-01-20"
+institute: "This lecture is heavily inspired by that of [Louis Sirugue](https://louissirugue.github.io/metrics_on_R/home.html)."
+format:
+  revealjs:
+    self-contained: true
+    css: css/custom-styles.css
+    theme: [simple, css/custom.scss]
+    highlight-style: github
+    html-math-method: mathjax
+    slide-number: true
+    footer: "Lecture 2: Summarizing and Visualizing Data"
+    logo: img/logo_cy_transparent.png
+    code-overflow: wrap
+    execute:
+      echo: true
+      eval: true
+      cache: true
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| echo: false
+#| output: false
+#| cache: false
+
+
+source("../assets/r/common_loading.R")
+```
+
+
+## Recap quiz
+
+![](img/moodle_quiz.png)
+
+Or click here: [link to Wooclap](https://app.wooclap.com/L2STATSINTRO?from=instruction-slide)
+
+## Today's lecture
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Summarizing data](#summarizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.1 Distributions](#distributions)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.2 Central tendency](#central_tendency)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.3 Spread](#spread)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.4 Relationship between variables](#cov_cor)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. Manipulating data](#manipulating)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.1 `dplyr` verbs](#dplyr)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.2 `group_by`](#group_by)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.3 Joining data](#joining)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. Visualizing data](#visualizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.1 gg is for Grammar of Graphics](#gg)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.2 Different types of gaphs](#types_graph)
+
+
+# Summarizing data {.slide_inverse #summarizing}
+
+## Distributions {#distributions}
+
+. . .
+
+The point of descriptive statistics is to [summarize a big table]{.hi_purple} of values with a small set of [tractable statistics]{.hi_blue}
+
+. . .
+
+The most comprehensive way to characterize a variable/vector is to compute its [distribution]{.hi_purple}:
+
+. . .
+
+:::: {.columns}
+::: {.column width="50%"}
+
+- **What** are the **values** the variable takes?
+- **How frequently** does each value appear?
+
+:::
+
+::: {.column width="50%" .fragment}
+
+$\rightarrow$ **Consider for instance the following variable:**
+
+```{r}
+#| echo: false
+
+data <- read.csv("data/hours_worked_clean.csv")
+data_reduce <- data |>
+  filter(region %in% c("United States", "Western Europe and Anglosphere")) |> 
+  mutate(hours_worked_round = round(hours_worked, 0))
+
+kable(matrix(data_reduce$hours_worked_round, ncol = 12),
+      caption = "Variable 1")  |>
+  kable_styling(font_size = 19.5)
+```
+
+```{r}
+#| echo: false
+#| output: false
+data <- read.csv("data/distribution_data.csv")
+kable(t(data$V1), caption = "Variable 1")
+```
+
+:::
+:::
+
+. . .
+
+:::: {.columns}
+::: {.column width="50%"}
+
+- How many times does each value appear?
+
+```{r}
+#| echo: false
+kable(data_reduce |> 
+        group_by(hours_worked_round)  |>
+        tally() |>
+        rename(`Variable 1` = hours_worked_round) |>
+        t(), caption = "")  |>
+  kable_styling(font_size = 20)
+
+# kable(data %>%
+#         group_by(V1) %>%
+#         tally() %>%
+#         rename(`Variable 1` = V1) %>%
+#         t(),
+#       caption = "") |> 
+#   kable_styling(font_size = 18)
+```
+
+:::
+::: {.column width="50%" .fragment}
+
+- We can represent this distribution graphically with a bar plot
+  - x-axis: possible values
+  - y-axis: number of occurrences
+
+:::
+::::
+
+## Graphical representation of discrete distributions
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 8
+#| fig-align: center
+
+data_reduce |> 
+  ggplot(aes(x = hours_worked_round)) +
+  geom_bar(stat = "count", fill = "#648FFF", color = "#785EF0", alpha = .8) +
+  scale_x_continuous(name = "Variable 1", breaks = 15:24) +
+  scale_y_continuous(expand = c(0,0)) +
+  theme_minimal(base_size = 20) +
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_line(linetype = 2),
+        axis.ticks.x = element_line(),
+        axis.line.x = element_line())
+```
+
+## Continuous distributions
+
+- But what if we would like to do the same thing for the following variable?
+
+```{r}
+#| echo: false
+
+
+knitr::kable(matrix(data_reduce$hours_worked, ncol = 6), caption = "Variable 2", booktabs = TRUE, digits = 6) %>% 
+    kable_styling(bootstrap_options = c('hover', 'condensed'), full_width = F)
+
+# knitr::kable(matrix(data$V2, ncol = 6), caption = "Variable 2", booktabs = TRUE, digits = 6) %>% 
+#     kable_styling(bootstrap_options = c('hover', 'condensed'), full_width = F)
+```
+
+- Each value [appears only once]{.hi_purple}
+  - So the count of each variable does not help summarizing the variable
+
+***$\rightarrow$Let's have a look at the corresponding bar plot***
+
+---
+
+## Graphical representation of continuous distributions
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 8
+#| fig-align: center
+
+data_reduce |> 
+ggplot(aes(x = hours_worked)) +
+  geom_bar(stat = "count", fill = "#648FFF", color = "#785EF0", alpha = .8) +
+  scale_y_continuous(limits = 0:1, breaks = 0:1) + 
+  scale_x_continuous(name = "Variable 2", breaks = 15:24) +
+  scale_y_continuous(breaks = 0:1, expand = c(0,0)) +
+  theme_minimal(base_size = 20) +
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_line(linetype = 2),
+        axis.ticks.x = element_line(),
+        axis.line.x = element_line())
+```
+
+---
+
+## Continuous and discrete distributions
+
+- It does not look good for this variable because it is [continuous]{.hi_purple}, while the first one was [discrete]{.hi_blue}
+  - [Discrete variables:]{.hi_blue} variables that take a finite (or sufficiently small) number of values, e.g., number of siblings, eye color, ...
+  - [Continuous variables:]{.hi_purple} variables that take an infinite (or sufficiently large) number of values, e.g., annual income, height in centimeters, ...
+
+. . .
+
+$\rightarrow$ *In practice some variables are difficult to classify. E.g., **age (in years)** can be viewed **as a discrete** variable because it takes a finite set of values, but this set is possibly quite wide, one could view it **as a continuous variable**. It often depends on the context.*
+
+. . .
+
+- To get a sense of the **distribution** of a **continuous variable**: plot a **histogram**
+  - Group values into *bins* and plot number values that fall into each bin
+  - The bar plots we've seen so far are basically histograms with number of bins = number of possible values
+
+## Graphical representation of continuous distributions
+
+- Consider for instance the following variable. For clarity each point is shifted vertically by a random amount
+
+[- We can divide the domain of this variable into 5 bins]{style="color:white;"}
+
+[- And count the number of observations within each bin]{style="color:white;"}
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 5
+#| fig-align: center
+
+hist_data <- read.csv("data/hist_illustration.csv") |> 
+  mutate(y = runif(1000, 0, 1.45))
+
+jitter_plot <- ggplot(hist_data, aes(x = x, y = y)) + 
+  geom_point(alpha = .15, size = 2, fill = "#648FFF", color = "#785EF0", height = .5, width = 0) + 
+  scale_x_continuous(name = "Variable 3", limits = c(-1.1775, 10.4925), breaks = seq(0, 10, 2.5)) +
+  scale_y_continuous(name = "", limits = c(0, 1.6)) + 
+  theme_minimal(base_size = 20) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.x = element_line(),
+        axis.line.x = element_line(),
+        panel.grid = element_blank())
+
+jitter_plot
+```
+
+## Graphical representation of continuous distributions
+
+- Consider for instance the following variable. For clarity each point is shifted vertically by a random amount
+
+- We can divide the domain of this variable into 5 bins
+
+<p style = "margin-bottom: 1.67cm;"></p>
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 5
+#| fig-align: center
+
+
+jitter_plot +
+  geom_vline(xintercept = c(1.160, 3.49, 5.825, 8.160), linetype = "dashed") +
+  annotate("text", x = -.5, y = 1.55, label = "Bin 1", size = 6, color = "#505050") +
+  annotate("text", x = 1.6, y = 1.55, label = "Bin 2", size = 6, color = "#505050") +
+  annotate("text", x = 4, y = 1.55, label = "Bin 3", size = 6, color = "#505050") +
+  annotate("text", x = 6.25, y = 1.55, label = "Bin 4", size = 6, color = "#505050") +
+  annotate("text", x = 8.6, y = 1.55, label = "Bin 5", size = 6, color = "#505050")
+```
+
+## Graphical representation of continuous distributions
+
+- Consider for instance the following variable. For clarity each point is shifted vertically by a random amount
+
+- We can divide the domain of this variable into 5 bins
+
+- And count the number of observations within each bin
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 5
+#| fig-align: center
+
+
+jitter_plot +
+  geom_vline(xintercept = c(1.160, 3.49, 5.825, 8.160), linetype = "dashed") +
+  annotate("text", x = -.35, y = 1.55, label = "Bin 1: 8", size = 6, color = "#505050") +
+  annotate("text", x = 1.9, y = 1.55, label = "Bin 2: 145", size = 6, color = "#505050") +
+  annotate("text", x = 4.31, y = 1.55, label = "Bin 3: 528", size = 6, color = "#505050") +
+  annotate("text", x = 6.55, y = 1.55, label = "Bin 4: 300", size = 6, color = "#505050") +
+  annotate("text", x = 8.815, y = 1.55, label = "Bin 5: 19", size = 6, color = "#505050")
+```
+
+## Graphical representation of continuous distributions
+
+- Consider for instance the following variable. For clarity each point is shifted vertically by a random amount
+
+- We can divide the domain of this variable into 5 bins
+
+- And count the number of observations within each bin
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 5
+#| fig-align: center
+
+hist_data |> 
+  ggplot(aes(x = x)) +
+  geom_histogram(fill = "#648FFF", color = "#785EF0", alpha = .8, bins = 5, boundary = 1.16) + 
+  ylab("") + geom_vline(xintercept = c(1.160, 3.49, 5.825, 8.160), linetype = "dashed") + 
+  xlab("Variable 3") + theme_minimal(base_size = 20) + theme(axis.text.y = element_blank(),
+        axis.ticks.x = element_line(),
+        axis.line.x = element_line(),
+        panel.grid = element_blank()) 
+```
+
+## Histograms
+
+- There's no definitive rule to choose the number of bins
+  - But too many or too few can yield misleading histograms
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 4
+#| fig-align: center
+
+
+myhist <- function(b) {
+  ggplot(hist_data, aes(x = x)) + 
+    geom_histogram(fill = "#648FFF", color = "#785EF0", alpha = .8, bins = b) +
+    ylab("") + xlab("") + ggtitle(paste(b, "bins")) + theme_minimal(base_size = 20) +
+    theme(axis.ticks.x = element_line(),
+          axis.line.x = element_line())
+}
+ggarrange(myhist(5), myhist(50), myhist(500), ncol = 3)
+```
+
+**$\rightarrow$ *Note that choosing the number of bins is equivalent to choosing the width of each bin***
+
+## Densities {.pause}
+
+- **Densities** are often used instead of **histograms**
+  - Both are based on the **same principle**, but densities are **continuous**
+  
+. . .
+
+- We won't learn how to derive it in this course but the idea is the same
+  - The **higher the value** on the y-axis, the **more observations** there are
+  
+. . .
+
+- The density's **smoothness** can be tuned with the **bandwidth**:
+  
+. . .
+
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 4
+#| fig-align: center
+
+
+mydens <- function(b) {
+  ggplot(hist_data, aes(x = x)) +
+  geom_density(fill = "#648FFF", color = "#785EF0", alpha = .8, bw = b) +
+    ylab("") + xlab("") + ggtitle(paste("Bandwidth:", b)) + theme_minimal(base_size = 20) +
+    theme(axis.ticks.x = element_line(),
+          axis.line.x = element_line())
+}
+ggarrange(mydens(.025), mydens(.25), mydens(2.5), ncol = 3)
+```
+
+## Common distributions: normal distribution
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 6.25
+#| fig-align: center
+
+norm <- rnorm(1000000, 0, 1)
+norm_plot <- ggplot(tibble(x = norm), aes(x = x)) +
+  geom_density(fill = "#648FFF", color = "#785EF0", alpha = .8, bw = .5) +
+  theme_minimal(base_size = 20) +
+    theme(axis.ticks.x = element_line(),
+          axis.line.x = element_line())
+norm_plot
+```
+
+##  Common distributions: log-normal distribution
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 6.25
+#| fig-align: center
+
+
+lnorm <- rlnorm(1000000, 0, 1)
+lnorm_plot <- ggplot(tibble(x = lnorm), aes(x = x)) +
+  geom_density(fill = "#648FFF", color = "#785EF0", alpha = .8, bw = .55) +
+  theme_minimal(base_size = 20) +
+    theme(axis.ticks.x = element_line(),
+          axis.line.x = element_line())
+lnorm_plot
+```
+
+## Common distributions: uniform distribution
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 6.25
+#| fig-align: center
+
+unif <- runif(1000, 0, 1)
+unif_plot <- ggplot(tibble(x = unif), aes(x = x)) +
+  geom_density(fill = "#648FFF", color = "#785EF0", alpha = .8, bw = 100) +
+  theme_minimal(base_size = 20) +
+    theme(axis.ticks.x = element_line(),
+          axis.line.x = element_line())
+unif_plot
+```
+
+## Common distributions: summarizing distributions
+
+```{r}
+#| echo: false
+#| fig-width: 14
+#| fig-height: 4
+#| fig-align: center
+
+ggarrange(norm_plot + ylab("") + xlab("") + theme(axis.text.y = element_blank()) + ggtitle("Normal distribution"), 
+          lnorm_plot + ylab("") + xlab("") + theme(axis.text.y = element_blank()) + ggtitle("Log-normal distribution"), 
+          unif_plot + ylab("") + xlab("") + theme(axis.text.y = element_blank()) + ggtitle("Uniform distribution"), ncol = 3)
+```
+
+How to **summarize** these distributions with simple statistics?
+
+---
+
+## Common distributions: summarizing distributions
+
+```{r}
+#| echo: false
+#| fig-width: 14
+#| fig-height: 4
+#| fig-align: center
+
+
+ggarrange(norm_plot + ylab("") + xlab("") + theme(axis.text.y = element_blank()) + 
+            geom_vline(xintercept = mean(norm), linetype = "dashed") + 
+            ggtitle("Normal distribution"), 
+          
+          lnorm_plot + ylab("") + xlab("") + theme(axis.text.y = element_blank()) + 
+            geom_vline(xintercept = mean(lnorm), linetype = "dashed") + 
+            ggtitle("Log-normal distribution"), 
+          
+          unif_plot + ylab("") + xlab("") + theme(axis.text.y = element_blank()) + 
+            geom_vline(xintercept = mean(unif), linetype = "dashed") + 
+            ggtitle("Uniform distribution"), ncol = 3)
+```
+
+How to **summarize** these distributions with simple statistics?
+
+- By describing their **central tendency** (e.g., mean, median)
+
+---
+
+## Common distributions: summarizing distributions
+
+```{r}
+#| echo: false
+#| fig-width: 14
+#| fig-height: 4
+#| fig-align: center
+
+
+ggarrange(norm_plot + ylab("") + xlab("") + theme(axis.text.y = element_blank()) + 
+            geom_vline(xintercept = mean(norm), linetype = "dashed") + 
+            annotate("segment", x = mean(norm), xend = mean(norm) - sd(norm), y = .18, yend = .18, 
+                     arrow = arrow(length = unit(0.25, "cm"))) + 
+            annotate("segment", x = mean(norm), xend = mean(norm) + sd(norm), y = .18, yend = .18, 
+                     arrow = arrow(length = unit(0.25, "cm"))) + 
+            ggtitle("Normal distribution"), 
+          
+          lnorm_plot + ylab("") + xlab("") + theme(axis.text.y = element_blank()) + 
+            geom_vline(xintercept = mean(lnorm), linetype = "dashed") +
+            annotate("segment", x = mean(lnorm), xend = mean(lnorm) - sd(lnorm), y = .2, yend = .2, 
+                     arrow = arrow(length = unit(0.25, "cm"))) + 
+            annotate("segment", x = mean(lnorm), xend = mean(lnorm) + sd(lnorm), y = .2, yend = .2, 
+                     arrow = arrow(length = unit(0.25, "cm"))) + 
+            ggtitle("Log-normal distribution"), 
+          
+          unif_plot + ylab("") + xlab("") + theme(axis.text.y = element_blank()) + 
+            geom_vline(xintercept = mean(unif), linetype = "dashed") + 
+            annotate("segment", x = mean(unif), xend = mean(unif) - sd(unif), y = .002, yend = .002, 
+                     arrow = arrow(length = unit(0.25, "cm"))) + 
+            annotate("segment", x = mean(unif), xend = mean(unif) + sd(unif), y = .002, yend = .002, 
+                     arrow = arrow(length = unit(0.25, "cm"))) + 
+            ggtitle("Uniform distribution"), ncol = 3)
+```
+
+How to **summarize** these distributions with simple statistics?
+
+- By describing their **central tendency** (e.g., mean, median)
+- And their **spread** (e.g., standard deviation, inter-quartile range)
+
+
+## Today's lecture
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[**1. Summarizing data**](#summarizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.1 Distributions](#distributions) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.2 Central tendency](#central_tendency)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.3 Spread](#spread)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.4 Relationship between variables](#cov_cor)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. Manipulating data](#manipulating)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.1 `dplyr` verbs](#dplyr)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.2 `group_by`](#group_by)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.3 Joining data](#joining)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. Visualizing data](#visualizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.1 gg is for Grammar of Graphics](#gg)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.2 Different types of gaphs](#types_graph)
+
+
+## Central tendency: mean
+
+- The mean is the most common statistic to describe central tendencies
+  - Take the number of hours worked in some European countries ([Gethin and Saez, 2025](https://amory-gethin.fr/files/pdf/GethinSaez2025.pdf)):
+  
+. . .
+
+```{r}
+#| echo: false
+
+data <- read.csv("data/hours_worked_clean.csv")
+data_reduce <- data |>
+  filter(country %in% c("Austria", "Belgium", "Denmark", "Finland", "France", "Germany", "Greece", "Iceland", "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal")) |> 
+  mutate(hours_worker_round = round(hours_worker, 0))
+
+kable(matrix(data_reduce$hours_worker_round, nrow = 2), 
+      caption = "Number of hours worked in 2023")  |>
+  kable_styling(font_size = 20)
+```
+
+```{r}
+#| echo: false
+#| output: false
+
+grades <- c(20, 20, 17.5, 17.5, 16, 16, 16, 14.5,
+            14.5, 19.5, 19.5, 18.5, 18.5, 18.5)
+
+kable(matrix(grades, nrow = 2),
+      caption = "Grades I gave in spring 2021")
+```
+
+. . .
+
+The mean is simply the sum of all the countries' hours of worked divided by the number of countries:
+
+$$\bar{x} = \frac{1}{N}\sum_{i = 1}^Nx_i$$
+
+. . .
+
+$$\frac{30 + 30 + 30 + 41 + 30 + 34 + 28 + 32 + 30 + 31 + 33 + 34 + 28 + 35}{14} = `r round(mean(data_reduce$hours_worker_round), 2)`$$
+
+---
+
+## Central tendency: mean
+
+- The mean is the most common statistic to describe central tendencies
+  - Take the number of hours worked in some European countries ([Gethin and Saez, 2025](https://amory-gethin.fr/files/pdf/GethinSaez2025.pdf)):
+
+```{r}
+#| echo: false
+
+data <- read.csv("data/hours_worked_clean.csv")
+data_reduce <- data |>
+  filter(country %in% c("Austria", "Belgium", "Denmark", "Finland", "France", "Germany", "Greece", "Iceland", "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal")) |> 
+  mutate(hours_worker_round = round(hours_worker, 0))
+
+kable(matrix(data_reduce$hours_worker_round, nrow = 2), 
+      caption = "Number of hours worked in 2023")  |>
+  kable_styling(font_size = 20)
+```
+
+```{r}
+#| echo: false
+#| output: false
+
+grades <- c(20, 20, 17.5, 17.5, 16, 16, 16, 14.5,
+            14.5, 19.5, 19.5, 18.5, 18.5, 18.5)
+
+kable(matrix(grades, nrow = 2),
+      caption = "Grades I gave in spring 2021")
+```
+
+Note that it can also be expressed as the sum of each value weighted by its proportion in the distribution
+
+$$
+\begin{multline}
+  \bar{x} = \frac{2}{14} \times 28 + \frac{5}{14} \times 30 + \frac{1}{14} \times 31 + \frac{1}{14} \times 32 + \frac{1}{14} \times 33 + \frac{2}{14} \times 34 \\+ \frac{1}{14} \times 35 + \frac{1}{14} \times 41 = `r round(mean(data_reduce$hours_worker_round), 2)`
+\end{multline}
+$$
+
+---
+
+## Central tendency: median {.pause}
+
+- To obtain the median you first need to **sort the values**:
+
+```{r}
+#| echo: false
+
+kable(matrix(c(as.character(1:14), sort(data_reduce$hours_worker_round)), nrow = 2, byrow = T), 
+      caption = "Number of hours worked in 2023")  |>
+  kable_styling(font_size = 20)
+```
+
+
+```{r}
+#| echo: false
+#| output: false
+
+kable(matrix(c(as.character(1:14), sort(grades)), nrow = 2, byrow = T), 
+      caption = "Grades I gave in spring 2021")
+```
+
+- The median is the value that [divides]{.hi_purple} the distribution into [two halves]{.hi_blue}
+
+. . .
+
+- When there is an even number of observations, the median is the average of the last value of the first half and the first value of the second half
+
+. . .
+
+As we have 14 observations, the median is the average of the 7<sup>th</sup> and the 8<sup>th</sup> observations:
+
+$$\text{Med}(x) = \begin{cases} x[\frac{N+1}{2}] & \text{if } N \text{ is odd}\\
+\frac{x[\frac{N}{2}]+x[\frac{N}{2}+1]}{2} & \text{if } N \text{ is even}
+\end{cases} = \frac{30 + 31}{2} = 30.5$$
+
+---
+
+## Mean vs. median: relative magnitude
+
+The **relative magnitude** of the mean and the median depends on the **symmetry of the distribution**:
+
+. . .
+
+- The **mean is larger** than the median if the distribution is [right-skewed]{.hi_purple}
+- The mean and the median are **equal** if the distribution is [symmetric]{.hi_blue}
+- The **mean is lower** than the median if the distribution is [left-skewed]{.hi_yellow}
+
+```{r}
+#| echo: false
+#| fig-width: 14
+#| fig-height: 4
+#| fig-align: center
+
+
+mean_vs_median <- function(x) {
+  ggplot(tibble(x = x), aes(x = x)) +
+    geom_density(fill = "#648FFF", color = "#785EF0", alpha = .8, bw = .01) + 
+    geom_vline(xintercept = mean(x), linetype = "dashed", alpha = .5, size = 1) +
+    geom_vline(xintercept = median(x), linetype = "dashed", alpha = .5, size = 1) +
+    theme_minimal(base_size = 20)  + ylab("") + xlab("") + 
+    theme(axis.text.y = element_blank(),
+          axis.ticks.x = element_line(),
+          axis.line.x = element_line())
+}
+
+right <- rbeta(10000, 1, 100)
+symm <- rbeta(10000, 100, 100)
+left <- rbeta(10000, 100, 1)
+ggarrange(mean_vs_median(right) + ggtitle("Right-skewed") +
+            annotate("text", x = mean(right) + .0035, y = 10, label = "Mean", angle = 90, size = 6) +
+            annotate("text", x = median(right) - .004, y = 10, label = "Median", angle = 90, size = 6),
+          mean_vs_median(symm) + ggtitle("Symmetric") +
+            annotate("text", x = mean(symm) - .01, y = 5, label = "Mean = Median", angle = 90, size = 6),
+          mean_vs_median(left) + ggtitle("Left-skewed") +
+            annotate("text", x = mean(left) - .004, y = 10, label = "Mean", angle = 90, size = 6) +
+            annotate("text", x = median(left) + .0035, y = 10, label = "Median", angle = 90, size = 6),
+          ncol = 3)
+```
+
+## Mean vs. median: relative magnitude {.pause}
+
+- What's an example of a [right-skewed]{.hi_purple} distribution?
+
+. . .
+
+$\rightarrow$ income, wealth
+
+. . .
+
+- What's an example of a [symmetric]{.hi_blue} distribution?
+
+. . .
+
+$\rightarrow$ height, exam scores (ideally)
+
+. . .
+
+- What's an example of a [left-skewed]{.hi_yellow} distribution?
+
+. . .
+
+$\rightarrow$ age at death, time spent on social media
+
+
+
+## Mean vs. median: robustness
+
+* The **median** is **less sensitive** than the mean to thick tails and outliers
+
+* For this reason we say that the median is a [robust statistic]{.hi_purple}
+
+. . .
+
+[*Let's illustrate that with a small example!*]{.r-stack}
+
+. . .
+
+:::: {.columns}
+::: {.column width="50%"}
+
+Consider the following variable:
+
+```{r}
+#| echo: false
+
+symmetric_var <- c(-3, -2, -2, -1, -1, -1, 0, 1, 1, 1, 2, 2, 3)
+kable(t(tibble(` ` = symmetric_var)), caption = "") |> 
+  kable_styling(font_size = 20)
+```
+
+How would the mean and the median **react** if we were to **add one single observation**?
+
+- We can plot the value of the additional observation on the $x$ axis and the value of the mean and the median on the $y$ axis
+
+:::
+::: {.column width="50%" .fragment}
+
+```{r}
+#| echo: false
+#| fig-width: 8
+#| fig-height: 6.5
+
+
+avg <- c()
+med <- c()
+for (i in -50:50) {
+  avg <- c(avg, mean(c(symmetric_var, i)))
+  med <- c(med, median(c(symmetric_var, i)))
+}
+
+ggplot(tibble(`Value of the additional observation` = rep(-50:50, 2), 
+              `Central tendency` = c(avg, med), 
+              Statistic = rep(c("Mean", "Median"), each = 101)), 
+       aes(x = `Value of the additional observation`, y = `Central tendency`, color = Statistic)) +
+    geom_line(alpha = .8, bw = .05) + theme_minimal(base_size = 20) +
+  theme(legend.position = "top")
+```
+
+:::
+::::
+
+---
+
+## Mean vs. median: in R
+
+Both statistics have **dedicated `R` functions**
+
+. . .
+
+$\rightarrow$ `mean` for [mean]{.hi_purple} and `median` for [median]{.hi_blue}:
+
+```{r}
+variable <- c(1, 2, 4, 8, 12)
+c(mean(variable), median(variable))
+```
+
+. . .
+
+As always, you should [pay attention to NAs]{.hi_cranberry} when using these functions!
+
+```{r}
+mean(c(1, 2, 3, 4, NA))
+mean(c(1, 2, 3, 4, NA), na.rm = T)
+```
+
+---
+
+## Mean vs. median: with binary variable
+
+- A [binary variable]{.hi_purple} is a variable that can take only **two values** *(e.g., male/female, accepted/rejected)*
+  - Any binary variable can be expressed as a sequence of **0s and 1s**
+  
+. . .
+
+Consider the following binary variable of length 4
+
+. . .
+
+```{r}
+#| echo: false
+
+
+kable(t(tibble(` ` = c(0, 1, 1, 1))), caption = "")
+```
+
+:::: {.columns}
+::: {.column width="50%"}
+
+- The [mean]{.hi_purple} of a binary variable is equal the the **percentage of 1s**:
+
+$$\frac{0 + 1 + 1 + 1}{4} = \frac{3}{4} = 75\%$$
+
+:::
+
+::: {.column width="50%" .fragment}
+
+- The [median]{.hi_purple} of a binary variable is equal to the **mode** *(mode = most frequent value of a variable)*
+
+$$\frac{1 + 1}{2} = 1$$
+:::
+:::
+
+## Today's lecture
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[**1. Summarizing data**](#summarizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.1 Distributions](#distributions) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.2 Central tendency](#central_tendency) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.3 Spread](#spread)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.4 Relationship between variables](#cov_cor)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. Manipulating data](#manipulating)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.1 `dplyr` verbs](#dplyr)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.2 `group_by`](#group_by)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.3 Joining data](#joining)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. Visualizing data](#visualizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.1 gg is for Grammar of Graphics](#gg)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.2 Different types of gaphs](#types_graph)
+
+---
+
+## Range
+
+The **most intuitive** statistic to describe the spread of a variable is probably
+
+- **The range: the minimum and maximum value it can take**
+
+. . .
+
+But consider the following two distributions:
+
+:::: {.columns}
+::: {.column width="65%"}
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 7
+
+
+mynorm <- rnorm(1000000, 0, 1)^3
+mynorm <- mynorm[abs(mynorm) < 20]
+ggarrange(ggplot(tibble(x = mynorm), aes(x = x)) +
+  geom_density(fill = "#648FFF", color = "#785EF0", alpha = .8, bw = .5) +
+  theme_minimal(base_size = 20) + xlab("") + ylab("") +
+    theme(axis.ticks.x = element_line(),
+          axis.line.x = element_line()),
+  ggplot(tibble(x = norm), aes(x = x)) +
+  geom_density(fill = "#648FFF", color = "#785EF0", alpha = .8, bw = .5) +
+  theme_minimal(base_size = 20) + xlab("") + ylab("") +
+    theme(axis.ticks.x = element_line(),
+          axis.line.x = element_line())
+)
+```
+
+:::
+
+::: {.column width="35%" .fragment}
+
+- In the presence of outliers or very skewed distributions, the **full range** of a variable **may not be representative** of what we mean by *'spread'*
+
+- That's why we tend to prefer [inter-quantile]{.hi_purple} ranges
+
+:::
+:::
+
+---
+
+## Quantiles
+
+- [Quantiles]{.hi_purple} **divide** the population into **groups of equal size**
+  - The [median]{.hi_blue} divides the population into [2]{.hi_purple} **groups** of equal size
+  - [Quartiles]{.hi_yellow} divide the population into [4]{.hi_yellow} **groups** of equal size
+  - There are also **terciles**, **quintiles**, **deciles**, and so on
+  
+. . .
+
+- To **compute** [quartiles]{.hi_yellow}: divide the ordered variable according to the median
+  - The lower quartile value is the median of the lower half of the data
+  - The upper quartile value is the median of the upper half of the data
+  - *If there is an odd number of data points in the original ordered data set, don't include the median in either half*
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{r}
+#| echo: false
+
+
+kable(t(tibble(` ` = c(-3, -2, -1, 0, 1, 2, 3))), caption = "")  |>
+  kable_styling(font_size = 20)
+```
+
+$$Q_1 = -2,\:\:Q_2 = 0,\:\:Q_3 = 2$$
+
+:::
+::: {.column width="50%" .fragment}
+
+```{r}
+#| echo: false
+
+
+kable(t(tibble(` ` = c(-3, -2, -1, 0, 0, 1, 2, 3))), caption = "")  |>
+  kable_styling(font_size = 20)
+```
+
+$$Q_1 = -1.5,\:\:Q_2 = 0,\:\:Q_3 = 1.5$$
+
+:::
+::::
+
+---
+
+## Interquartile range
+
+The [interquartile range]{.hi_purple} is the difference between the third and the first quartile: $\text{IQR} = Q_3 - Q_1$
+
+. . .
+
+Put differently, it corresponds to the **bounds** of the set which contains the **middle half** of the distribution
+
+```{r}
+#| echo: false
+#| fig-width: 14
+#| fig-height: 5
+#| fig-align: center
+
+ggarrange(ggplot(tibble(x = mynorm[abs(mynorm) < 20]), aes(x = x)) +
+            geom_density(fill = "#648FFF", color = "#785EF0", alpha = .8, bw = .5) +
+            theme_minimal(base_size = 20) + xlab("") + ylab("") +
+            geom_vline(xintercept = quantile(mynorm)[c(2, 4)], linetype = "dashed") +
+            theme(axis.ticks.x = element_line(),
+                  axis.line.x = element_line()),
+          
+          ggplot(tibble(x = norm), aes(x = x)) +
+            geom_density(fill = "#648FFF", color = "#785EF0", alpha = .8, bw = .5) +
+            theme_minimal(base_size = 20) + xlab("") + ylab("") +
+            geom_vline(xintercept = quantile(norm)[c(2, 4)], linetype = "dashed") +
+            theme(axis.ticks.x = element_line(),
+                  axis.line.x = element_line()))
+```
+
+---
+
+## Variance
+
+- The [variance]{.hi_purple} is a way to quantify how the values of a variable tend to **deviate** from their **mean**
+  - If values tend to be **close to the mean**, then the **spread is low**
+  - If values tend to be far **from the mean**, then the **spread is large**
+
+. . .
+  
+Can we just take the **average deviation** from the mean?
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{r}
+#| echo: false
+
+kable(tibble(x = c(1, 4, -3, 8), `mean(x)` = mean(c(1, 4, -3, 8)),
+             `x - mean(x)` = c(1, 4, -3, 8) - mean(c(1, 4, -3, 8))), 
+      caption = "", align = "ccc")
+```
+
+:::
+::: {.column width="50%" .fragment}
+
+By construction it would **always be 0**: values above and under the mean compensate
+
+- But we can use the **absolute value** of each deviation: $|x_i-\bar{x}|$
+
+- Or their **square**: $(x_i-\bar{x})^2$
+
+:::
+::::
+
+---
+
+## Variance
+
+The [variance]{.hi_purple} is computed by **averaging the squared deviations from the mean**:
+
+$$\text{Var}(x) = \frac{1}{N}\sum_{i = 1}^N(x_i-\bar{x})^2$$
+
+. . .
+
+```{r}
+#| echo: false
+#| fig-height: 4.5
+#| fig-width: 8
+#| fig-align: center
+
+
+ggplot(data = data.frame(x = c(-10, 10)), aes(x)) +
+  stat_function(fun = dnorm, n = 1000, args = list(mean = 0, sd = 1), aes(color = "1"), size = 1) +
+  stat_function(fun = dnorm, n = 1000, args = list(mean = 0, sd = 2), aes(color = "2"), size = 1) +
+  stat_function(fun = dnorm, n = 1000, args = list(mean = 0, sd = 4), aes(color = "4"), size = 1) +
+  ylab(NULL) +
+  scale_y_continuous(breaks = NULL) +
+  scale_color_manual("Variance:", values = c("#785EF0","#648FFF","#FFB000")) +
+  theme_minimal(base_size = 20) +
+  theme(legend.position = "inside",
+        legend.position.inside = c(0.01,0.99),
+        legend.justification.inside = c(0,1),
+        axis.ticks.x = element_line(),
+        axis.line.x = element_line())
+```
+
+## Variance and standard deviation
+
+- Because the [variance]{.hi_purple} is a **sum of squares**, it can get **quite big** compared to the other statistics like the mean, the median or the interquartile range.
+
+- To express the spread in the **same unit** as the data, we can take the **square root** of the variance, which is called the [standard deviation]{.hi_blue}:
+  
+
+$$\text{SD}(x) = \sqrt{\text{Var}(x)} = \sqrt{\frac{1}{N}\sum_{i = 1}^N(x_i-\bar{x})^2}$$
+
+. . .
+
+- In a way, *the standard deviation is to the mean what the IQR is to the median*
+
+---
+
+## Standard deviation vs. interquartile range
+
+- Remember that the median is **less sensitive** than the mean to thick tails and outliers
+
+- This is also the case for the [IQR]{.hi_purple} relative to the [standard deviation]{.hi_blue}
+
+. . .
+
+[*Let's go back to our previous example!*]{.r-stack}
+
+. . .
+
+:::: {.columns}
+::: {.column width="50%"}
+
+Consider the following variable:
+
+```{r}
+#| echo: false
+
+
+symmetric_var <- c(-3, -2, -2, -1, -1, -1, 0, 1, 1, 1, 2, 2, 3)
+kable(t(tibble(` ` = symmetric_var)), caption = "")  |>
+  kable_styling(font_size = 20)
+```
+
+- How would the standard deviation and the IQR **react** if we were to **add one single observation**?
+  - We can plot the value of the additional observation on the $x$ axis and the value of the mean and the median on the $y$ axis
+
+:::
+::: {.column width="50%" .fragment}
+
+```{r}
+#| echo: false
+#| fig-width: 8
+#| fig-height: 6.5
+
+store_iqr <- c()
+store_sd <- c()
+for (i in -50:50) {
+  store_iqr <- c(store_iqr, IQR(c(symmetric_var, i)))
+  store_sd <- c(store_sd, sd(c(symmetric_var, i)))
+}
+
+ggplot(tibble(`Value of the additional observation` = rep(-50:50, 2), 
+              `Central tendency` = c(store_iqr, store_sd), 
+              Statistic = rep(c("IQR", "SD"), each = 101)), 
+       aes(x = `Value of the additional observation`, y = `Central tendency`, color = Statistic)) +
+    geom_line(alpha = .8, bw = .05) + theme_minimal(base_size = 20) +
+  theme(legend.position = "top")
+```
+
+:::
+::::
+
+---
+
+## Standard deviation vs. interquartile range
+
+- But like for the median vs. the mean, it does **not** mean that one is **better than the other**
+  - They just **capture different things**
+  
+. . .
+  
+:::: {.columns}
+::: {.column width="65%"}
+
+```{r}
+#| echo: false
+#| fig-height: 6
+#| fig-width: 10
+
+far_obs <- runif(300000, 5, 6)
+close_obs <- runif(300000, 3, 4)
+
+distrib1 <- c(norm, close_obs, -close_obs)
+distrib2 <- c(norm, far_obs, -far_obs)
+
+distribs <- tibble(x = c(distrib1, distrib2), 
+                   distrib = rep(c("1", "2"), each = length(distrib1)))
+
+ggplot(distribs, aes(x = x, fill = distrib)) +
+  geom_density(alpha = .2, bw = .5, show.legend = F) +
+  theme_minimal(base_size = 20) + xlab("") + ylab("") +
+  facet_wrap(~distrib, nrow = 2) +
+  geom_vline(data = filter(distribs, distrib == "1")[1:2, ], aes(xintercept = quantile(distrib1)[c(2, 4)]), linetype = "dashed") +
+  geom_vline(data = filter(distribs, distrib == "2")[1:2, ], aes(xintercept = quantile(distrib2)[c(2, 4)]), linetype = "dashed") +
+  geom_vline(data = filter(distribs, distrib == "1")[1:2, ], 
+             aes(xintercept = c(mean(distrib1) - .5*sd(distrib1), mean(distrib1) + .5*sd(distrib1))), linetype = "solid") +
+  geom_vline(data = filter(distribs, distrib == "2")[1:2, ], 
+             aes(xintercept = c(mean(distrib2) - .5*sd(distrib2), mean(distrib2) + .5*sd(distrib2))), linetype = "solid") +
+  theme(strip.background = element_blank(),
+        strip.text.x = element_blank(),
+        panel.spacing.y = unit(1, "cm"),
+        axis.ticks.x = element_line(),
+        axis.line.x = element_line())
+```
+
+:::
+
+::: {.column width="35%" .fragment}
+
+These two distributions
+
+- Have the **same interquartile range**
+
+- Have **different standard deviations**
+
+:::
+:::
+
+---
+
+## Standard deviation vs. interquartile range: in R
+
+Both statistics have **dedicated R functions**
+
+$\rightarrow$ `sd` for the [standard deviation]{.hi_purple} and `IQR` for the [interquartile range]{.hi_blue}
+
+. . .
+
+```{r}
+variable <- c(0, 1, 3, 4, 6, 7, 8, 10, 11)
+c(sd(variable), IQR(variable))
+```
+
+. . .
+
+You can obtain the **quantiles** of a variable using the `quantile()` function
+
+```{r}
+quantile(variable)
+```
+
+***$\rightarrow$ See the help file ?quantile() for more info on quantile computation***
+
+## Today's lecture
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[**1. Summarizing data**](#summarizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.1 Distributions](#distributions) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.2 Central tendency](#central_tendency) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.3 Spread](#spread) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.4 Relationship between variables](#cov_cor)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. Manipulating data](#manipulating)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.1 `dplyr` verbs](#dplyr)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.2 `group_by`](#group_by)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.3 Joining data](#joining)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. Visualizing data](#visualizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.1 gg is for Grammar of Graphics](#gg)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.2 Different types of gaphs](#types_graph)
+
+
+## Covariance and correlation {#cov_cor}
+
+How can we characterize the relationship between two variables?
+
+```{r}
+#| echo: false
+#| fig-align: center
+
+global_working_hours <- read_dta("https://www.dropbox.com/scl/fi/bzwyuwb9ybxmxu6xnklvs/gethin-saez-cross-2025-11-07.dta?rlkey=6infi6d31bzmf2q60lmoc76ue&dl=1")
+
+global_working_hours |> 
+  ggplot(aes(x = taxr_lab, y = h)) +
+  geom_point() +
+  labs(title = "Relationship between working hours and labor taxation") +
+  theme_minimal(base_size = 20)
+
+```
+
+. . .
+
+There are two main statistics:
+
+1. The [covariance]{.hi_purple}
+
+2. The [correation]{.hi_purple}
+
+## Covariance and correlation
+
+- The [covariance]{.hi_purple} is a measure of **joint variability** between two variables:
+
+$$
+Cov(x,y) = \frac{1}{N} \sum_{i=1}^{N} (x_i - \bar x)(y_i - \bar y)
+$$
+
+. . .
+
+
+- Difficult to interpret because sensitive to the variables' dispersions from the mean $\rightarrow$ correlation.
+
+. . .
+
+- The [correlation]{.hi_purple} is a measure of the strength of the **linear association** between two variables:
+
+$$
+Corr(x,y) = \frac{Cov(x,y)}{\sqrt{Var(x)}\sqrt{Var(y)}}
+$$
+
+## Correlation
+
+- Correlation is [always between -1 and 1!]{.hi_purple}
+
+![](img/correlation.svg){width="55%" fig-align="center"}
+
+## Covariance and correlation: in R
+
+Both statistics have **dedicated `R` functions**
+
+. . .
+
+$\rightarrow$ `cov` for [covariance]{.hi_purple} and `cor` for [correlation]{.hi_blue}:
+
+```{r}
+variables <- data.frame(x = c(1, 2, 4, 8, 12),
+                        y = c( 3, 6, 8, 9, 6))
+c(cov(variables$x, variables$y),
+  cor(variables$x, variables$y))
+```
+
+. . .
+
+As always, you should [pay attention to NAs]{.hi_cranberry} when using these functions!
+
+```{r}
+variables <- data.frame(x = c(1, 2, 4, 8, 12, NA),
+                        y = c( 3, 6, 8, 9,NA,  6))
+c(cov(variables$x, variables$y, use = "complete.obs"),
+  cor(variables$x, variables$y, use = "complete.obs"))
+```
+
+
+
+## Your turn! #1 {.slide_task}
+
+{{< countdown "10:00" top=0 right=0 >}}
+
+Load data on global working hours in 2023 from [Gethin and Saez (2025)](https://amory-gethin.fr/files/pdf/GethinSaez2025.pdf). You can find it [here](https://www.dropbox.com/scl/fi/ln4ie7ik36opjx5juifqs/hours_worked_clean.csv?rlkey=ry52v43qyxhtr4ye461twkgnj&dl=1).
+
+```{r}
+global_working_hours <- read.csv("https://www.dropbox.com/scl/fi/ln4ie7ik36opjx5juifqs/hours_worked_clean.csv?rlkey=ry52v43qyxhtr4ye461twkgnj&dl=1")
+```
+
+1. Compute the mean of `hours_worked` (hours per adult) and `hours_worker` (hours per worker). Why is there such a difference?
+
+2. Compute the median of `hours_worked` and `hours_worker`. Is there a big difference with the mean? What does this suggest about the distribution of (average) working hours across countries?
+
+3. Compute the three quartiles of the distribution of `hours_worker`. What's the 75th percentile? Try to guess which country this is.
+
+4. Compute the interquartile range of `hours_worker_men` and `hours_worker_women`. What do you notice?
+
+5. Compute the correlation between `hours_worked` and `tax_labor`. (Hint: remember what `NA` stands for.)
+
+## Today's lecture
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Summarizing data](#summarizing) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.1 Distributions](#distributions) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.2 Central tendency](#central_tendency) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.3 Spread](#spread) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.4 Relationship between variables](#cov_cor) $\checkmark$
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**2. Manipulating data**](#manipulating)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.1 `dplyr` verbs](#dplyr)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.2 `group_by`](#group_by)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.3 Joining data](#joining)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. Visualizing data](#visualizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.1 gg is for Grammar of Graphics](#gg)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.2 Different types of gaphs](#types_graph)
+
+# Manipulating data {.slide_inverse #manipulating}
+
+## The `tidyverse` package suit {#dplyr}
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+![](img/tidyverse.png)
+
+:::
+
+::: {.column width="50%"}
+
+* The `tidyverse` is a collection of packages that facilitate data manipulation and visualization.
+
+* We will use `dplyr` to manipulate data and `ggplot2` to visualize data.
+
+* You don't need to load each package individually, instead you can just:
+
+```{r}
+#| eval: false
+
+library(tidyverse)
+```
+
+::: {.incremental}
+
+* Recall that you **don't need** to re-install a package each time, but you do **need to load it**
+
+:::
+
+:::
+:::
+
+## `dplyr` verbs
+
+`dplyr` is a **grammar** of data manipulation providing very **user-friendly functions** to handle the most common **data manipulation** tasks:
+
+. . .
+
+:::: {.columns}
+
+::: {.column width="30%"}
+
+![](img/dplyr_logo.png){width="200"}
+
+:::
+
+::: {.column width="70%" .incremental}
+
+-   `mutate()`: add/modify variables
+-   `select()`: keep/drop variables (columns)
+-   `filter()`: keep/drop observations (rows)
+-   `arrange()`: sort rows according to given variable(s)
+-   `summarise()`: aggregate data into statistics
+-   `group_by()`: compute the above verbs by groups
+
+:::
+:::
+
+. . .
+
+A very handy **operator** to use with the **dplyr** grammar is the [pipe]{.hi_purple} `|>`^[This pipe supersedes a former pipe `%>%` which you will encounter when searching for help online.]:
+
+-   You can basically read **df \|\> mutate()** as *"apply function mutate() to object df"*
+-   With this operator you can easily **chain the operations** you apply to an object
+
+## `dplyr`: an example
+
+We will use data on global working hours, but this time since 1900. You can find the data [here](https://www.dropbox.com/scl/fi/drqgfa9gnze1lw7a3am3e/hours_worked_panel.csv?rlkey=23izkrsaltnrv3qrqrf6awneq&dl=1).
+
+```{r}
+global_working_hours <- read.csv("https://www.dropbox.com/scl/fi/aq6nlnuun9o8bk86h89a2/hours_worked_panel_clean.csv?rlkey=f6jqgl8swkvf6kgl1z9eqczmr&dl=1")
+
+str(global_working_hours)
+```
+
+```{r}
+#| echo: false
+
+
+global_working_hours <- as_tibble(global_working_hours)
+```
+
+
+## `dplyr`: an example {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| 
+
+
+global_working_hours
+```
+
+
+## `dplyr`: an example {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "2"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+
+
+global_working_hours |> 
+  select(country, year, hours_worked) # keep/drop certain columns
+```
+
+```{r}
+#| echo: false
+#| output: false
+
+fb <- read.csv("data/ligue1.csv", encoding = "UTF-8")
+head(fb)
+```
+
+## `dplyr`: an example {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "3"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+
+global_working_hours |> 
+  select(country, year, hours_worker) |> 
+  mutate(hours_worked_greater_40 = (hours_worker >= 40)) # create a new variable
+```
+
+## `dplyr`: an example {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "4"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+
+
+global_working_hours |> 
+  select(country, year, hours_worker) |> 
+  mutate(hours_worked_greater_40 = (hours_worker >= 40)) |> 
+  filter(country == "France") # keep/drop certain rows
+```
+
+## `dplyr`: an example {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "5,6"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+
+
+global_working_hours |> 
+  select(country, year, hours_worker) |>
+  mutate(hours_worked_greater_40 = (hours_worker >= 40)) |> 
+  filter(country == "France") |> 
+  summarise(mean_hours = mean(hours_worker), # aggregate into statistics
+            num_greater_40 = sum(hours_worked_greater_40))
+```
+
+
+## Useful `mutate` functions
+
+- There are two very handy functions to use within `mutate()`:
+
+:::: columns
+::: {.column width="50%"}
+
+**ifelse()**
+
+```{r}
+global_working_hours |>
+  select(country, year) |>
+  mutate(post_2000 = ifelse(year >= 2000, 
+                          "21th century", 
+                          "20th century")) |>
+  head()
+```
+:::
+
+::: {.column width="50%" .fragment}
+**case_when()**
+
+```{r}
+global_working_hours |>
+  select(country, year) |>
+  mutate(year_gp = case_when(year <= 1950 ~ "1900-1950",
+                             year %in% 1951:1999 ~ "1951-1999",
+                             year >= 2000 ~ "2000-2023")) |>
+  head()
+```
+:::
+:::
+
+## Today's lecture
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Summarizing data](#summarizing) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.1 Distributions](#distributions) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.2 Central tendency](#central_tendency) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.3 Spread](#spread) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.4 Relationship between variables](#cov_cor) $\checkmark$
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**2. Manipulating data**](#manipulating)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.1 `dplyr` verbs](#dplyr) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.2 `group_by`](#group_by)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.3 Joining data](#joining)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. Visualizing data](#visualizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.1 gg is for Grammar of Graphics](#gg)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.2 Different types of gaphs](#types_graph)
+
+## `group_by()` and `mutate` {#group_by}
+
+With `group_by()` you can perform [computations separately]{.hi_purple} for the **different categories of a variable**
+
+::::: columns
+::: {.column width="50%"}
+```{r}
+global_working_hours |>
+  select(year, country, region, hours_worker) |>
+  mutate(mean_all = mean(hours_worker)) |>
+  arrange(country, year) |> 
+  head(10)
+```
+:::
+
+::: {.column width="50%" .fragment}
+```{r}
+#| code-line-numbers: "3"
+global_working_hours |>
+  select(year, country, region, hours_worker) |>
+  group_by(region) |> 
+  mutate(mean_reg_yr = mean(hours_worker)) |>
+  arrange(country, year) |> 
+  head(10)
+```
+:::
+:::::
+
+## `group_by()` and `mutate`
+
+With `group_by()` you can perform [computations separately]{.hi_purple} for the **different categories of a variable**
+
+::::: columns
+::: {.column width="50%"}
+```{r}
+global_working_hours |>
+  select(year, country, region, hours_worker) |>
+  mutate(mean_all = mean(hours_worker)) |>
+  arrange(country, year) |> 
+  count(region, mean_all)
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+global_working_hours |>
+  select(year, country, region, hours_worker) |>
+  group_by(region) |> 
+  mutate(mean_reg_yr = mean(hours_worker)) |>
+  arrange(country, year) |> 
+  count(region, mean_reg_yr)
+```
+:::
+:::::
+
+. . .
+
+- `count` is a very useful `dplyr` function for (cross-)tabulation
+
+## `group_by()` and `summarise`
+
+- It is particularly **useful with `summarise()`**
+  - summarise keeps the grouping variable
+  - and computes **statistics for each category**
+  
+::::: columns
+::: {.column width="50%"}
+```{r}
+global_working_hours |>
+  group_by(region) |> 
+  summarise(mean_hours = mean(hours_worker))
+```
+:::
+
+::: {.column width="50%" .fragment}
+
+**mutate() $\neq$ summarise()**
+
+- `mutate()` takes an operation that converts:
+  - **A vector into another vector**
+
+- `summarise()` takes an operation that converts:
+  - **A vector into a value**
+  
+:::
+:::::
+
+## `group_by()` and `summarise`
+
+- It is particularly **useful with `summarise()`**
+  - summarise keeps the grouping variable
+  - and computes **statistics for each category**
+  
+::::: columns
+::: {.column width="50%"}
+```{r}
+global_working_hours |>
+  group_by(region) |> 
+  summarise(mean_hours = mean(hours_worker))
+```
+:::
+
+::: {.column width="50%"}
+
+**ungrouping**
+
+- `group_by()` applies to [all subsequent operations]{.hi_cranberry}
+- To cancel its effect you must `ungroup()` the data
+
+```{r}
+#| eval: false
+
+
+global_working_hours |>
+  group_by(region) |> 
+  summarise(mean_hours = mean(hours_worker)) |> 
+  ungroup() |> 
+  ...
+```
+
+:::
+:::::
+
+## `group_by()` using `.by()`
+
+. . .
+
+`dplyr` recently introduced the `.by` operator:
+
+::::: columns
+::: {.column width="50%"}
+
+```{r}
+global_working_hours |>
+  summarise(mean_hours = mean(hours_worker),
+            .by = region) |> 
+  head(10)
+```
+
+:::
+
+::: {.column width="50%" .fragment}
+
+- Clean alternative to `group_by`
+
+- Works with all (relevant) `dplyr` verbs and with multiple variables `c(var1, var2)`
+
+- No need to `ungroup()`
+
+:::
+:::
+
+## Today's lecture
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Summarizing data](#summarizing) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.1 Distributions](#distributions) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.2 Central tendency](#central_tendency) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.3 Spread](#spread) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.4 Relationship between variables](#cov_cor) $\checkmark$
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**2. Manipulating data**](#manipulating)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.1 `dplyr` verbs](#dplyr) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.2 `group_by`](#group_by) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.3 Joining data](#joining)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. Visualizing data](#visualizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.1 gg is for Grammar of Graphics](#gg)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.2 Different types of gaphs](#types_graph)
+
+## Joining data together: `_join()` {#joining}
+
+The last `dplyr` verb we will cover enable merging datasets together, a very common operation.
+
+. . .
+
+They come in different varieties:
+
+. . .
+
+:::: {.columns}
+::: {.column width="50%}
+
+[- `full_join()`:]{style="margin-bottom: 0cm;"}
+
+![](img/full-join.gif){width="40%"}
+
+[- `inner_join()`:]{style="margin-bottom: 0cm;"}
+
+![](img/inner-join.gif){width="40%"}
+
+:::
+
+::: {.column width="50% .fragment}
+
+[- `left_join()`:]{style="margin-bottom: 0cm;"}
+
+![](img/left-join.gif){width="40%"}
+
+[- `right_join()`:]{style="margin-bottom: 0cm;"}
+
+![](img/right-join.gif){width="40%"}
+
+:::
+:::
+
+## Joining data together: `_join()`
+
+Imagine you have 2023 working hours in one dataset and GDP in another:
+
+```{r}
+#| output-location: column
+
+working_hours <- read.csv("https://www.dropbox.com/scl/fi/dl9dpac6pgl9tje02buzw/hours_worked_panel_clean_only_hours.csv?rlkey=dbfce160u6d653ohhiy9zijb9&dl=1")
+
+gdp <- read.csv("https://www.dropbox.com/scl/fi/tqx6qlb3zqna4hmtevsvw/gdp.csv?rlkey=hkgxwgjurd9n54r264x2dxquo&dl=1")
+
+working_hours |> 
+  head(10)
+```
+
+## Joining data together: `_join()`
+
+Imagine you have 2023 working hours in one dataset and GDP in another:
+
+```{r}
+#| output-location: column
+
+working_hours <- read.csv("https://www.dropbox.com/scl/fi/dl9dpac6pgl9tje02buzw/hours_worked_panel_clean_only_hours.csv?rlkey=dbfce160u6d653ohhiy9zijb9&dl=1")
+
+gdp <- read.csv("https://www.dropbox.com/scl/fi/tqx6qlb3zqna4hmtevsvw/gdp.csv?rlkey=hkgxwgjurd9n54r264x2dxquo&dl=1")
+
+gdp |> 
+  head(10)
+```
+
+## Joining data together: `_join()`
+
+Imagine you have 2023 working hours in one dataset and GDP in another:
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "6"
+
+working_hours <- read.csv("https://www.dropbox.com/scl/fi/dl9dpac6pgl9tje02buzw/hours_worked_panel_clean_only_hours.csv?rlkey=dbfce160u6d653ohhiy9zijb9&dl=1")
+
+gdp <- read.csv("https://www.dropbox.com/scl/fi/tqx6qlb3zqna4hmtevsvw/gdp.csv?rlkey=hkgxwgjurd9n54r264x2dxquo&dl=1")
+
+working_hours |>
+  left_join(gdp) |> 
+  head(10)
+```
+
+## Last but not least: the `tidylog` package
+
+-  `dplyr` is extremely powerful and convenient but it has one drawback: it provides no information when performing operations
+
+- `tidylog` is the solution to this problem!
+
+```{r}
+#| output-location: column
+#| eval: false
+
+install.packages("tidylog") # only not installed
+library(tidylog)
+```
+
+```{r}
+#| output-location: column
+#| message: true
+working_hours |>
+  left_join(gdp) |> 
+  head(10)
+```
+
+## Your turn! #2 {.slide_task}
+
+{{< countdown "10:00" top=0 right=0 >}}
+
+Load data on global working hours since 1900 from [Gethin and Saez (2025)](https://amory-gethin.fr/files/pdf/GethinSaez2025.pdf). You can find it [here](https://www.dropbox.com/scl/fi/aq6nlnuun9o8bk86h89a2/hours_worked_panel_clean.csv?rlkey=f6jqgl8swkvf6kgl1z9eqczmr&dl=1).
+
+```{r}
+global_working_hours_panel <- read.csv("https://www.dropbox.com/scl/fi/aq6nlnuun9o8bk86h89a2/hours_worked_panel_clean.csv?rlkey=f6jqgl8swkvf6kgl1z9eqczmr&dl=1")
+```
+
+1. Tabulate the number of observations (countries) per year. 
+
+1. Which countries had average workers hours per week (`hours_worker`) greater than 48 in 2023?
+
+2. In which years did at least one Latin American country have average workers hours between 30 and 32 hours. What happened that year?
+
+3. Compute the max of `hours_worker` for countries in the `Western Europe and Anglosphere` and `United States` regions, separately, in 2023. (Hint: the `%in%` operator will come in handy.)
+
+4. Compute the average difference in hours worked per adult (`hours_worked`) between men and women in 1990, 2000, 2010 and 2020. What do you observe?
+
+## A few words on learning R
+
+When things do not work the way you want, **NAs are the usual suspects**
+
+. . .
+
+For instance, this is how the mean function reacts to NAs:
+
+. . .
+
+```{r}
+mean(c(1, 2, NA))
+```
+
+. . .
+
+```{r}
+mean(c(1, 2, NA), na.rm = TRUE)
+```
+
+. . .
+
+You should systematically **check for NAs!**
+
+. . .
+
+```{r}
+is.na(c(1, 2, NA))
+```
+
+## A few words on learning R
+
+**Don't pipe blindfolded!**
+
+-   **Check** that each command does what it's expected to do
+-   View or print your data **at each step**
+
+. . .
+
+```{r}
+global_working_hours |>
+  select(country, region, year, hours_worked) |>
+  head(1)
+```
+
+. . .
+
+```{r}
+global_working_hours |>
+  select(country, region, year, hours_worked) |>
+  filter(country == "France" & year == 2023)
+  head(1)
+```
+
+------------------------------------------------------------------------
+
+## Where to find help
+
+Oftentimes things don't work either because:
+
+-   **You don't understand** a function's argument
+-   Or **you don't know** that there exists an argument that you should use
+
+. . .
+
+This is precisely what **help files** are made for
+
+-   Every function has a help file, just enter **?** and the name of your **function** in the console
+-   The help file will **pop up in the Help tab** of RStudio
+
+```{r}
+#| eval: false
+
+?mutate
+```
+
+. . .
+
+**Search on the internet/use AI!**
+
+-   Your question is for sure already asked and answered on [Stack Overflow](https://stackoverflow.com/)
+- Be careful about AI code, often unnecessarily complicated
+
+------------------------------------------------------------------------
+
+## When it doesn't work at all
+
+Sometimes R breaks and returns an **error** (usually kind of cryptic)
+
+```{r}
+#| eval: true
+#| error: true
+read.csv("C:\Users\Documents\R")
+```
+
+. . .
+
+**What to do:**
+
+1.  Look for **keywords** that might help you understand where it comes from
+2.  Paste it on **Google** with the name of your command
+
+## Today's lecture
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Summarizing data](#summarizing) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.1 Distributions](#distributions) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.2 Central tendency](#central_tendency) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.3 Spread](#spread) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.4 Relationship between variables](#cov_cor) $\checkmark$
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. Manipulating data](#manipulating) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.1 `dplyr` verbs](#dplyr) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.2 `group_by`](#group_by) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.3 Joining data](#joining) $\checkmark$
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**3. Visualizing data**](#visualizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.1 gg is for Grammar of Graphics](#gg)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.2 Different types of gaphs](#types_graph)
+
+# Visualizing data {.slide_inverse #visualizing}
+
+## The `ggplot2` package {#gg}
+
+`ggplot2` is a **grammar of graphics** providing a very **powerful and user-friendly** visualization tool.
+
+We used it in lecture 1, without going through the different elements
+
+. . .
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+![](img/ggplot2_logo.png){width="200"}
+
+:::
+
+::: {.column width="60%"}
+
+### Grammar of gaphics
+
+![](img/grammar-of-graphics.png){width="500"}
+
+:::
+:::
+
+Let's use the global working hours since 1900 data.
+
+## gg is for Grammar of Graphics
+
+:::: {.columns}
+::: {.column width="30%"}
+
+### Data
+
+```{r}
+#| eval: false
+
+data |> ggplot()
+```
+
+or
+
+```{r}
+#| eval: false
+
+ggplot(data)
+```
+
+:::
+
+::: {.column width="70%"}
+
+**Tidy Data**
+
+1. Each variable forms a [column]{.hi_purple}
+
+2. Each observation forms a [row]{.hi_blue}
+
+3. Each observational unit forms a table
+
+::: {.fragment}
+
+**Start by asking**
+
+1. What information do I want to use in my visualization?
+
+2. Is that data contained in [one column/row]{.hi_cranberry} for a given data point?
+
+:::
+:::
+::::
+
+## gg is for Grammar of Graphics
+
+:::: {.columns}
+::: {.column width="30%"}
+
+### Data
+
+### Aesthetics
+
+```{r}
+#| eval: false
+
++ aes()
+```
+
+:::
+
+::: {.column width="70%"}
+
+Map data to visual elements or parameters
+
+* year
+
+* hours worked
+
+* country
+
+:::
+::::
+
+## gg is for Grammar of Graphics
+
+:::: {.columns}
+::: {.column width="30%"}
+
+### Data
+
+### Aesthetics
+
+```{r}
+#| eval: false
+
++ aes()
+```
+
+:::
+
+::: {.column width="70%"}
+
+Map data to visual elements or parameters
+
+* year $\rightarrow$ [x]{.hi_purple}
+
+* hours worked $\rightarrow$ [y]{.hi_blue}
+
+* country $\rightarrow$ [shape, color, etc.]{.hi_yellow}
+
+```{r}
+#| eval: false
+
+aes(x = year,
+    y = hours_worked,
+    color = country)
+```
+
+:::
+::::
+
+
+## gg is for Grammar of Graphics
+
+:::: {.columns}
+::: {.column width="30%"}
+
+### Data
+
+### Aesthetics
+
+### Geoms
+
+```{r}
+#| eval: false
+
++ geom_*()
+```
+
+:::
+
+::: {.column width="70%"}
+
+Geometric objects displayed on the plot
+
+![](img/geom_demo-1.svg)
+
+:::
+::::
+
+
+## gg is for Grammar of Graphics
+
+:::: {.columns}
+::: {.column width="30%"}
+
+### Data
+
+### Aesthetics
+
+### Geoms
+
+```{r}
+#| eval: false
+
++ geom_*()
+```
+
+:::
+
+::: {.column width="70%"}
+
+Just start typing `geom_` in `RStudio` to see all the options
+
+![](img/geom_gif.gif)
+
+:::
+::::
+
+
+## An example {.slide_code transition="none"}
+
+```{r}
+#| echo: false
+
+global_working_hours_panel <- as_tibble(global_working_hours_panel)
+```
+
+
+```{r}
+#| output-location: column
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+
+global_working_hours_panel
+```
+
+## An example {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "2"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+
+global_working_hours_panel |> 
+  filter(country == "France")
+```
+
+## An example {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "2"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+
+global_working_hours_panel |>
+  filter(country == "France") |> 
+  ggplot()
+```
+
+## An example {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "3"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+
+global_working_hours_panel |>
+  filter(country == "France") |> 
+  ggplot(aes(x = year, y = hours_worker))
+```
+
+## An example {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "4"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+
+global_working_hours_panel |>
+  filter(country == "France") |> 
+  ggplot(aes(x = year, y = hours_worker)) +
+  geom_line()
+```
+
+## An example {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "5"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+
+global_working_hours_panel |>
+  filter(country == "France") |> 
+  ggplot(aes(x = year, y = hours_worker)) +
+  geom_line() +
+  geom_point()
+```
+
+## An example {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "2"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+
+global_working_hours_panel |>
+  filter(region == "Western Europe and Anglosphere") |> 
+  ggplot(aes(x = year, y = hours_worker)) +
+  geom_line() +
+  geom_point()
+```
+
+## An example {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "3"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+
+global_working_hours_panel |>
+  filter(region == "Western Europe and Anglosphere") |> 
+  ggplot(aes(x = year, y = hours_worker, color = country)) +
+  geom_line() +
+  geom_point()
+```
+
+## An example {.slide_code transition="none"}
+
+```{r}
+#| output-location: column
+#| code-line-numbers: "2,3,4|8"
+#| class-source: slide_code_chunk
+#| classes: slide_code_chunk
+#| fig-height: 8
+
+
+plot = global_working_hours_panel |>
+  summarise(mean_reg_yr = mean(hours_worker),
+            .by = c(region, year)) |> 
+  ggplot(aes(x = year, y = mean_reg_yr, color = region)) +
+  geom_line() +
+  geom_point()
+
+plot # graphs can be saved as objects!
+```
+
+## gg is for Grammar of Graphics
+
+:::: {.columns}
+::: {.column width="30%"}
+
+### Data
+
+### Aesthetics
+
+### Geoms
+
+### Facet
+
+```{r}
+#| eval: false
+
++ facet_wrap() 
++ facet_grid()
+```
+
+:::
+
+::: {.column width="70%"}
+
+```{r}
+plot +
+  facet_wrap(~ region)
+```
+
+
+:::
+::::
+
+## gg is for Grammar of Graphics
+
+:::: {.columns}
+::: {.column width="30%"}
+
+### Data
+
+### Aesthetics
+
+### Geoms
+
+### Facet
+
+```{r}
+#| eval: false
+
++ facet_wrap() 
++ facet_grid()
+```
+
+:::
+
+::: {.column width="70%"}
+
+```{r}
+plot +
+  facet_grid(~ region)
+```
+
+
+:::
+::::
+
+
+## gg is for Grammar of Graphics
+
+:::: {.columns}
+::: {.column width="30%"}
+
+### Data
+
+### Aesthetics
+
+### Geoms
+
+### Facet
+
+### Labels 
+
+```{r}
+#| eval: false
+
++ labs
+```
+
+:::
+
+::: {.column width="70%"}
+
+```{r}
+plot +
+  labs(x = "Year",
+       y = "Hours per worker",
+       color = "Region")
+```
+
+:::
+::::
+
+## gg is for Grammar of Graphics
+
+:::: {.columns}
+::: {.column width="30%"}
+
+### Data
+
+### Aesthetics
+
+### Geoms
+
+### Facet
+
+### Labels
+
+### Scales
+
+```{r}
+#| eval: false
+
++ scale_*_*()
+```
+
+:::
+
+::: {.column width="70%"}
+
+`scale` + `_` + `<aes>` + `_` + `<type>` + `()`
+
+What parameter do you want to adjust? $\rightarrow$ `<aes>`
+
+What type is the parameter? $\rightarrow$ `<type>`
+
+* I want to change my discrete x-axis $\rightarrow$ `scale_x_discrete()`
+
+* I want to change range of point sizes from continuous variable $\rightarrow$ `scale_size_continuous()`
+
+* I want to rescale y-axis as log10 $\rightarrow$ `scale_y_log10()`
+
+* I want to use a different color palette $\rightarrow$ `scale_fill_discrete()` / `scale_color_manual()`
+
+:::
+::::
+
+## gg is for Grammar of Graphics
+
+:::: {.columns}
+::: {.column width="30%"}
+
+### Data
+
+### Aesthetics
+
+### Geoms
+
+### Facet
+
+### Labels
+
+### Scales
+
+```{r}
+#| eval: false
+
++ scale_*_*()
+```
+
+:::
+
+::: {.column width="70%"}
+
+```{r}
+plot +
+  scale_color_viridis_d()
+```
+
+
+:::
+::::
+
+## gg is for Grammar of Graphics
+
+:::: {.columns}
+::: {.column width="30%"}
+
+### Data
+
+### Aesthetics
+
+### Geoms
+
+### Facet
+
+### Labels
+
+### Scales
+
+```{r}
+#| eval: false
+
++ scale_*_*()
+```
+
+:::
+
+::: {.column width="70%"}
+
+```{r}
+plot +
+  scale_y_continuous(limits = c(0,NA))
+```
+
+
+:::
+::::
+
+## gg is for Grammar of Graphics
+
+:::: {.columns}
+::: {.column width="30%"}
+
+### Data
+
+### Aesthetics
+
+### Geoms
+
+### Facet
+
+### Labels
+
+### Scales
+
+```{r}
+#| eval: false
+
++ scale_*_*()
+```
+
+:::
+
+::: {.column width="70%"}
+
+```{r}
+plot +
+  scale_y_continuous(limits = c(0,60), breaks = seq(0, 60, 10))
+```
+
+
+:::
+::::
+
+## Devling deeper into `ggplot2`
+
+- Each graph is different and `ggplot2` provides a zillion options to customize your graph to perfection.
+
+- Excellent cheatsheet on [project website](https://ggplot2.tidyverse.org/).
+
+- [Cédric Scherer](https://www.cedricscherer.com/)'s wonderful [*Graphic Design with ggplot2*](https://rstudio-conf-2022.github.io/ggplot2-graphic-design/) tutorial
+
+## Today's lecture
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Summarizing data](#summarizing) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.1 Distributions](#distributions) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.2 Central tendency](#central_tendency) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.3 Spread](#spread) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.4 Relationship between variables](#cov_cor) $\checkmark$
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. Manipulating data](#manipulating) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.1 `dplyr` verbs](#dplyr) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.2 `group_by`](#group_by) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.3 Joining data](#joining) $\checkmark$
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**3. Visualizing data**](#visualizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.1 gg is for Grammar of Graphics](#gg) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.2 Different types of gaphs](#types_graph)
+
+## Different types of graphs {#types_graph}
+
+The type of graph you need depends on whether:
+
+. . .
+
+1. you are plotting [one variable]{.hi_purple} or the [relationship between variables]{.hi_blue}
+
+. . .
+
+2. the variable(s) are [categorical]{.hi_yellow} or [numerical]{.hi_cranberry}.
+
+. . .
+
+Let's start with plotting just [one variable]{.hi_purple}.
+
+## Visualizing distributions: frequency plot
+
+How many countries per year?
+
+```{r}
+global_working_hours |> 
+  ggplot(aes(x = year)) +
+  geom_bar()
+```
+
+## Visualizing distributions: frequency plot
+
+How many countries per region?
+
+```{r}
+global_working_hours |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = region)) +
+  geom_bar()
+```
+
+## Visualizing distributions: histogram and density plots
+
+Histogram of hours per worker in 2022
+
+```{r}
+global_working_hours |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = hours_worker)) +
+  geom_histogram()
+```
+
+## Visualizing distributions: histogram and density plots
+
+Histogram of hours per worker in 2022
+
+```{r}
+#| code-line-numbers: "4"
+global_working_hours |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = hours_worker)) +
+  geom_histogram(color = "white")
+```
+
+## Visualizing distributions: histogram and density plots
+
+Histogram of hours per worker in 2022
+
+```{r}
+#| code-line-numbers: "4"
+global_working_hours |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = hours_worker)) +
+  geom_histogram(color = "white", binwidth = 1)
+```
+
+## Visualizing distributions: histogram and density plots
+
+Histogram of hours per worked in 2022
+
+```{r}
+#| code-line-numbers: "4"
+global_working_hours |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = hours_worker)) +
+  geom_histogram(color = "white", binwidth = 1, boundary = 35)
+```
+
+## Visualizing distributions: histogram and density plots
+
+Histogram of hours per worked in 2022
+
+```{r}
+#| code-line-numbers: "4"
+global_working_hours |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = hours_worker)) +
+  geom_histogram(color = "white", binwidth = 10, boundary = 35)
+```
+
+## Visualizing distributions: histogram and density plots
+
+Histogram of hours per worked in 2022
+
+```{r}
+#| code-line-numbers: "4"
+global_working_hours |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = hours_worker)) +
+  geom_histogram(color = "white", binwidth = .5, boundary = 35)
+```
+
+## Visualizing distributions: histogram and density plots
+
+Density of hours per worker in 2022
+
+```{r}
+#| code-line-numbers: "4"
+global_working_hours |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = hours_worker)) +
+  geom_density()
+```
+
+## Visualizing relationships: box plot
+
+Boxplots: displays the distribution of a variable, with the median, mean and interquartile range.
+
+![](img/EDA-boxplot.png)
+
+## Visualizing relationships: box plot
+
+Box plot of hours per worker in 2022 by region
+
+```{r}
+global_working_hours |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = region, y = hours_worker)) +
+  geom_boxplot()
+```
+
+## Density plot
+
+```{r}
+#| code-line-numbers: "3,4"
+global_working_hours |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = hours_worker, color = region)) +
+  geom_density()
+```
+
+## Density plot
+
+```{r}
+#| code-line-numbers: "3"
+global_working_hours |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = hours_worker, fill = region)) +
+  geom_density()
+```
+
+## Density plot
+
+```{r}
+#| code-line-numbers: "4"
+global_working_hours |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = hours_worker, fill = region)) +
+  geom_density(alpha = .25)
+```
+
+## Scatter plot
+
+```{r}
+global_working_hours |>
+  left_join(gdp) |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = gdp, y = hours_worker, color = region)) +
+  geom_point() +
+  scale_x_log10()
+```
+
+## Line plot
+
+```{r}
+global_working_hours |>
+  left_join(gdp) |>
+  filter(country == "France") |> 
+  ggplot(aes(x = gdp, y = hours_worker)) +
+  geom_line()
+```
+
+## Your turn! #3 {.slide_task}
+
+{{< countdown "10:00" top=0 right=0 >}}
+
+Use the data from the previous task to produce the following plots:
+
+1. A histogram of hours per female worker (`hours_worker_women`) in 2022. Once you've created the histogram, within the appropriate geom_* set: binwidth to 5, boundary to 30, colour to "white" and fill to "#785EF0". What does each of these options do?
+*Optional:* using the previous graph, facet it by region such that each region's plot is a new row. (Hint: check the help for facet_grid.)
+
+2. A boxplot of average hours worked `hours_worked` per year by region. Within the appropriate geom_* set: colour to "black" and fill to "#785EF0". (Hint: you need to group by both region and year.)
+
+3. A scatter plot of fertility rate (y-axis) with respect to infant mortality (x-axis) in 2015. Once you've created the scatter plot, within the appropriate geom_* set: size to 3, alpha to 0.5, colour to "#d90502". Add labels (labs) to the plot so that it is cleaner.
+
+## Today's lecture
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Summarizing data](#summarizing) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.1 Distributions](#distributions) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.2 Central tendency](#central_tendency) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.3 Spread](#spread) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[1.4 Relationship between variables](#cov_cor) $\checkmark$
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. Manipulating data](#manipulating) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.1 `dplyr` verbs](#dplyr) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.2 `group_by`](#group_by) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[2.3 Joining data](#joining) $\checkmark$
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. Visualizing data](#visualizing)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.1 gg is for Grammar of Graphics](#gg) $\checkmark$
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[3.2 Different types of gaphs](#types_graph) $\checkmark$
+
+# See you next week!
+
+
