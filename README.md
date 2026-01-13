@@ -8,7 +8,7 @@
 | Lecture | HTML | PDF |
 |---------|:----:|:---|
 | Lecture 1: Introduction | [HTML](https://raw.githack.com/gustavekenedi/L2-Statistics/master/1_intro/1_intro.html) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/1_intro/1_intro.pdf) |
-| Lectures 2/3: Summarizing, tidying, and visualizing data | [HTML]() | [PDF]() |
+| Lectures 2/3: Summarizing, tidying, and visualizing data | [HTML](https://raw.githack.com/gustavekenedi/L2-Statistics/master/2_visualizing_summarizing/2_visualizing_summarizing.html) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/2_visualizing_summarizing/2_visualizing_summarizing.pdf) |
 | Lecture 4: Sampling and inferential statistics | [HTML]() | [PDF]() |
 | Lecture 5: Confidence intervals | [HTML]() | [PDF]() |
 | Lecture 6: Hypothesis testing | [HTML]() | [PDF]() |
