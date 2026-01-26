@@ -33,9 +33,9 @@ source("../assets/r/common_loading.R")
 
 ## Recap quiz
 
-![](img/moodle_quiz.png)
+![](img/wooclap_quiz.png)
 
-Or click here: [link to Wooclap](https://app.wooclap.com/L2STATSINTRO?from=instruction-slide)
+Or click here: [link to Wooclap](https://app.wooclap.com/L2STATSUM?from=instruction-slide)
 
 ## Today's lecture
 
