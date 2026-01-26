@@ -1,0 +1,185 @@
+---
+title: "Lecture 3: Tasks Solutions"
+author: "Gustave Kenedi"
+date: today
+format: pdf
+editor: visual
+---
+
+
+
+# Your Turn #3
+
+Let $X_1, ..., X_n$ be i.i.d. random variables with a finite expected value $E[X_i] = \mu$ and $\mathbb{V}(X_i) = \sigma^2 < \infty$.
+
+## Question 1
+
+Show that $\mathbb{E}[S_n^2] = \mathbb{E}[X^2] - \mathbb{E}[\bar{X_n}^2]$.
+
+*Answer:*
+
+\begin{align}
+\mathbb{E}[S_n^2] &= \mathbb{E} \left[ \frac{1}{n} \sum_{i=1}^n (X_i - \bar{X_n})^2 \right] \\
+&= \mathbb{E} \left[ \frac{1}{n} \sum_{i=1}^n X_i^2 - \frac{1}{n} 2 \sum_{i=1}^n X_i \bar{X_n} + \frac{1}{n} \sum_{i=1}^n \bar{X_n}^2 \right] \\
+&= \frac{1}{n} \sum_{i=1}^n \mathbb{E}[X_i^2] - \mathbb{E} \left[ \frac{1}{n} 2\bar{X_n} \sum_{i=1}^n X_i \right] + \mathbb{E} \left[ \bar{X_n}^2 \right] \\
+&= \mathbb{E} \left[ X^2 \right] - \mathbb{E} \left[ \frac{1}{n} 2\bar{X_n} n \bar{X_n} \right] + \mathbb{E} \left[ \bar{X_n}^2 \right] \\
+&= \mathbb{E} \left[ X^2 \right] - 2\mathbb{E} \left[\bar{X_n}^2 \right] + \mathbb{E} \left[ \bar{X_n}^2 \right] \\
+&= \mathbb{E} \left[ X^2 \right] - \mathbb{E} \left[\bar{X_n}^2 \right]
+\end{align}
+
+## Question 2
+
+Show that $\mathbb{E}[X^2] = \sigma^2 + \mu^2$. Hint: recall the formula for the variance using expectations.
+
+*Answer:*
+
+Recall that $\mathbb{V} (X) = \mathbb{E} \left[ X^2 \right] - \mathbb{E} [X]^2$. We therefore have:
+
+\begin{align}
+\mathbb{E} \left[ X^2 \right] &= \mathbb{V} (X) + \mathbb{E} [X]^2 \\
+&= \sigma^2 + \mu^2
+\end{align}
+
+## Question 3
+
+Show that $\mathbb{E}[\bar{X_n}^2] = \frac{\sigma^2}{n} + \mu^2$. *Hint: the formula for $\mathbb{V}(\bar{X_n})$ will be useful.*
+
+*Answer:*
+
+Using the variance formula and replacing $X$ by $\bar{X_n}$, we have:
+
+\begin{align}
+\mathbb{E} \left[ \bar{X_n}^2 \right] &= \mathbb{V} (\bar{X_n}) + \mathbb{E} \left[ \bar{X_n} \right]^2 \\
+&= \frac{\sigma^2}{n} + \mu^2
+\end{align}
+
+## Question 4
+
+Combine the above results to show that $\mathbb{E}[S_n^2] \neq \sigma^2$.
+
+*Answer:*
+
+We can use the results from questions 2 and 3:
+
+\begin{align}
+\mathbb{E} \left[ S_n^2 \right] &= \mathbb{E} \left[ X^2 \right] - \mathbb{E} \left[ \bar{X_n}^2 \right] \\
+&= \sigma^2 + \mu^2 - (\frac{\sigma^2}{n} + \mu^2) \\
+&= \sigma^2 - \frac{\sigma^2}{n} \\
+&= \frac{n-1}{n} \sigma^2 \\
+&\neq \sigma^2
+\end{align}
+
+## Question 5
+
+Load this [voter data](https://www.dropbox.com/scl/fi/lnz14t3a2cj6kw0l217yo/pumpernickel_voter.csv?rlkey=4dupeb3v1ibxfb1y6283tq403&dl=1). Use `R` to compute the variance of Pumpernickel voters: (1) manually (i.e., taking the sum of deviations from the mean), and (2) using the `var` command. What do you notice?
+
+*Answer:*
+
+
+
+```{r}
+#| message: false
+#| warning: false
+
+library(tidyverse)
+
+voter_data <- read.csv("https://www.dropbox.com/scl/fi/lnz14t3a2cj6kw0l217yo/pumpernickel_voter.csv?rlkey=4dupeb3v1ibxfb1y6283tq403&dl=1")
+
+voter_data |> 
+  mutate(deviation_from_mean = pumpernickel_voter - mean(pumpernickel_voter)) |> 
+  summarise(var_manual = 1/n() * sum(deviation_from_mean^2),
+            var_command = var(pumpernickel_voter),
+            var_manual_adjusted = n()/(n()-1) * var_manual)
+```
+
+
+
+## Question 6
+
+Read the help `sd` (it is simpler than `var`) command's help file to see if you can understand what's going on.
+
+
+
+```{r}
+?sd
+```
+
+
+
+*Like var this uses denominator $n-1$.*
+
+# Your Turn #4
+
+## Question 1
+
+Use `pnorm` to confirm the figure on slide 65, i.e., within +/- 1 (2) standard deviation of the mean, the standard normal distribution contains 68% (95%) of observations.
+
+*Answer:*
+
+
+
+```{r}
+pnorm(q = 1, mean = 0, sd = 1) - pnorm(q = -1, mean = 0, sd = 1)
+pnorm(q = 2, mean = 0, sd = 1) - pnorm(q = -2, mean = 0, sd = 1)
+```
+
+
+
+## Question 2
+
+A region has household incomes with mean $\mu$ = 58,000 euros and standard deviation $\sigma$ = 15,000 euros. An economist surveys 100 randomly selected households. What is the probability that the sample mean income is less than 55,000 euros?
+
+*Answer:*
+
+
+
+```{r}
+sample_mean = 55000
+pop_mean = 58000
+pop_sd = 15000
+sample_size = 100
+mean_se = pop_sd/sqrt(sample_size)
+
+pnorm(sample_mean, mean = pop_mean, sd = mean_se)
+```
+
+
+
+## Question 3
+
+A country's true unemployment rate is 6.2%. A labor economist draws a random sample of 1,000 working-age adults. What is the probability that the sample unemployment rate falls between 5% and 7%?
+
+*Answer:*
+
+
+
+```{r}
+pop_prop = 0.062
+pop_var = 0.062 * (1 - 0.062)
+sample_size = 1000
+se <- sqrt((pop_prop*(1-pop_prop)) / sample_size)
+
+lower_bound = 0.05
+upper_bound = 0.07
+
+pnorm(upper_bound, mean = pop_prop, sd = se) - pnorm(lower_bound, mean = pop_prop, sd = se)
+```
+
+
+
+## Question 4
+
+Monthly consumer spending at retail stores has mean $\mu$ = 320 euros and standard deviation $\sigma$ = 85 euros. A retail analyst collects data from 50 randomly selected consumers. Below what value does the lowest 10% of sample mean spending fall?
+
+*Answer:*
+
+
+
+```{r}
+pop_mean = 320
+pop_sd = 85
+sample_size = 50
+quantile = .1
+qnorm(quantile, mean = pop_mean, sd = pop_sd/sqrt(sample_size))
+```
+

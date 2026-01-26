@@ -1,0 +1,1001 @@
+"","voter_id","candidate","pumpernickel_voter"
+"1",1,"Other candidate",FALSE
+"2",2,"Other candidate",FALSE
+"3",3,"Other candidate",FALSE
+"4",4,"Other candidate",FALSE
+"5",5,"Pumpernickel",TRUE
+"6",6,"Other candidate",FALSE
+"7",7,"Other candidate",FALSE
+"8",8,"Other candidate",FALSE
+"9",9,"Other candidate",FALSE
+"10",10,"Other candidate",FALSE
+"11",11,"Other candidate",FALSE
+"12",12,"Other candidate",FALSE
+"13",13,"Pumpernickel",TRUE
+"14",14,"Pumpernickel",TRUE
+"15",15,"Other candidate",FALSE
+"16",16,"Other candidate",FALSE
+"17",17,"Other candidate",FALSE
+"18",18,"Other candidate",FALSE
+"19",19,"Other candidate",FALSE
+"20",20,"Pumpernickel",TRUE
+"21",21,"Other candidate",FALSE
+"22",22,"Other candidate",FALSE
+"23",23,"Pumpernickel",TRUE
+"24",24,"Other candidate",FALSE
+"25",25,"Other candidate",FALSE
+"26",26,"Pumpernickel",TRUE
+"27",27,"Other candidate",FALSE
+"28",28,"Other candidate",FALSE
+"29",29,"Other candidate",FALSE
+"30",30,"Other candidate",FALSE
+"31",31,"Other candidate",FALSE
+"32",32,"Other candidate",FALSE
+"33",33,"Other candidate",FALSE
+"34",34,"Pumpernickel",TRUE
+"35",35,"Other candidate",FALSE
+"36",36,"Other candidate",FALSE
+"37",37,"Other candidate",FALSE
+"38",38,"Other candidate",FALSE
+"39",39,"Pumpernickel",TRUE
+"40",40,"Pumpernickel",TRUE
+"41",41,"Pumpernickel",TRUE
+"42",42,"Other candidate",FALSE
+"43",43,"Other candidate",FALSE
+"44",44,"Other candidate",FALSE
+"45",45,"Other candidate",FALSE
+"46",46,"Other candidate",FALSE
+"47",47,"Other candidate",FALSE
+"48",48,"Other candidate",FALSE
+"49",49,"Other candidate",FALSE
+"50",50,"Other candidate",FALSE
+"51",51,"Pumpernickel",TRUE
+"52",52,"Pumpernickel",TRUE
+"53",53,"Other candidate",FALSE
+"54",54,"Pumpernickel",TRUE
+"55",55,"Other candidate",FALSE
+"56",56,"Other candidate",FALSE
+"57",57,"Other candidate",FALSE
+"58",58,"Other candidate",FALSE
+"59",59,"Other candidate",FALSE
+"60",60,"Other candidate",FALSE
+"61",61,"Other candidate",FALSE
+"62",62,"Other candidate",FALSE
+"63",63,"Other candidate",FALSE
+"64",64,"Pumpernickel",TRUE
+"65",65,"Other candidate",FALSE
+"66",66,"Other candidate",FALSE
+"67",67,"Pumpernickel",TRUE
+"68",68,"Other candidate",FALSE
+"69",69,"Pumpernickel",TRUE
+"70",70,"Other candidate",FALSE
+"71",71,"Other candidate",FALSE
+"72",72,"Pumpernickel",TRUE
+"73",73,"Other candidate",FALSE
+"74",74,"Pumpernickel",TRUE
+"75",75,"Other candidate",FALSE
+"76",76,"Other candidate",FALSE
+"77",77,"Other candidate",FALSE
+"78",78,"Other candidate",FALSE
+"79",79,"Other candidate",FALSE
+"80",80,"Other candidate",FALSE
+"81",81,"Other candidate",FALSE
+"82",82,"Other candidate",FALSE
+"83",83,"Pumpernickel",TRUE
+"84",84,"Pumpernickel",TRUE
+"85",85,"Pumpernickel",TRUE
+"86",86,"Other candidate",FALSE
+"87",87,"Other candidate",FALSE
+"88",88,"Other candidate",FALSE
+"89",89,"Pumpernickel",TRUE
+"90",90,"Pumpernickel",TRUE
+"91",91,"Pumpernickel",TRUE
+"92",92,"Other candidate",FALSE
+"93",93,"Other candidate",FALSE
+"94",94,"Other candidate",FALSE
+"95",95,"Other candidate",FALSE
+"96",96,"Other candidate",FALSE
+"97",97,"Other candidate",FALSE
+"98",98,"Other candidate",FALSE
+"99",99,"Other candidate",FALSE
+"100",100,"Other candidate",FALSE
+"101",101,"Other candidate",FALSE
+"102",102,"Other candidate",FALSE
+"103",103,"Other candidate",FALSE
+"104",104,"Other candidate",FALSE
+"105",105,"Other candidate",FALSE
+"106",106,"Other candidate",FALSE
+"107",107,"Other candidate",FALSE
+"108",108,"Other candidate",FALSE
+"109",109,"Other candidate",FALSE
+"110",110,"Pumpernickel",TRUE
+"111",111,"Other candidate",FALSE
+"112",112,"Other candidate",FALSE
+"113",113,"Pumpernickel",TRUE
+"114",114,"Other candidate",FALSE
+"115",115,"Other candidate",FALSE
+"116",116,"Pumpernickel",TRUE
+"117",117,"Other candidate",FALSE
+"118",118,"Pumpernickel",TRUE
+"119",119,"Other candidate",FALSE
+"120",120,"Other candidate",FALSE
+"121",121,"Pumpernickel",TRUE
+"122",122,"Other candidate",FALSE
+"123",123,"Other candidate",FALSE
+"124",124,"Other candidate",FALSE
+"125",125,"Pumpernickel",TRUE
+"126",126,"Other candidate",FALSE
+"127",127,"Pumpernickel",TRUE
+"128",128,"Other candidate",FALSE
+"129",129,"Other candidate",FALSE
+"130",130,"Other candidate",FALSE
+"131",131,"Other candidate",FALSE
+"132",132,"Other candidate",FALSE
+"133",133,"Other candidate",FALSE
+"134",134,"Other candidate",FALSE
+"135",135,"Pumpernickel",TRUE
+"136",136,"Other candidate",FALSE
+"137",137,"Pumpernickel",TRUE
+"138",138,"Other candidate",FALSE
+"139",139,"Other candidate",FALSE
+"140",140,"Other candidate",FALSE
+"141",141,"Pumpernickel",TRUE
+"142",142,"Other candidate",FALSE
+"143",143,"Pumpernickel",TRUE
+"144",144,"Other candidate",FALSE
+"145",145,"Other candidate",FALSE
+"146",146,"Other candidate",FALSE
+"147",147,"Other candidate",FALSE
+"148",148,"Other candidate",FALSE
+"149",149,"Other candidate",FALSE
+"150",150,"Other candidate",FALSE
+"151",151,"Pumpernickel",TRUE
+"152",152,"Pumpernickel",TRUE
+"153",153,"Pumpernickel",TRUE
+"154",154,"Other candidate",FALSE
+"155",155,"Pumpernickel",TRUE
+"156",156,"Other candidate",FALSE
+"157",157,"Other candidate",FALSE
+"158",158,"Pumpernickel",TRUE
+"159",159,"Pumpernickel",TRUE
+"160",160,"Pumpernickel",TRUE
+"161",161,"Other candidate",FALSE
+"162",162,"Other candidate",FALSE
+"163",163,"Other candidate",FALSE
+"164",164,"Pumpernickel",TRUE
+"165",165,"Pumpernickel",TRUE
+"166",166,"Pumpernickel",TRUE
+"167",167,"Other candidate",FALSE
+"168",168,"Other candidate",FALSE
+"169",169,"Other candidate",FALSE
+"170",170,"Other candidate",FALSE
+"171",171,"Other candidate",FALSE
+"172",172,"Other candidate",FALSE
+"173",173,"Other candidate",FALSE
+"174",174,"Other candidate",FALSE
+"175",175,"Other candidate",FALSE
+"176",176,"Other candidate",FALSE
+"177",177,"Pumpernickel",TRUE
+"178",178,"Pumpernickel",TRUE
+"179",179,"Pumpernickel",TRUE
+"180",180,"Other candidate",FALSE
+"181",181,"Other candidate",FALSE
+"182",182,"Other candidate",FALSE
+"183",183,"Other candidate",FALSE
+"184",184,"Other candidate",FALSE
+"185",185,"Pumpernickel",TRUE
+"186",186,"Pumpernickel",TRUE
+"187",187,"Other candidate",FALSE
+"188",188,"Other candidate",FALSE
+"189",189,"Other candidate",FALSE
+"190",190,"Other candidate",FALSE
+"191",191,"Other candidate",FALSE
+"192",192,"Other candidate",FALSE
+"193",193,"Other candidate",FALSE
+"194",194,"Other candidate",FALSE
+"195",195,"Pumpernickel",TRUE
+"196",196,"Pumpernickel",TRUE
+"197",197,"Other candidate",FALSE
+"198",198,"Other candidate",FALSE
+"199",199,"Other candidate",FALSE
+"200",200,"Pumpernickel",TRUE
+"201",201,"Other candidate",FALSE
+"202",202,"Other candidate",FALSE
+"203",203,"Other candidate",FALSE
+"204",204,"Other candidate",FALSE
+"205",205,"Pumpernickel",TRUE
+"206",206,"Other candidate",FALSE
+"207",207,"Other candidate",FALSE
+"208",208,"Other candidate",FALSE
+"209",209,"Pumpernickel",TRUE
+"210",210,"Other candidate",FALSE
+"211",211,"Pumpernickel",TRUE
+"212",212,"Pumpernickel",TRUE
+"213",213,"Other candidate",FALSE
+"214",214,"Other candidate",FALSE
+"215",215,"Other candidate",FALSE
+"216",216,"Other candidate",FALSE
+"217",217,"Pumpernickel",TRUE
+"218",218,"Other candidate",FALSE
+"219",219,"Other candidate",FALSE
+"220",220,"Other candidate",FALSE
+"221",221,"Other candidate",FALSE
+"222",222,"Other candidate",FALSE
+"223",223,"Pumpernickel",TRUE
+"224",224,"Pumpernickel",TRUE
+"225",225,"Other candidate",FALSE
+"226",226,"Other candidate",FALSE
+"227",227,"Other candidate",FALSE
+"228",228,"Other candidate",FALSE
+"229",229,"Pumpernickel",TRUE
+"230",230,"Other candidate",FALSE
+"231",231,"Other candidate",FALSE
+"232",232,"Other candidate",FALSE
+"233",233,"Other candidate",FALSE
+"234",234,"Other candidate",FALSE
+"235",235,"Pumpernickel",TRUE
+"236",236,"Pumpernickel",TRUE
+"237",237,"Other candidate",FALSE
+"238",238,"Pumpernickel",TRUE
+"239",239,"Other candidate",FALSE
+"240",240,"Other candidate",FALSE
+"241",241,"Other candidate",FALSE
+"242",242,"Other candidate",FALSE
+"243",243,"Pumpernickel",TRUE
+"244",244,"Pumpernickel",TRUE
+"245",245,"Other candidate",FALSE
+"246",246,"Other candidate",FALSE
+"247",247,"Other candidate",FALSE
+"248",248,"Other candidate",FALSE
+"249",249,"Other candidate",FALSE
+"250",250,"Pumpernickel",TRUE
+"251",251,"Other candidate",FALSE
+"252",252,"Pumpernickel",TRUE
+"253",253,"Other candidate",FALSE
+"254",254,"Other candidate",FALSE
+"255",255,"Other candidate",FALSE
+"256",256,"Other candidate",FALSE
+"257",257,"Other candidate",FALSE
+"258",258,"Other candidate",FALSE
+"259",259,"Other candidate",FALSE
+"260",260,"Other candidate",FALSE
+"261",261,"Other candidate",FALSE
+"262",262,"Other candidate",FALSE
+"263",263,"Other candidate",FALSE
+"264",264,"Other candidate",FALSE
+"265",265,"Pumpernickel",TRUE
+"266",266,"Other candidate",FALSE
+"267",267,"Other candidate",FALSE
+"268",268,"Other candidate",FALSE
+"269",269,"Other candidate",FALSE
+"270",270,"Other candidate",FALSE
+"271",271,"Other candidate",FALSE
+"272",272,"Other candidate",FALSE
+"273",273,"Other candidate",FALSE
+"274",274,"Other candidate",FALSE
+"275",275,"Other candidate",FALSE
+"276",276,"Other candidate",FALSE
+"277",277,"Pumpernickel",TRUE
+"278",278,"Pumpernickel",TRUE
+"279",279,"Other candidate",FALSE
+"280",280,"Pumpernickel",TRUE
+"281",281,"Other candidate",FALSE
+"282",282,"Other candidate",FALSE
+"283",283,"Other candidate",FALSE
+"284",284,"Other candidate",FALSE
+"285",285,"Other candidate",FALSE
+"286",286,"Pumpernickel",TRUE
+"287",287,"Other candidate",FALSE
+"288",288,"Other candidate",FALSE
+"289",289,"Pumpernickel",TRUE
+"290",290,"Pumpernickel",TRUE
+"291",291,"Pumpernickel",TRUE
+"292",292,"Other candidate",FALSE
+"293",293,"Other candidate",FALSE
+"294",294,"Pumpernickel",TRUE
+"295",295,"Other candidate",FALSE
+"296",296,"Other candidate",FALSE
+"297",297,"Other candidate",FALSE
+"298",298,"Other candidate",FALSE
+"299",299,"Pumpernickel",TRUE
+"300",300,"Other candidate",FALSE
+"301",301,"Other candidate",FALSE
+"302",302,"Pumpernickel",TRUE
+"303",303,"Other candidate",FALSE
+"304",304,"Other candidate",FALSE
+"305",305,"Other candidate",FALSE
+"306",306,"Other candidate",FALSE
+"307",307,"Other candidate",FALSE
+"308",308,"Pumpernickel",TRUE
+"309",309,"Pumpernickel",TRUE
+"310",310,"Pumpernickel",TRUE
+"311",311,"Other candidate",FALSE
+"312",312,"Other candidate",FALSE
+"313",313,"Other candidate",FALSE
+"314",314,"Other candidate",FALSE
+"315",315,"Other candidate",FALSE
+"316",316,"Pumpernickel",TRUE
+"317",317,"Other candidate",FALSE
+"318",318,"Other candidate",FALSE
+"319",319,"Other candidate",FALSE
+"320",320,"Other candidate",FALSE
+"321",321,"Other candidate",FALSE
+"322",322,"Other candidate",FALSE
+"323",323,"Other candidate",FALSE
+"324",324,"Other candidate",FALSE
+"325",325,"Other candidate",FALSE
+"326",326,"Pumpernickel",TRUE
+"327",327,"Other candidate",FALSE
+"328",328,"Other candidate",FALSE
+"329",329,"Other candidate",FALSE
+"330",330,"Pumpernickel",TRUE
+"331",331,"Other candidate",FALSE
+"332",332,"Other candidate",FALSE
+"333",333,"Other candidate",FALSE
+"334",334,"Other candidate",FALSE
+"335",335,"Other candidate",FALSE
+"336",336,"Other candidate",FALSE
+"337",337,"Other candidate",FALSE
+"338",338,"Other candidate",FALSE
+"339",339,"Pumpernickel",TRUE
+"340",340,"Other candidate",FALSE
+"341",341,"Other candidate",FALSE
+"342",342,"Other candidate",FALSE
+"343",343,"Other candidate",FALSE
+"344",344,"Pumpernickel",TRUE
+"345",345,"Other candidate",FALSE
+"346",346,"Other candidate",FALSE
+"347",347,"Other candidate",FALSE
+"348",348,"Pumpernickel",TRUE
+"349",349,"Other candidate",FALSE
+"350",350,"Other candidate",FALSE
+"351",351,"Other candidate",FALSE
+"352",352,"Other candidate",FALSE
+"353",353,"Other candidate",FALSE
+"354",354,"Other candidate",FALSE
+"355",355,"Pumpernickel",TRUE
+"356",356,"Other candidate",FALSE
+"357",357,"Other candidate",FALSE
+"358",358,"Other candidate",FALSE
+"359",359,"Other candidate",FALSE
+"360",360,"Other candidate",FALSE
+"361",361,"Other candidate",FALSE
+"362",362,"Pumpernickel",TRUE
+"363",363,"Other candidate",FALSE
+"364",364,"Other candidate",FALSE
+"365",365,"Other candidate",FALSE
+"366",366,"Other candidate",FALSE
+"367",367,"Other candidate",FALSE
+"368",368,"Other candidate",FALSE
+"369",369,"Other candidate",FALSE
+"370",370,"Other candidate",FALSE
+"371",371,"Other candidate",FALSE
+"372",372,"Other candidate",FALSE
+"373",373,"Pumpernickel",TRUE
+"374",374,"Pumpernickel",TRUE
+"375",375,"Other candidate",FALSE
+"376",376,"Other candidate",FALSE
+"377",377,"Other candidate",FALSE
+"378",378,"Other candidate",FALSE
+"379",379,"Other candidate",FALSE
+"380",380,"Other candidate",FALSE
+"381",381,"Pumpernickel",TRUE
+"382",382,"Other candidate",FALSE
+"383",383,"Other candidate",FALSE
+"384",384,"Other candidate",FALSE
+"385",385,"Other candidate",FALSE
+"386",386,"Other candidate",FALSE
+"387",387,"Other candidate",FALSE
+"388",388,"Other candidate",FALSE
+"389",389,"Other candidate",FALSE
+"390",390,"Other candidate",FALSE
+"391",391,"Pumpernickel",TRUE
+"392",392,"Pumpernickel",TRUE
+"393",393,"Other candidate",FALSE
+"394",394,"Other candidate",FALSE
+"395",395,"Other candidate",FALSE
+"396",396,"Other candidate",FALSE
+"397",397,"Other candidate",FALSE
+"398",398,"Pumpernickel",TRUE
+"399",399,"Other candidate",FALSE
+"400",400,"Other candidate",FALSE
+"401",401,"Other candidate",FALSE
+"402",402,"Other candidate",FALSE
+"403",403,"Other candidate",FALSE
+"404",404,"Other candidate",FALSE
+"405",405,"Other candidate",FALSE
+"406",406,"Other candidate",FALSE
+"407",407,"Other candidate",FALSE
+"408",408,"Other candidate",FALSE
+"409",409,"Pumpernickel",TRUE
+"410",410,"Other candidate",FALSE
+"411",411,"Other candidate",FALSE
+"412",412,"Other candidate",FALSE
+"413",413,"Pumpernickel",TRUE
+"414",414,"Other candidate",FALSE
+"415",415,"Pumpernickel",TRUE
+"416",416,"Other candidate",FALSE
+"417",417,"Other candidate",FALSE
+"418",418,"Other candidate",FALSE
+"419",419,"Other candidate",FALSE
+"420",420,"Other candidate",FALSE
+"421",421,"Other candidate",FALSE
+"422",422,"Other candidate",FALSE
+"423",423,"Other candidate",FALSE
+"424",424,"Pumpernickel",TRUE
+"425",425,"Other candidate",FALSE
+"426",426,"Pumpernickel",TRUE
+"427",427,"Other candidate",FALSE
+"428",428,"Pumpernickel",TRUE
+"429",429,"Pumpernickel",TRUE
+"430",430,"Pumpernickel",TRUE
+"431",431,"Pumpernickel",TRUE
+"432",432,"Other candidate",FALSE
+"433",433,"Other candidate",FALSE
+"434",434,"Other candidate",FALSE
+"435",435,"Other candidate",FALSE
+"436",436,"Other candidate",FALSE
+"437",437,"Other candidate",FALSE
+"438",438,"Other candidate",FALSE
+"439",439,"Other candidate",FALSE
+"440",440,"Other candidate",FALSE
+"441",441,"Other candidate",FALSE
+"442",442,"Other candidate",FALSE
+"443",443,"Other candidate",FALSE
+"444",444,"Other candidate",FALSE
+"445",445,"Other candidate",FALSE
+"446",446,"Other candidate",FALSE
+"447",447,"Other candidate",FALSE
+"448",448,"Other candidate",FALSE
+"449",449,"Other candidate",FALSE
+"450",450,"Other candidate",FALSE
+"451",451,"Other candidate",FALSE
+"452",452,"Other candidate",FALSE
+"453",453,"Other candidate",FALSE
+"454",454,"Other candidate",FALSE
+"455",455,"Pumpernickel",TRUE
+"456",456,"Pumpernickel",TRUE
+"457",457,"Other candidate",FALSE
+"458",458,"Pumpernickel",TRUE
+"459",459,"Pumpernickel",TRUE
+"460",460,"Other candidate",FALSE
+"461",461,"Other candidate",FALSE
+"462",462,"Other candidate",FALSE
+"463",463,"Pumpernickel",TRUE
+"464",464,"Other candidate",FALSE
+"465",465,"Other candidate",FALSE
+"466",466,"Other candidate",FALSE
+"467",467,"Other candidate",FALSE
+"468",468,"Other candidate",FALSE
+"469",469,"Other candidate",FALSE
+"470",470,"Other candidate",FALSE
+"471",471,"Other candidate",FALSE
+"472",472,"Other candidate",FALSE
+"473",473,"Pumpernickel",TRUE
+"474",474,"Other candidate",FALSE
+"475",475,"Other candidate",FALSE
+"476",476,"Other candidate",FALSE
+"477",477,"Pumpernickel",TRUE
+"478",478,"Other candidate",FALSE
+"479",479,"Other candidate",FALSE
+"480",480,"Pumpernickel",TRUE
+"481",481,"Other candidate",FALSE
+"482",482,"Other candidate",FALSE
+"483",483,"Pumpernickel",TRUE
+"484",484,"Other candidate",FALSE
+"485",485,"Other candidate",FALSE
+"486",486,"Other candidate",FALSE
+"487",487,"Other candidate",FALSE
+"488",488,"Other candidate",FALSE
+"489",489,"Other candidate",FALSE
+"490",490,"Pumpernickel",TRUE
+"491",491,"Other candidate",FALSE
+"492",492,"Other candidate",FALSE
+"493",493,"Other candidate",FALSE
+"494",494,"Other candidate",FALSE
+"495",495,"Other candidate",FALSE
+"496",496,"Other candidate",FALSE
+"497",497,"Other candidate",FALSE
+"498",498,"Other candidate",FALSE
+"499",499,"Other candidate",FALSE
+"500",500,"Pumpernickel",TRUE
+"501",501,"Other candidate",FALSE
+"502",502,"Other candidate",FALSE
+"503",503,"Other candidate",FALSE
+"504",504,"Other candidate",FALSE
+"505",505,"Other candidate",FALSE
+"506",506,"Other candidate",FALSE
+"507",507,"Other candidate",FALSE
+"508",508,"Other candidate",FALSE
+"509",509,"Other candidate",FALSE
+"510",510,"Other candidate",FALSE
+"511",511,"Other candidate",FALSE
+"512",512,"Other candidate",FALSE
+"513",513,"Other candidate",FALSE
+"514",514,"Other candidate",FALSE
+"515",515,"Other candidate",FALSE
+"516",516,"Pumpernickel",TRUE
+"517",517,"Other candidate",FALSE
+"518",518,"Other candidate",FALSE
+"519",519,"Pumpernickel",TRUE
+"520",520,"Other candidate",FALSE
+"521",521,"Other candidate",FALSE
+"522",522,"Pumpernickel",TRUE
+"523",523,"Pumpernickel",TRUE
+"524",524,"Other candidate",FALSE
+"525",525,"Other candidate",FALSE
+"526",526,"Pumpernickel",TRUE
+"527",527,"Other candidate",FALSE
+"528",528,"Pumpernickel",TRUE
+"529",529,"Other candidate",FALSE
+"530",530,"Other candidate",FALSE
+"531",531,"Other candidate",FALSE
+"532",532,"Other candidate",FALSE
+"533",533,"Other candidate",FALSE
+"534",534,"Pumpernickel",TRUE
+"535",535,"Other candidate",FALSE
+"536",536,"Other candidate",FALSE
+"537",537,"Pumpernickel",TRUE
+"538",538,"Pumpernickel",TRUE
+"539",539,"Other candidate",FALSE
+"540",540,"Other candidate",FALSE
+"541",541,"Other candidate",FALSE
+"542",542,"Other candidate",FALSE
+"543",543,"Other candidate",FALSE
+"544",544,"Pumpernickel",TRUE
+"545",545,"Pumpernickel",TRUE
+"546",546,"Other candidate",FALSE
+"547",547,"Other candidate",FALSE
+"548",548,"Other candidate",FALSE
+"549",549,"Other candidate",FALSE
+"550",550,"Other candidate",FALSE
+"551",551,"Other candidate",FALSE
+"552",552,"Other candidate",FALSE
+"553",553,"Other candidate",FALSE
+"554",554,"Pumpernickel",TRUE
+"555",555,"Pumpernickel",TRUE
+"556",556,"Other candidate",FALSE
+"557",557,"Other candidate",FALSE
+"558",558,"Other candidate",FALSE
+"559",559,"Other candidate",FALSE
+"560",560,"Pumpernickel",TRUE
+"561",561,"Other candidate",FALSE
+"562",562,"Other candidate",FALSE
+"563",563,"Other candidate",FALSE
+"564",564,"Other candidate",FALSE
+"565",565,"Other candidate",FALSE
+"566",566,"Other candidate",FALSE
+"567",567,"Pumpernickel",TRUE
+"568",568,"Other candidate",FALSE
+"569",569,"Other candidate",FALSE
+"570",570,"Other candidate",FALSE
+"571",571,"Other candidate",FALSE
+"572",572,"Other candidate",FALSE
+"573",573,"Pumpernickel",TRUE
+"574",574,"Other candidate",FALSE
+"575",575,"Pumpernickel",TRUE
+"576",576,"Other candidate",FALSE
+"577",577,"Other candidate",FALSE
+"578",578,"Other candidate",FALSE
+"579",579,"Other candidate",FALSE
+"580",580,"Other candidate",FALSE
+"581",581,"Pumpernickel",TRUE
+"582",582,"Other candidate",FALSE
+"583",583,"Other candidate",FALSE
+"584",584,"Other candidate",FALSE
+"585",585,"Other candidate",FALSE
+"586",586,"Other candidate",FALSE
+"587",587,"Other candidate",FALSE
+"588",588,"Pumpernickel",TRUE
+"589",589,"Pumpernickel",TRUE
+"590",590,"Pumpernickel",TRUE
+"591",591,"Other candidate",FALSE
+"592",592,"Other candidate",FALSE
+"593",593,"Pumpernickel",TRUE
+"594",594,"Other candidate",FALSE
+"595",595,"Other candidate",FALSE
+"596",596,"Other candidate",FALSE
+"597",597,"Pumpernickel",TRUE
+"598",598,"Pumpernickel",TRUE
+"599",599,"Other candidate",FALSE
+"600",600,"Other candidate",FALSE
+"601",601,"Other candidate",FALSE
+"602",602,"Pumpernickel",TRUE
+"603",603,"Pumpernickel",TRUE
+"604",604,"Other candidate",FALSE
+"605",605,"Other candidate",FALSE
+"606",606,"Pumpernickel",TRUE
+"607",607,"Other candidate",FALSE
+"608",608,"Other candidate",FALSE
+"609",609,"Other candidate",FALSE
+"610",610,"Pumpernickel",TRUE
+"611",611,"Other candidate",FALSE
+"612",612,"Other candidate",FALSE
+"613",613,"Other candidate",FALSE
+"614",614,"Pumpernickel",TRUE
+"615",615,"Other candidate",FALSE
+"616",616,"Other candidate",FALSE
+"617",617,"Other candidate",FALSE
+"618",618,"Other candidate",FALSE
+"619",619,"Pumpernickel",TRUE
+"620",620,"Other candidate",FALSE
+"621",621,"Pumpernickel",TRUE
+"622",622,"Other candidate",FALSE
+"623",623,"Other candidate",FALSE
+"624",624,"Other candidate",FALSE
+"625",625,"Other candidate",FALSE
+"626",626,"Other candidate",FALSE
+"627",627,"Pumpernickel",TRUE
+"628",628,"Other candidate",FALSE
+"629",629,"Other candidate",FALSE
+"630",630,"Other candidate",FALSE
+"631",631,"Other candidate",FALSE
+"632",632,"Other candidate",FALSE
+"633",633,"Pumpernickel",TRUE
+"634",634,"Other candidate",FALSE
+"635",635,"Other candidate",FALSE
+"636",636,"Other candidate",FALSE
+"637",637,"Other candidate",FALSE
+"638",638,"Other candidate",FALSE
+"639",639,"Other candidate",FALSE
+"640",640,"Other candidate",FALSE
+"641",641,"Other candidate",FALSE
+"642",642,"Other candidate",FALSE
+"643",643,"Other candidate",FALSE
+"644",644,"Other candidate",FALSE
+"645",645,"Other candidate",FALSE
+"646",646,"Other candidate",FALSE
+"647",647,"Other candidate",FALSE
+"648",648,"Pumpernickel",TRUE
+"649",649,"Pumpernickel",TRUE
+"650",650,"Other candidate",FALSE
+"651",651,"Other candidate",FALSE
+"652",652,"Other candidate",FALSE
+"653",653,"Other candidate",FALSE
+"654",654,"Other candidate",FALSE
+"655",655,"Other candidate",FALSE
+"656",656,"Other candidate",FALSE
+"657",657,"Other candidate",FALSE
+"658",658,"Other candidate",FALSE
+"659",659,"Other candidate",FALSE
+"660",660,"Other candidate",FALSE
+"661",661,"Other candidate",FALSE
+"662",662,"Other candidate",FALSE
+"663",663,"Pumpernickel",TRUE
+"664",664,"Other candidate",FALSE
+"665",665,"Pumpernickel",TRUE
+"666",666,"Pumpernickel",TRUE
+"667",667,"Other candidate",FALSE
+"668",668,"Other candidate",FALSE
+"669",669,"Other candidate",FALSE
+"670",670,"Other candidate",FALSE
+"671",671,"Pumpernickel",TRUE
+"672",672,"Pumpernickel",TRUE
+"673",673,"Other candidate",FALSE
+"674",674,"Other candidate",FALSE
+"675",675,"Other candidate",FALSE
+"676",676,"Other candidate",FALSE
+"677",677,"Other candidate",FALSE
+"678",678,"Other candidate",FALSE
+"679",679,"Other candidate",FALSE
+"680",680,"Pumpernickel",TRUE
+"681",681,"Other candidate",FALSE
+"682",682,"Other candidate",FALSE
+"683",683,"Other candidate",FALSE
+"684",684,"Other candidate",FALSE
+"685",685,"Other candidate",FALSE
+"686",686,"Pumpernickel",TRUE
+"687",687,"Other candidate",FALSE
+"688",688,"Other candidate",FALSE
+"689",689,"Other candidate",FALSE
+"690",690,"Other candidate",FALSE
+"691",691,"Other candidate",FALSE
+"692",692,"Other candidate",FALSE
+"693",693,"Other candidate",FALSE
+"694",694,"Other candidate",FALSE
+"695",695,"Other candidate",FALSE
+"696",696,"Pumpernickel",TRUE
+"697",697,"Other candidate",FALSE
+"698",698,"Other candidate",FALSE
+"699",699,"Other candidate",FALSE
+"700",700,"Other candidate",FALSE
+"701",701,"Other candidate",FALSE
+"702",702,"Other candidate",FALSE
+"703",703,"Other candidate",FALSE
+"704",704,"Other candidate",FALSE
+"705",705,"Other candidate",FALSE
+"706",706,"Pumpernickel",TRUE
+"707",707,"Other candidate",FALSE
+"708",708,"Other candidate",FALSE
+"709",709,"Pumpernickel",TRUE
+"710",710,"Pumpernickel",TRUE
+"711",711,"Pumpernickel",TRUE
+"712",712,"Pumpernickel",TRUE
+"713",713,"Other candidate",FALSE
+"714",714,"Other candidate",FALSE
+"715",715,"Other candidate",FALSE
+"716",716,"Other candidate",FALSE
+"717",717,"Other candidate",FALSE
+"718",718,"Other candidate",FALSE
+"719",719,"Other candidate",FALSE
+"720",720,"Other candidate",FALSE
+"721",721,"Other candidate",FALSE
+"722",722,"Pumpernickel",TRUE
+"723",723,"Other candidate",FALSE
+"724",724,"Other candidate",FALSE
+"725",725,"Other candidate",FALSE
+"726",726,"Pumpernickel",TRUE
+"727",727,"Other candidate",FALSE
+"728",728,"Other candidate",FALSE
+"729",729,"Other candidate",FALSE
+"730",730,"Other candidate",FALSE
+"731",731,"Other candidate",FALSE
+"732",732,"Other candidate",FALSE
+"733",733,"Other candidate",FALSE
+"734",734,"Other candidate",FALSE
+"735",735,"Other candidate",FALSE
+"736",736,"Other candidate",FALSE
+"737",737,"Other candidate",FALSE
+"738",738,"Pumpernickel",TRUE
+"739",739,"Other candidate",FALSE
+"740",740,"Other candidate",FALSE
+"741",741,"Other candidate",FALSE
+"742",742,"Other candidate",FALSE
+"743",743,"Other candidate",FALSE
+"744",744,"Pumpernickel",TRUE
+"745",745,"Other candidate",FALSE
+"746",746,"Other candidate",FALSE
+"747",747,"Pumpernickel",TRUE
+"748",748,"Other candidate",FALSE
+"749",749,"Other candidate",FALSE
+"750",750,"Other candidate",FALSE
+"751",751,"Other candidate",FALSE
+"752",752,"Pumpernickel",TRUE
+"753",753,"Other candidate",FALSE
+"754",754,"Other candidate",FALSE
+"755",755,"Pumpernickel",TRUE
+"756",756,"Other candidate",FALSE
+"757",757,"Other candidate",FALSE
+"758",758,"Other candidate",FALSE
+"759",759,"Other candidate",FALSE
+"760",760,"Other candidate",FALSE
+"761",761,"Pumpernickel",TRUE
+"762",762,"Other candidate",FALSE
+"763",763,"Other candidate",FALSE
+"764",764,"Pumpernickel",TRUE
+"765",765,"Pumpernickel",TRUE
+"766",766,"Pumpernickel",TRUE
+"767",767,"Pumpernickel",TRUE
+"768",768,"Pumpernickel",TRUE
+"769",769,"Pumpernickel",TRUE
+"770",770,"Other candidate",FALSE
+"771",771,"Other candidate",FALSE
+"772",772,"Other candidate",FALSE
+"773",773,"Other candidate",FALSE
+"774",774,"Pumpernickel",TRUE
+"775",775,"Pumpernickel",TRUE
+"776",776,"Other candidate",FALSE
+"777",777,"Other candidate",FALSE
+"778",778,"Other candidate",FALSE
+"779",779,"Other candidate",FALSE
+"780",780,"Other candidate",FALSE
+"781",781,"Other candidate",FALSE
+"782",782,"Other candidate",FALSE
+"783",783,"Pumpernickel",TRUE
+"784",784,"Pumpernickel",TRUE
+"785",785,"Pumpernickel",TRUE
+"786",786,"Other candidate",FALSE
+"787",787,"Other candidate",FALSE
+"788",788,"Other candidate",FALSE
+"789",789,"Pumpernickel",TRUE
+"790",790,"Other candidate",FALSE
+"791",791,"Other candidate",FALSE
+"792",792,"Pumpernickel",TRUE
+"793",793,"Other candidate",FALSE
+"794",794,"Pumpernickel",TRUE
+"795",795,"Other candidate",FALSE
+"796",796,"Other candidate",FALSE
+"797",797,"Other candidate",FALSE
+"798",798,"Other candidate",FALSE
+"799",799,"Other candidate",FALSE
+"800",800,"Pumpernickel",TRUE
+"801",801,"Other candidate",FALSE
+"802",802,"Other candidate",FALSE
+"803",803,"Other candidate",FALSE
+"804",804,"Other candidate",FALSE
+"805",805,"Other candidate",FALSE
+"806",806,"Other candidate",FALSE
+"807",807,"Other candidate",FALSE
+"808",808,"Other candidate",FALSE
+"809",809,"Other candidate",FALSE
+"810",810,"Other candidate",FALSE
+"811",811,"Other candidate",FALSE
+"812",812,"Other candidate",FALSE
+"813",813,"Other candidate",FALSE
+"814",814,"Pumpernickel",TRUE
+"815",815,"Other candidate",FALSE
+"816",816,"Other candidate",FALSE
+"817",817,"Other candidate",FALSE
+"818",818,"Pumpernickel",TRUE
+"819",819,"Other candidate",FALSE
+"820",820,"Other candidate",FALSE
+"821",821,"Pumpernickel",TRUE
+"822",822,"Pumpernickel",TRUE
+"823",823,"Other candidate",FALSE
+"824",824,"Other candidate",FALSE
+"825",825,"Other candidate",FALSE
+"826",826,"Other candidate",FALSE
+"827",827,"Other candidate",FALSE
+"828",828,"Other candidate",FALSE
+"829",829,"Other candidate",FALSE
+"830",830,"Other candidate",FALSE
+"831",831,"Other candidate",FALSE
+"832",832,"Other candidate",FALSE
+"833",833,"Other candidate",FALSE
+"834",834,"Other candidate",FALSE
+"835",835,"Other candidate",FALSE
+"836",836,"Other candidate",FALSE
+"837",837,"Pumpernickel",TRUE
+"838",838,"Other candidate",FALSE
+"839",839,"Other candidate",FALSE
+"840",840,"Pumpernickel",TRUE
+"841",841,"Other candidate",FALSE
+"842",842,"Pumpernickel",TRUE
+"843",843,"Pumpernickel",TRUE
+"844",844,"Pumpernickel",TRUE
+"845",845,"Other candidate",FALSE
+"846",846,"Other candidate",FALSE
+"847",847,"Pumpernickel",TRUE
+"848",848,"Other candidate",FALSE
+"849",849,"Other candidate",FALSE
+"850",850,"Other candidate",FALSE
+"851",851,"Other candidate",FALSE
+"852",852,"Pumpernickel",TRUE
+"853",853,"Other candidate",FALSE
+"854",854,"Pumpernickel",TRUE
+"855",855,"Other candidate",FALSE
+"856",856,"Other candidate",FALSE
+"857",857,"Other candidate",FALSE
+"858",858,"Other candidate",FALSE
+"859",859,"Pumpernickel",TRUE
+"860",860,"Other candidate",FALSE
+"861",861,"Other candidate",FALSE
+"862",862,"Pumpernickel",TRUE
+"863",863,"Other candidate",FALSE
+"864",864,"Pumpernickel",TRUE
+"865",865,"Pumpernickel",TRUE
+"866",866,"Other candidate",FALSE
+"867",867,"Pumpernickel",TRUE
+"868",868,"Other candidate",FALSE
+"869",869,"Other candidate",FALSE
+"870",870,"Other candidate",FALSE
+"871",871,"Pumpernickel",TRUE
+"872",872,"Other candidate",FALSE
+"873",873,"Other candidate",FALSE
+"874",874,"Other candidate",FALSE
+"875",875,"Other candidate",FALSE
+"876",876,"Other candidate",FALSE
+"877",877,"Other candidate",FALSE
+"878",878,"Other candidate",FALSE
+"879",879,"Other candidate",FALSE
+"880",880,"Pumpernickel",TRUE
+"881",881,"Other candidate",FALSE
+"882",882,"Other candidate",FALSE
+"883",883,"Other candidate",FALSE
+"884",884,"Other candidate",FALSE
+"885",885,"Other candidate",FALSE
+"886",886,"Other candidate",FALSE
+"887",887,"Other candidate",FALSE
+"888",888,"Pumpernickel",TRUE
+"889",889,"Other candidate",FALSE
+"890",890,"Other candidate",FALSE
+"891",891,"Other candidate",FALSE
+"892",892,"Other candidate",FALSE
+"893",893,"Pumpernickel",TRUE
+"894",894,"Other candidate",FALSE
+"895",895,"Pumpernickel",TRUE
+"896",896,"Other candidate",FALSE
+"897",897,"Other candidate",FALSE
+"898",898,"Other candidate",FALSE
+"899",899,"Other candidate",FALSE
+"900",900,"Pumpernickel",TRUE
+"901",901,"Other candidate",FALSE
+"902",902,"Other candidate",FALSE
+"903",903,"Other candidate",FALSE
+"904",904,"Pumpernickel",TRUE
+"905",905,"Pumpernickel",TRUE
+"906",906,"Other candidate",FALSE
+"907",907,"Other candidate",FALSE
+"908",908,"Other candidate",FALSE
+"909",909,"Other candidate",FALSE
+"910",910,"Other candidate",FALSE
+"911",911,"Other candidate",FALSE
+"912",912,"Other candidate",FALSE
+"913",913,"Other candidate",FALSE
+"914",914,"Other candidate",FALSE
+"915",915,"Other candidate",FALSE
+"916",916,"Other candidate",FALSE
+"917",917,"Other candidate",FALSE
+"918",918,"Other candidate",FALSE
+"919",919,"Other candidate",FALSE
+"920",920,"Pumpernickel",TRUE
+"921",921,"Other candidate",FALSE
+"922",922,"Other candidate",FALSE
+"923",923,"Pumpernickel",TRUE
+"924",924,"Other candidate",FALSE
+"925",925,"Other candidate",FALSE
+"926",926,"Pumpernickel",TRUE
+"927",927,"Other candidate",FALSE
+"928",928,"Pumpernickel",TRUE
+"929",929,"Other candidate",FALSE
+"930",930,"Other candidate",FALSE
+"931",931,"Other candidate",FALSE
+"932",932,"Pumpernickel",TRUE
+"933",933,"Other candidate",FALSE
+"934",934,"Other candidate",FALSE
+"935",935,"Other candidate",FALSE
+"936",936,"Other candidate",FALSE
+"937",937,"Pumpernickel",TRUE
+"938",938,"Pumpernickel",TRUE
+"939",939,"Other candidate",FALSE
+"940",940,"Other candidate",FALSE
+"941",941,"Other candidate",FALSE
+"942",942,"Other candidate",FALSE
+"943",943,"Other candidate",FALSE
+"944",944,"Other candidate",FALSE
+"945",945,"Other candidate",FALSE
+"946",946,"Other candidate",FALSE
+"947",947,"Other candidate",FALSE
+"948",948,"Other candidate",FALSE
+"949",949,"Other candidate",FALSE
+"950",950,"Other candidate",FALSE
+"951",951,"Other candidate",FALSE
+"952",952,"Other candidate",FALSE
+"953",953,"Pumpernickel",TRUE
+"954",954,"Pumpernickel",TRUE
+"955",955,"Other candidate",FALSE
+"956",956,"Other candidate",FALSE
+"957",957,"Other candidate",FALSE
+"958",958,"Other candidate",FALSE
+"959",959,"Pumpernickel",TRUE
+"960",960,"Other candidate",FALSE
+"961",961,"Other candidate",FALSE
+"962",962,"Other candidate",FALSE
+"963",963,"Other candidate",FALSE
+"964",964,"Other candidate",FALSE
+"965",965,"Other candidate",FALSE
+"966",966,"Pumpernickel",TRUE
+"967",967,"Other candidate",FALSE
+"968",968,"Other candidate",FALSE
+"969",969,"Other candidate",FALSE
+"970",970,"Other candidate",FALSE
+"971",971,"Other candidate",FALSE
+"972",972,"Other candidate",FALSE
+"973",973,"Other candidate",FALSE
+"974",974,"Pumpernickel",TRUE
+"975",975,"Other candidate",FALSE
+"976",976,"Other candidate",FALSE
+"977",977,"Other candidate",FALSE
+"978",978,"Other candidate",FALSE
+"979",979,"Pumpernickel",TRUE
+"980",980,"Other candidate",FALSE
+"981",981,"Pumpernickel",TRUE
+"982",982,"Other candidate",FALSE
+"983",983,"Other candidate",FALSE
+"984",984,"Other candidate",FALSE
+"985",985,"Other candidate",FALSE
+"986",986,"Other candidate",FALSE
+"987",987,"Other candidate",FALSE
+"988",988,"Pumpernickel",TRUE
+"989",989,"Other candidate",FALSE
+"990",990,"Other candidate",FALSE
+"991",991,"Other candidate",FALSE
+"992",992,"Other candidate",FALSE
+"993",993,"Other candidate",FALSE
+"994",994,"Pumpernickel",TRUE
+"995",995,"Other candidate",FALSE
+"996",996,"Pumpernickel",TRUE
+"997",997,"Other candidate",FALSE
+"998",998,"Other candidate",FALSE
+"999",999,"Pumpernickel",TRUE
+"1000",1000,"Other candidate",FALSE

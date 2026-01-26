@@ -1,0 +1,1001 @@
+voter_id,candidate
+1,Other candidate
+2,Other candidate
+3,Other candidate
+4,Other candidate
+5,Pumpernickel
+6,Other candidate
+7,Other candidate
+8,Other candidate
+9,Other candidate
+10,Other candidate
+11,Other candidate
+12,Other candidate
+13,Pumpernickel
+14,Pumpernickel
+15,Other candidate
+16,Other candidate
+17,Other candidate
+18,Other candidate
+19,Other candidate
+20,Pumpernickel
+21,Other candidate
+22,Other candidate
+23,Pumpernickel
+24,Other candidate
+25,Other candidate
+26,Pumpernickel
+27,Other candidate
+28,Other candidate
+29,Other candidate
+30,Other candidate
+31,Other candidate
+32,Other candidate
+33,Other candidate
+34,Pumpernickel
+35,Other candidate
+36,Other candidate
+37,Other candidate
+38,Other candidate
+39,Pumpernickel
+40,Pumpernickel
+41,Pumpernickel
+42,Other candidate
+43,Other candidate
+44,Other candidate
+45,Other candidate
+46,Other candidate
+47,Other candidate
+48,Other candidate
+49,Other candidate
+50,Other candidate
+51,Pumpernickel
+52,Pumpernickel
+53,Other candidate
+54,Pumpernickel
+55,Other candidate
+56,Other candidate
+57,Other candidate
+58,Other candidate
+59,Other candidate
+60,Other candidate
+61,Other candidate
+62,Other candidate
+63,Other candidate
+64,Pumpernickel
+65,Other candidate
+66,Other candidate
+67,Pumpernickel
+68,Other candidate
+69,Pumpernickel
+70,Other candidate
+71,Other candidate
+72,Pumpernickel
+73,Other candidate
+74,Pumpernickel
+75,Other candidate
+76,Other candidate
+77,Other candidate
+78,Other candidate
+79,Other candidate
+80,Other candidate
+81,Other candidate
+82,Other candidate
+83,Pumpernickel
+84,Pumpernickel
+85,Pumpernickel
+86,Other candidate
+87,Other candidate
+88,Other candidate
+89,Pumpernickel
+90,Pumpernickel
+91,Pumpernickel
+92,Other candidate
+93,Other candidate
+94,Other candidate
+95,Other candidate
+96,Other candidate
+97,Other candidate
+98,Other candidate
+99,Other candidate
+100,Other candidate
+101,Other candidate
+102,Other candidate
+103,Other candidate
+104,Other candidate
+105,Other candidate
+106,Other candidate
+107,Other candidate
+108,Other candidate
+109,Other candidate
+110,Pumpernickel
+111,Other candidate
+112,Other candidate
+113,Pumpernickel
+114,Other candidate
+115,Other candidate
+116,Pumpernickel
+117,Other candidate
+118,Pumpernickel
+119,Other candidate
+120,Other candidate
+121,Pumpernickel
+122,Other candidate
+123,Other candidate
+124,Other candidate
+125,Pumpernickel
+126,Other candidate
+127,Pumpernickel
+128,Other candidate
+129,Other candidate
+130,Other candidate
+131,Other candidate
+132,Other candidate
+133,Other candidate
+134,Other candidate
+135,Pumpernickel
+136,Other candidate
+137,Pumpernickel
+138,Other candidate
+139,Other candidate
+140,Other candidate
+141,Pumpernickel
+142,Other candidate
+143,Pumpernickel
+144,Other candidate
+145,Other candidate
+146,Other candidate
+147,Other candidate
+148,Other candidate
+149,Other candidate
+150,Other candidate
+151,Pumpernickel
+152,Pumpernickel
+153,Pumpernickel
+154,Other candidate
+155,Pumpernickel
+156,Other candidate
+157,Other candidate
+158,Pumpernickel
+159,Pumpernickel
+160,Pumpernickel
+161,Other candidate
+162,Other candidate
+163,Other candidate
+164,Pumpernickel
+165,Pumpernickel
+166,Pumpernickel
+167,Other candidate
+168,Other candidate
+169,Other candidate
+170,Other candidate
+171,Other candidate
+172,Other candidate
+173,Other candidate
+174,Other candidate
+175,Other candidate
+176,Other candidate
+177,Pumpernickel
+178,Pumpernickel
+179,Pumpernickel
+180,Other candidate
+181,Other candidate
+182,Other candidate
+183,Other candidate
+184,Other candidate
+185,Pumpernickel
+186,Pumpernickel
+187,Other candidate
+188,Other candidate
+189,Other candidate
+190,Other candidate
+191,Other candidate
+192,Other candidate
+193,Other candidate
+194,Other candidate
+195,Pumpernickel
+196,Pumpernickel
+197,Other candidate
+198,Other candidate
+199,Other candidate
+200,Pumpernickel
+201,Other candidate
+202,Other candidate
+203,Other candidate
+204,Other candidate
+205,Pumpernickel
+206,Other candidate
+207,Other candidate
+208,Other candidate
+209,Pumpernickel
+210,Other candidate
+211,Pumpernickel
+212,Pumpernickel
+213,Other candidate
+214,Other candidate
+215,Other candidate
+216,Other candidate
+217,Pumpernickel
+218,Other candidate
+219,Other candidate
+220,Other candidate
+221,Other candidate
+222,Other candidate
+223,Pumpernickel
+224,Pumpernickel
+225,Other candidate
+226,Other candidate
+227,Other candidate
+228,Other candidate
+229,Pumpernickel
+230,Other candidate
+231,Other candidate
+232,Other candidate
+233,Other candidate
+234,Other candidate
+235,Pumpernickel
+236,Pumpernickel
+237,Other candidate
+238,Pumpernickel
+239,Other candidate
+240,Other candidate
+241,Other candidate
+242,Other candidate
+243,Pumpernickel
+244,Pumpernickel
+245,Other candidate
+246,Other candidate
+247,Other candidate
+248,Other candidate
+249,Other candidate
+250,Pumpernickel
+251,Other candidate
+252,Pumpernickel
+253,Other candidate
+254,Other candidate
+255,Other candidate
+256,Other candidate
+257,Other candidate
+258,Other candidate
+259,Other candidate
+260,Other candidate
+261,Other candidate
+262,Other candidate
+263,Other candidate
+264,Other candidate
+265,Pumpernickel
+266,Other candidate
+267,Other candidate
+268,Other candidate
+269,Other candidate
+270,Other candidate
+271,Other candidate
+272,Other candidate
+273,Other candidate
+274,Other candidate
+275,Other candidate
+276,Other candidate
+277,Pumpernickel
+278,Pumpernickel
+279,Other candidate
+280,Pumpernickel
+281,Other candidate
+282,Other candidate
+283,Other candidate
+284,Other candidate
+285,Other candidate
+286,Pumpernickel
+287,Other candidate
+288,Other candidate
+289,Pumpernickel
+290,Pumpernickel
+291,Pumpernickel
+292,Other candidate
+293,Other candidate
+294,Pumpernickel
+295,Other candidate
+296,Other candidate
+297,Other candidate
+298,Other candidate
+299,Pumpernickel
+300,Other candidate
+301,Other candidate
+302,Pumpernickel
+303,Other candidate
+304,Other candidate
+305,Other candidate
+306,Other candidate
+307,Other candidate
+308,Pumpernickel
+309,Pumpernickel
+310,Pumpernickel
+311,Other candidate
+312,Other candidate
+313,Other candidate
+314,Other candidate
+315,Other candidate
+316,Pumpernickel
+317,Other candidate
+318,Other candidate
+319,Other candidate
+320,Other candidate
+321,Other candidate
+322,Other candidate
+323,Other candidate
+324,Other candidate
+325,Other candidate
+326,Pumpernickel
+327,Other candidate
+328,Other candidate
+329,Other candidate
+330,Pumpernickel
+331,Other candidate
+332,Other candidate
+333,Other candidate
+334,Other candidate
+335,Other candidate
+336,Other candidate
+337,Other candidate
+338,Other candidate
+339,Pumpernickel
+340,Other candidate
+341,Other candidate
+342,Other candidate
+343,Other candidate
+344,Pumpernickel
+345,Other candidate
+346,Other candidate
+347,Other candidate
+348,Pumpernickel
+349,Other candidate
+350,Other candidate
+351,Other candidate
+352,Other candidate
+353,Other candidate
+354,Other candidate
+355,Pumpernickel
+356,Other candidate
+357,Other candidate
+358,Other candidate
+359,Other candidate
+360,Other candidate
+361,Other candidate
+362,Pumpernickel
+363,Other candidate
+364,Other candidate
+365,Other candidate
+366,Other candidate
+367,Other candidate
+368,Other candidate
+369,Other candidate
+370,Other candidate
+371,Other candidate
+372,Other candidate
+373,Pumpernickel
+374,Pumpernickel
+375,Other candidate
+376,Other candidate
+377,Other candidate
+378,Other candidate
+379,Other candidate
+380,Other candidate
+381,Pumpernickel
+382,Other candidate
+383,Other candidate
+384,Other candidate
+385,Other candidate
+386,Other candidate
+387,Other candidate
+388,Other candidate
+389,Other candidate
+390,Other candidate
+391,Pumpernickel
+392,Pumpernickel
+393,Other candidate
+394,Other candidate
+395,Other candidate
+396,Other candidate
+397,Other candidate
+398,Pumpernickel
+399,Other candidate
+400,Other candidate
+401,Other candidate
+402,Other candidate
+403,Other candidate
+404,Other candidate
+405,Other candidate
+406,Other candidate
+407,Other candidate
+408,Other candidate
+409,Pumpernickel
+410,Other candidate
+411,Other candidate
+412,Other candidate
+413,Pumpernickel
+414,Other candidate
+415,Pumpernickel
+416,Other candidate
+417,Other candidate
+418,Other candidate
+419,Other candidate
+420,Other candidate
+421,Other candidate
+422,Other candidate
+423,Other candidate
+424,Pumpernickel
+425,Other candidate
+426,Pumpernickel
+427,Other candidate
+428,Pumpernickel
+429,Pumpernickel
+430,Pumpernickel
+431,Pumpernickel
+432,Other candidate
+433,Other candidate
+434,Other candidate
+435,Other candidate
+436,Other candidate
+437,Other candidate
+438,Other candidate
+439,Other candidate
+440,Other candidate
+441,Other candidate
+442,Other candidate
+443,Other candidate
+444,Other candidate
+445,Other candidate
+446,Other candidate
+447,Other candidate
+448,Other candidate
+449,Other candidate
+450,Other candidate
+451,Other candidate
+452,Other candidate
+453,Other candidate
+454,Other candidate
+455,Pumpernickel
+456,Pumpernickel
+457,Other candidate
+458,Pumpernickel
+459,Pumpernickel
+460,Other candidate
+461,Other candidate
+462,Other candidate
+463,Pumpernickel
+464,Other candidate
+465,Other candidate
+466,Other candidate
+467,Other candidate
+468,Other candidate
+469,Other candidate
+470,Other candidate
+471,Other candidate
+472,Other candidate
+473,Pumpernickel
+474,Other candidate
+475,Other candidate
+476,Other candidate
+477,Pumpernickel
+478,Other candidate
+479,Other candidate
+480,Pumpernickel
+481,Other candidate
+482,Other candidate
+483,Pumpernickel
+484,Other candidate
+485,Other candidate
+486,Other candidate
+487,Other candidate
+488,Other candidate
+489,Other candidate
+490,Pumpernickel
+491,Other candidate
+492,Other candidate
+493,Other candidate
+494,Other candidate
+495,Other candidate
+496,Other candidate
+497,Other candidate
+498,Other candidate
+499,Other candidate
+500,Pumpernickel
+501,Other candidate
+502,Other candidate
+503,Other candidate
+504,Other candidate
+505,Other candidate
+506,Other candidate
+507,Other candidate
+508,Other candidate
+509,Other candidate
+510,Other candidate
+511,Other candidate
+512,Other candidate
+513,Other candidate
+514,Other candidate
+515,Other candidate
+516,Pumpernickel
+517,Other candidate
+518,Other candidate
+519,Pumpernickel
+520,Other candidate
+521,Other candidate
+522,Pumpernickel
+523,Pumpernickel
+524,Other candidate
+525,Other candidate
+526,Pumpernickel
+527,Other candidate
+528,Pumpernickel
+529,Other candidate
+530,Other candidate
+531,Other candidate
+532,Other candidate
+533,Other candidate
+534,Pumpernickel
+535,Other candidate
+536,Other candidate
+537,Pumpernickel
+538,Pumpernickel
+539,Other candidate
+540,Other candidate
+541,Other candidate
+542,Other candidate
+543,Other candidate
+544,Pumpernickel
+545,Pumpernickel
+546,Other candidate
+547,Other candidate
+548,Other candidate
+549,Other candidate
+550,Other candidate
+551,Other candidate
+552,Other candidate
+553,Other candidate
+554,Pumpernickel
+555,Pumpernickel
+556,Other candidate
+557,Other candidate
+558,Other candidate
+559,Other candidate
+560,Pumpernickel
+561,Other candidate
+562,Other candidate
+563,Other candidate
+564,Other candidate
+565,Other candidate
+566,Other candidate
+567,Pumpernickel
+568,Other candidate
+569,Other candidate
+570,Other candidate
+571,Other candidate
+572,Other candidate
+573,Pumpernickel
+574,Other candidate
+575,Pumpernickel
+576,Other candidate
+577,Other candidate
+578,Other candidate
+579,Other candidate
+580,Other candidate
+581,Pumpernickel
+582,Other candidate
+583,Other candidate
+584,Other candidate
+585,Other candidate
+586,Other candidate
+587,Other candidate
+588,Pumpernickel
+589,Pumpernickel
+590,Pumpernickel
+591,Other candidate
+592,Other candidate
+593,Pumpernickel
+594,Other candidate
+595,Other candidate
+596,Other candidate
+597,Pumpernickel
+598,Pumpernickel
+599,Other candidate
+600,Other candidate
+601,Other candidate
+602,Pumpernickel
+603,Pumpernickel
+604,Other candidate
+605,Other candidate
+606,Pumpernickel
+607,Other candidate
+608,Other candidate
+609,Other candidate
+610,Pumpernickel
+611,Other candidate
+612,Other candidate
+613,Other candidate
+614,Pumpernickel
+615,Other candidate
+616,Other candidate
+617,Other candidate
+618,Other candidate
+619,Pumpernickel
+620,Other candidate
+621,Pumpernickel
+622,Other candidate
+623,Other candidate
+624,Other candidate
+625,Other candidate
+626,Other candidate
+627,Pumpernickel
+628,Other candidate
+629,Other candidate
+630,Other candidate
+631,Other candidate
+632,Other candidate
+633,Pumpernickel
+634,Other candidate
+635,Other candidate
+636,Other candidate
+637,Other candidate
+638,Other candidate
+639,Other candidate
+640,Other candidate
+641,Other candidate
+642,Other candidate
+643,Other candidate
+644,Other candidate
+645,Other candidate
+646,Other candidate
+647,Other candidate
+648,Pumpernickel
+649,Pumpernickel
+650,Other candidate
+651,Other candidate
+652,Other candidate
+653,Other candidate
+654,Other candidate
+655,Other candidate
+656,Other candidate
+657,Other candidate
+658,Other candidate
+659,Other candidate
+660,Other candidate
+661,Other candidate
+662,Other candidate
+663,Pumpernickel
+664,Other candidate
+665,Pumpernickel
+666,Pumpernickel
+667,Other candidate
+668,Other candidate
+669,Other candidate
+670,Other candidate
+671,Pumpernickel
+672,Pumpernickel
+673,Other candidate
+674,Other candidate
+675,Other candidate
+676,Other candidate
+677,Other candidate
+678,Other candidate
+679,Other candidate
+680,Pumpernickel
+681,Other candidate
+682,Other candidate
+683,Other candidate
+684,Other candidate
+685,Other candidate
+686,Pumpernickel
+687,Other candidate
+688,Other candidate
+689,Other candidate
+690,Other candidate
+691,Other candidate
+692,Other candidate
+693,Other candidate
+694,Other candidate
+695,Other candidate
+696,Pumpernickel
+697,Other candidate
+698,Other candidate
+699,Other candidate
+700,Other candidate
+701,Other candidate
+702,Other candidate
+703,Other candidate
+704,Other candidate
+705,Other candidate
+706,Pumpernickel
+707,Other candidate
+708,Other candidate
+709,Pumpernickel
+710,Pumpernickel
+711,Pumpernickel
+712,Pumpernickel
+713,Other candidate
+714,Other candidate
+715,Other candidate
+716,Other candidate
+717,Other candidate
+718,Other candidate
+719,Other candidate
+720,Other candidate
+721,Other candidate
+722,Pumpernickel
+723,Other candidate
+724,Other candidate
+725,Other candidate
+726,Pumpernickel
+727,Other candidate
+728,Other candidate
+729,Other candidate
+730,Other candidate
+731,Other candidate
+732,Other candidate
+733,Other candidate
+734,Other candidate
+735,Other candidate
+736,Other candidate
+737,Other candidate
+738,Pumpernickel
+739,Other candidate
+740,Other candidate
+741,Other candidate
+742,Other candidate
+743,Other candidate
+744,Pumpernickel
+745,Other candidate
+746,Other candidate
+747,Pumpernickel
+748,Other candidate
+749,Other candidate
+750,Other candidate
+751,Other candidate
+752,Pumpernickel
+753,Other candidate
+754,Other candidate
+755,Pumpernickel
+756,Other candidate
+757,Other candidate
+758,Other candidate
+759,Other candidate
+760,Other candidate
+761,Pumpernickel
+762,Other candidate
+763,Other candidate
+764,Pumpernickel
+765,Pumpernickel
+766,Pumpernickel
+767,Pumpernickel
+768,Pumpernickel
+769,Pumpernickel
+770,Other candidate
+771,Other candidate
+772,Other candidate
+773,Other candidate
+774,Pumpernickel
+775,Pumpernickel
+776,Other candidate
+777,Other candidate
+778,Other candidate
+779,Other candidate
+780,Other candidate
+781,Other candidate
+782,Other candidate
+783,Pumpernickel
+784,Pumpernickel
+785,Pumpernickel
+786,Other candidate
+787,Other candidate
+788,Other candidate
+789,Pumpernickel
+790,Other candidate
+791,Other candidate
+792,Pumpernickel
+793,Other candidate
+794,Pumpernickel
+795,Other candidate
+796,Other candidate
+797,Other candidate
+798,Other candidate
+799,Other candidate
+800,Pumpernickel
+801,Other candidate
+802,Other candidate
+803,Other candidate
+804,Other candidate
+805,Other candidate
+806,Other candidate
+807,Other candidate
+808,Other candidate
+809,Other candidate
+810,Other candidate
+811,Other candidate
+812,Other candidate
+813,Other candidate
+814,Pumpernickel
+815,Other candidate
+816,Other candidate
+817,Other candidate
+818,Pumpernickel
+819,Other candidate
+820,Other candidate
+821,Pumpernickel
+822,Pumpernickel
+823,Other candidate
+824,Other candidate
+825,Other candidate
+826,Other candidate
+827,Other candidate
+828,Other candidate
+829,Other candidate
+830,Other candidate
+831,Other candidate
+832,Other candidate
+833,Other candidate
+834,Other candidate
+835,Other candidate
+836,Other candidate
+837,Pumpernickel
+838,Other candidate
+839,Other candidate
+840,Pumpernickel
+841,Other candidate
+842,Pumpernickel
+843,Pumpernickel
+844,Pumpernickel
+845,Other candidate
+846,Other candidate
+847,Pumpernickel
+848,Other candidate
+849,Other candidate
+850,Other candidate
+851,Other candidate
+852,Pumpernickel
+853,Other candidate
+854,Pumpernickel
+855,Other candidate
+856,Other candidate
+857,Other candidate
+858,Other candidate
+859,Pumpernickel
+860,Other candidate
+861,Other candidate
+862,Pumpernickel
+863,Other candidate
+864,Pumpernickel
+865,Pumpernickel
+866,Other candidate
+867,Pumpernickel
+868,Other candidate
+869,Other candidate
+870,Other candidate
+871,Pumpernickel
+872,Other candidate
+873,Other candidate
+874,Other candidate
+875,Other candidate
+876,Other candidate
+877,Other candidate
+878,Other candidate
+879,Other candidate
+880,Pumpernickel
+881,Other candidate
+882,Other candidate
+883,Other candidate
+884,Other candidate
+885,Other candidate
+886,Other candidate
+887,Other candidate
+888,Pumpernickel
+889,Other candidate
+890,Other candidate
+891,Other candidate
+892,Other candidate
+893,Pumpernickel
+894,Other candidate
+895,Pumpernickel
+896,Other candidate
+897,Other candidate
+898,Other candidate
+899,Other candidate
+900,Pumpernickel
+901,Other candidate
+902,Other candidate
+903,Other candidate
+904,Pumpernickel
+905,Pumpernickel
+906,Other candidate
+907,Other candidate
+908,Other candidate
+909,Other candidate
+910,Other candidate
+911,Other candidate
+912,Other candidate
+913,Other candidate
+914,Other candidate
+915,Other candidate
+916,Other candidate
+917,Other candidate
+918,Other candidate
+919,Other candidate
+920,Pumpernickel
+921,Other candidate
+922,Other candidate
+923,Pumpernickel
+924,Other candidate
+925,Other candidate
+926,Pumpernickel
+927,Other candidate
+928,Pumpernickel
+929,Other candidate
+930,Other candidate
+931,Other candidate
+932,Pumpernickel
+933,Other candidate
+934,Other candidate
+935,Other candidate
+936,Other candidate
+937,Pumpernickel
+938,Pumpernickel
+939,Other candidate
+940,Other candidate
+941,Other candidate
+942,Other candidate
+943,Other candidate
+944,Other candidate
+945,Other candidate
+946,Other candidate
+947,Other candidate
+948,Other candidate
+949,Other candidate
+950,Other candidate
+951,Other candidate
+952,Other candidate
+953,Pumpernickel
+954,Pumpernickel
+955,Other candidate
+956,Other candidate
+957,Other candidate
+958,Other candidate
+959,Pumpernickel
+960,Other candidate
+961,Other candidate
+962,Other candidate
+963,Other candidate
+964,Other candidate
+965,Other candidate
+966,Pumpernickel
+967,Other candidate
+968,Other candidate
+969,Other candidate
+970,Other candidate
+971,Other candidate
+972,Other candidate
+973,Other candidate
+974,Pumpernickel
+975,Other candidate
+976,Other candidate
+977,Other candidate
+978,Other candidate
+979,Pumpernickel
+980,Other candidate
+981,Pumpernickel
+982,Other candidate
+983,Other candidate
+984,Other candidate
+985,Other candidate
+986,Other candidate
+987,Other candidate
+988,Pumpernickel
+989,Other candidate
+990,Other candidate
+991,Other candidate
+992,Other candidate
+993,Other candidate
+994,Pumpernickel
+995,Other candidate
+996,Pumpernickel
+997,Other candidate
+998,Other candidate
+999,Pumpernickel
+1000,Other candidate
