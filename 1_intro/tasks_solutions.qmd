@@ -1,0 +1,159 @@
+---
+title: "Lecture 1: Tasks Solutions"
+author: "Gustave Kenedi"
+date: today
+format:
+  html:
+    code-overflow: wrap
+    df-print: paged
+editor: visual
+---
+
+# Your Turn #1
+
+## Question 2
+
+```{r}
+4*8
+```
+
+## Question 3
+
+```{r}
+x = 5 # equivalently x <- 5
+x
+```
+
+## Question 4
+
+```{r}
+x_3 <- x^5
+x_3
+```
+
+# Your Turn #2
+
+## Question 1
+
+```{r}
+co2_emissions <- read.csv("https://www.dropbox.com/scl/fi/3jefa7xz8fyvqh76e0k9l/co2_emissions_historical.csv?rlkey=tnmt8l607igvm5fany7xzutdu&dl=1")
+```
+
+## Question 2
+
+```{r}
+class(co2_emissions) # check class of object
+```
+
+## Question 3
+
+```{r}
+names(co2_emissions) # obtain variable names
+```
+
+## Question 4
+
+```{r}
+co2_emissions
+```
+
+# Your Turn #3
+
+## Question 1
+
+```{r}
+#| message: false
+#| warning: false
+
+
+library(tidyverse)
+
+co2_emissions |> 
+  filter(entity %in% c("United States", "China", 
+                       "United Kingdom", "France",
+                       "India")) |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita,
+             color = entity)) + # one line per country
+  geom_line()
+```
+
+## Question 2
+
+```{r}
+co2_emissions |> 
+  filter(entity %in% c("United States", "China", 
+                       "United Kingdom", "France",
+                       "India", "Japan")) |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita,
+             color = entity)) + # one line per country
+  geom_line()
+```
+
+## Question 3
+
+```{r}
+co2_emissions |> 
+  filter(entity %in% c("United States", "China", 
+                       "United Kingdom", "France",
+                       "India", "Japan")) |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions_per_capita,
+             color = entity)) + # one line per country
+  geom_line() +
+  geom_point()
+```
+
+## Question 4
+
+```{r}
+co2_emissions_new <- read.csv("https://www.dropbox.com/scl/fi/hkjwayxaq46oqataxpe5p/co2_emissions_historical_with_total.csv?rlkey=uzmt8e1bampskzc7bpp1vimbz&dl=1")
+```
+
+The additional variable contains total annual CO2 emissions.
+
+## Question 5
+
+```{r}
+co2_emissions_new |> 
+  filter(entity %in% c("United States", "China", 
+                       "United Kingdom", "France",
+                       "India")) |> 
+  ggplot(aes(x = year,
+             y = annual_co2_emissions,
+             color = entity)) + # one line per country
+  geom_line()
+```
+
+# Your Turn #4
+
+## Question 1
+
+```{r}
+co2_emissions[co2_emissions$entity == "United States" & co2_emissions$year == 1995,]
+```
+
+## Question 2
+
+```{r}
+co2_emissions[10:20,]
+```
+
+## Question 3
+
+```{r}
+co2_emissions_gdp <- read.csv("https://www.dropbox.com/scl/fi/bbvlq2rwab5nxg617pn5l/co2_emissions_historical_with_gdp.csv?rlkey=mobgeqdhmjr8owvkchctsvqu7&dl=1")
+```
+
+## Question 4
+
+```{r}
+names(co2_emissions_gdp)
+
+co2_emissions_gdp$co2_emissions_per_gdp <- co2_emissions_gdp$annual_co2_emissions / co2_emissions_gdp$gdp_constant_2015_us
+
+names(co2_emissions_gdp)
+```
+
+

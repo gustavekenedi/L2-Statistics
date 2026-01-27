@@ -1,0 +1,152 @@
+---
+title: "Lecture 2: Tasks Solutions"
+author: "Gustave Kenedi"
+date: today
+format:
+  html:
+    code-overflow: wrap
+    df-print: paged
+editor: visual
+---
+
+# Your Turn #1
+
+## Question 1
+
+```{r}
+#| message: false
+#| warning: false
+
+
+library(tidyverse)
+
+global_working_hours <- read.csv("https://www.dropbox.com/scl/fi/ln4ie7ik36opjx5juifqs/hours_worked_clean.csv?rlkey=ry52v43qyxhtr4ye461twkgnj&dl=1")
+
+global_working_hours |> 
+  summarise(mean_worked = mean(hours_worked),
+            mean_worker = mean(hours_worker))
+```
+
+The large difference is driven by the fact that `hours_worked` corresponds to hours worked divided by the adult population, and a share of adults don't work.
+
+## Question 2
+
+```{r}
+global_working_hours |> 
+  summarise(median_worked = median(hours_worked),
+            median_worker = median(hours_worker))
+```
+
+The medians are quite similar to the means in question 1 above. This suggests the distribution of working hours across countries is relatively symmetric.
+
+## Question 3
+
+```{r}
+quantile(global_working_hours$hours_worker)
+```
+
+The 75th percentile is around 43.5.
+
+## Question 4
+
+```{r}
+global_working_hours |> 
+  summarise(iqr_men = IQR(hours_worker_men),
+            iqr_women = IQR(hours_worker_women))
+```
+
+The dispersion in hours per worker is wider for women than for men.
+
+## Question 5
+
+```{r}
+global_working_hours |> 
+  summarise(cor(hours_worked, tax_labor, use = "complete.obs"))
+```
+
+The correlation is -0.5 which means that an increase in the labor tax rate is associated with a reduction in (average) hours worked.
+
+# Your Turn #2
+
+## Question 1
+
+```{r}
+global_working_hours_panel <- read.csv("https://www.dropbox.com/scl/fi/aq6nlnuun9o8bk86h89a2/hours_worked_panel_clean.csv?rlkey=f6jqgl8swkvf6kgl1z9eqczmr&dl=1")
+
+global_working_hours_panel |>
+  count(year)
+```
+
+## Question 2
+
+```{r}
+global_working_hours_panel |> 
+  filter(year == 2023 & hours_worker > 48)
+```
+
+## Question 3
+
+```{r}
+global_working_hours_panel |> 
+  filter(hours_worker > 30 & hours_worker < 32 & region == "Latin America")
+```
+
+## Question 4
+
+```{r}
+global_working_hours_panel |> 
+  filter(region %in% c("Western Europe and Anglosphere", "United States") &
+           year == 2023) |> 
+  summarise(max_hours_worker = max(hours_worker),
+            .by = region)
+```
+
+## Question 5
+
+```{r}
+global_working_hours_panel |> 
+  filter(year %in% c(1990, 2000, 2010, 2020)) |> 
+  mutate(diff_men_women = hours_worked_men - hours_worked_women) |> 
+  summarise(mean_diff = mean(diff_men_women),
+            .by = year)
+```
+
+The difference in hours worked between men and women has decreased markedly over time (from ~ 15h to ~10h).
+
+# Your Turn #3
+
+## Question 1
+
+```{r}
+global_working_hours_panel |> 
+  filter(year == 2022) |> 
+  ggplot(aes(x = hours_worker_women)) +
+  geom_histogram(binwidth = 5, boundary = 30, color = "white", fill = "#785EF0")
+```
+
+- `binwidth`: width of each bin
+- `boundary`: value at which one of the bins starts
+- `color`: color of bar contours
+- `fill`: color of bars
+
+## Question 2
+
+```{r}
+global_working_hours_panel |> 
+  summarise(mean_hours_worked = mean(hours_worked),
+            .by = c(year, region)) |> 
+  ggplot(aes(x = region, y = mean_hours_worked)) +
+  geom_boxplot(color = "black", fill = "#785EF0")
+```
+
+## Question 3
+
+```{r}
+global_working_hours_panel |>
+  ggplot(aes(x = hours_worker_men, y = hours_worker_women)) +
+  geom_point(size = 2, alpha = 0.25, colour = "#d90502") +
+  labs(x = "Hours per worker - Men",
+       y = "Hours per worker - Women",
+       title = "Relationship between male and female hours per worker")
+```
+

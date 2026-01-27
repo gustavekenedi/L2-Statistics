@@ -6,6 +6,63 @@ format: pdf
 editor: visual
 ---
 
+# Your Turn #1
+
+```{r}
+library(tidyverse)
+
+vote_share <- data.frame(prop_voters = c(0.25, 0.25, 0.35, 0.20, 0.20, 0.35, 0.1, 0.35, 0.35, 0.2, 0.25, 0.25, 0.2, 0.15, 0.25, 0.2, 0.15, 0.15, 0.2, 0.1))
+
+vote_share |> 
+  ggplot(aes(x = prop_voters)) +
+  geom_histogram()
+```
+
+# Your Turn #2
+
+## Question 1
+
+```{r}
+voter_population <- read.csv("https://www.dropbox.com/scl/fi/xdb5nzyoi7i5r9m80ae3r/population_clean.csv?rlkey=yrt0d798d7i1qpww1zosu8nee&dl=1")
+```
+
+## Question 2
+
+```{r}
+library(moderndive)
+
+virtual_samples <- voter_population |> 
+  rep_sample_n(size = 50, reps = 1000)
+```
+
+## Question 3
+
+```{r}
+virtual_prop_pumpernickel <- virtual_samples |> 
+  group_by(replicate) |> 
+  summarise(prop_pumpernickel = mean(candidate == "Pumpernickel"))
+```
+
+## Question 4
+
+```{r}
+virtual_prop_pumpernickel |> 
+  ggplot(aes(x = prop_pumpernickel)) +
+  geom_histogram()
+```
+
+## Question 5
+
+Sampling distribution looks normally distributed. The most common voter shares are between 0.2 and 0.25. The shape of the histogram looks more bell-shaped than it did with 50 samples.
+
+## Question 6
+
+It's rather unlikely that we sample 50 voters of which less than 15% are Pumpernickel voters.
+
+
+
+
+
 # Your Turn #3
 
 Let $X_1, ..., X_n$ be i.i.d. random variables with a finite expected value $E[X_i] = \mu$ and $\mathbb{V}(X_i) = \sigma^2 < \infty$.
@@ -40,7 +97,7 @@ Recall that $\mathbb{V} (X) = \mathbb{E} \left[ X^2 \right] - \mathbb{E} [X]^2$.
 
 ## Question 3
 
-Show that $\mathbb{E}[\bar{X_n}^2] = \frac{\sigma^2}{n} + \mu^2$. *Hint: the formula for $\mathbb{V}(\bar{X_n})$ will be useful.*
+Show that $\mathbb{E}[\bar{X_n}^2] = \frac{\sigma^2}{n} + \mu^2$. *Hint: the formula for* $\mathbb{V}(\bar{X_n})$ will be useful.
 
 *Answer:*
 
@@ -96,7 +153,7 @@ Read the help `sd` (it is simpler than `var`) command's help file to see if you 
 ?sd
 ```
 
-*Like var this uses denominator $n-1$.*
+*Like var this uses denominator* $n-1$.
 
 # Your Turn #4
 
@@ -158,6 +215,3 @@ sample_size = 50
 quantile = .1
 qnorm(quantile, mean = pop_mean, sd = pop_sd/sqrt(sample_size))
 ```
-
-
-
