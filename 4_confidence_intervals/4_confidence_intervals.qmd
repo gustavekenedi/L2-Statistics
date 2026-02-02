@@ -1,0 +1,2548 @@
+---
+title: "Lecture 4: Confidence Intervals"
+subtitle: "L2 - Statistics"
+author: "Gustave Kenedi"
+date: today
+format:
+  revealjs:
+    self-contained: true
+    css: css/custom-styles.css
+    theme: [simple, css/custom.scss]
+    highlight-style: github
+    html-math-method: mathjax
+    slide-number: true
+    footer: "Lecture 4: Confidence Intervals"
+    logo: img/logo_cy_transparent.png
+    code-overflow: wrap
+    execute:
+      echo: true
+      eval: true
+      warning: false
+      message: false
+editor: source
+editor_options:
+  chunk_output_type: console
+---
+
+```{r}
+#| echo: false
+
+### FROM CLAUDE
+
+# Load required packages
+library(tidyverse)
+library(moderndive)
+library(infer)
+library(knitr)
+library(scales)
+
+# Set seed for reproducibility
+set.seed(42)
+```
+
+```{r}
+#| echo: false
+#| output: false
+#| cache: false
+
+# Set theme for all plots
+theme_set(theme_minimal(base_size = 14) +
+            theme(plot.title = element_text(face = "bold", color = "#2D3E50"),
+                  plot.subtitle = element_text(color = "#666666"),
+                  panel.grid.minor = element_blank(),
+                  axis.line = element_line(),
+                  axis.ticks = element_line(),
+                  panel.grid.major = element_line(color = "#E9ECEF"),
+                  axis.title = element_text(face = "bold")
+                  # legend.position = "bottom"
+                  ))
+
+# Color palette
+colors <- c(
+  primary = "#2D3E50",
+  secondary = "#E74C3C",
+  accent = "#3498DB",
+  success = "#27AE60",
+  warning = "#F39C12",
+  purple = "#9B59B6",
+  teal = "#1ABC9C"
+)
+
+
+source("../assets/r/common_loading.R")
+```
+
+## Recap quiz
+
+![](img/wooclap_quiz.png)
+
+Or click here: [link to Wooclap](https://app.wooclap.com/L2STATSAMP?from=instruction-slide)
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** We can compute sample statistics, but how confident should we be that they reflect the true population parameters?
+:::
+
+. . .
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[**1. Confidence intervals: a primer**](#primer)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. CI for a population mean: theory-based](#ci_mean)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. CI for a proportion: theory-based](#ci_proportion)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Bootstrap CI](#bootstrap)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Comparing two groups](#comparison)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Practical guidelines](#recap)
+
+
+# Confidence intervals: a primer {.slide_inverse #primer}
+
+## Why do we need confidence intervals?
+
+**The problem with point estimates:**
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 4
+
+set.seed(123)
+
+# Parameters
+n_pop <- 1000
+n_cols <- 40
+sample_size <- 20
+prop_candidate <- 0.23
+
+# create population
+population <- expand.grid(x = 1:n_cols,
+                          y = 1:(n_pop/n_cols)) |> 
+  mutate(id = row_number(),
+         vote_candidate = id %in% sample(id, prop_candidate*n_pop))
+
+# Function to create one sample
+create_sample <- function(sample_id) {
+  population |> 
+    mutate(id = row_number(),
+           sampled = id %in% sample(1:n_pop, sample_size),
+           sampled_vote_candidate = case_when(sampled == T & vote_candidate == T ~ "candidate",
+                                              sampled == T & vote_candidate == F ~ "other candidate",
+                                              sampled == F ~ "not sampled"),
+           sampled_vote_candidate = fct_relevel(sampled_vote_candidate, "not sampled", "candidate", "other candidate"),
+           sample_id = sample_id)
+}
+
+# Map over 20 samples
+samples_df <- map_df(1:20, create_sample)
+
+num_show = 20
+
+samples_df |> 
+  filter(sampled == T) |> 
+  summarise(prop = mean(sampled_vote_candidate == "candidate"), .by = sample_id) |> 
+  mutate(sample_id = factor(sample_id),
+         show = (sample_id %in% 1:num_show)) |> 
+  ggplot(aes(y = fct_rev(sample_id),
+             x = prop,
+             fill = show)) +
+  geom_bar(stat = "identity") +
+  geom_vline(xintercept = .23, linetype = 2) +
+  geom_text(aes(label = ifelse(sample_id %in% 1:num_show, scales::percent(prop), "")), hjust = -0.1) +
+  scale_x_continuous(lim = c(0, 1), expand = expansion(mult = c(0,0.02)), labels = scales::percent) +
+  scale_y_discrete(expand = c(0,0)) +
+  scale_fill_manual(values = c("TRUE" = "#DC267F", "FALSE" = "transparent")) +
+  labs(x = "% Pumpernickel voters",
+       y = "Random draw #") +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.x = element_line(linetype = 2),
+        legend.position = "none",
+        text = element_text(size = 14))
+```
+
+:::
+
+::: {.column width="50%"}
+
+* In real life we only get to take one sample from the population
+
+* Also, we obviously don't know the true population parameter, that's what we are interested in!
+
+* Even unobserved, we [know]{.hi_purple} that the sampling distribution does exist, and even better, we know how it behaves!
+
+:::
+:::
+
+[**Key insight:**]{.hi-red} A single point estimate tells us nothing about how precise or reliable it is!
+
+## From point estimates to confidence intervals
+
+* Until now, we have only estimated [point estimates]{.hi_purple} from our samples: sample means, sample proportions, sample variances, etc.
+
+. . .
+
+* We know that this [sample statistic]{.hi_blue} differs from the [true population parameter]{.hi_cranberry} due to **sampling variation**.
+
+. . .
+
+* Rather than a point estimate, we could give a [range of plausible]{.hi_purple} values for the population parameter.
+
+. . .
+
+* This is precisely what a [confidence interval]{.hi_yellow} (CI) provides.
+
+## What is a confidence interval?
+
+A **confidence interval** for $\theta$ is an estimated *interval* that covers the true value of $\theta$ with at least a given probability.
+
+. . .
+
+*For example:* if we were to take an i.i.d. sample of size $n$ of a random variable $X$ and compute a 95% confidence interval for the population mean $\mathbb{E}[X]$, then with 95% probability, this interval will include $\mathbb{E}[X]$.
+
+. . .
+
+::: {.callout-important}
+## Definition
+
+A **confidence interval** for $\theta$ with coverage $(1 - \alpha)$ is a random interval $CI_{1-\alpha}(\theta)$, such that $Pr[\theta \in CI_{1-\alpha}(\theta)] \geq 1-\alpha$.
+:::
+
+. . .
+
+For any given $\alpha \in (0,1)$, we say that the *confidence level* is $100(1-\alpha)\%$ and that $CI_{1-\alpha}(\theta)$ is a $100(1-\alpha)\%$ confidence interval for $\theta$.
+
+## What is a confidence interval?
+
+**Intuition:** Instead of saying "the mean is 65," we say:
+
+> "We are 95% confident that the true mean lies between 62 and 68"
+
+. . .
+
+**Common misconception**
+
+A 95% CI does [not]{.hi_-red_cranberry} mean "there's a 95% probability the true parameter is in this interval."
+
+. . .
+
+$\rightarrow$ the true parameter is either in the interval or not!
+
+## The correct interpretation
+
+**What 95% confidence actually means:**
+
+If we repeated our sampling procedure many times and computed a CI each time, [95% of those intervals would contain the true parameter]{.hi-blue}.
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 7
+#| fig-align: center
+
+# Simulate many CIs
+n_simulations <- 100
+true_mean <- 50
+sample_size <- 30
+pop_sd <- 10
+
+ci_data <- tibble(
+  sim_id = 1:n_simulations
+) |> 
+  mutate(
+    sample_mean = map_dbl(sim_id, ~mean(rnorm(sample_size, true_mean, pop_sd))),
+    se = pop_sd / sqrt(sample_size),
+    lower = sample_mean - 1.96 * se,
+    upper = sample_mean + 1.96 * se,
+    contains_true = lower <= true_mean & upper >= true_mean
+  )
+
+coverage <- mean(ci_data$contains_true)
+
+ggplot(ci_data, aes(y = sim_id)) +
+  geom_segment(aes(x = lower, xend = upper, yend = sim_id,
+                   color = contains_true), linewidth = 0.8) +
+  geom_point(aes(x = sample_mean, color = contains_true), size = 1) +
+  geom_vline(xintercept = true_mean, color = as.character(colors["primary"]),
+             linewidth = 1.5, linetype = "solid") +
+  scale_color_manual(values = c("TRUE" = as.character(colors["accent"]), "FALSE" = as.character(colors["secondary"])),
+                     labels = c("Misses true μ", "Contains true μ"),
+                     name = "") +
+  labs(
+    title = paste0("100 confidence intervals: ", round(coverage*100), "% contain the true mean"),
+    subtitle = "Each horizontal line is a 95% CI from a different sample",
+    x = "Value",
+    y = "Simulation"
+  ) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "top")
+```
+
+## Constructing confidence intervals
+
+There are several approaches to constructing confidence intervals:
+
+. . .
+
+1. *Theory:* use mathematical formulas ([Central Limit Theorem]{.hi_purple}) to derive the sampling distribution of our point estimate under certain conditions $\rightarrow$ what R does under the hood!
+
+. . .
+
+2. *Simulation:* use the [bootstrapping]{.hi_blue} method to reconstruct the sampling distribution of our point estimate
+
+. . .
+
+We will cover both methods in this lecture. Let's start with theory and then cover bootstrap.
+
+## The anatomy of a confidence interval
+
+$$\text{CI} = {\color{#648FFF}{\text{Point Estimate}}} \pm \color{#DC267F}{\text{Margin of Error}}$$
+where:
+
+$${\color{#DC267F}{\text{Margin of Error}}} = {\color{#785EF0}{\text{Critical Value}}} \times \color{#FFB000}{\text{Standard Error}}$$
+
+**Components:**
+
+- [**Point estimate**]{.hi_blue}: our best guess (e.g., $\bar{x}$, $\hat{p}$)
+- [**Margin of error**]{.hi_cranberry}: accounts for sampling variability
+- [**Critical value**]{.hi_purple}: depends on **confidence level** (e.g., 1.96 for 95%)
+- [**Standard error**]{.hi_yellow}: estimated standard deviation of the sampling distribution
+
+## Where do critical values come from?
+
+For a $(1-\alpha)$% confidence interval, we need to find $z_{\alpha/2}$ such that the middle $(1-\alpha)$ of the standard normal distribution lies between $-z_{\alpha/2}$ and $+z_{\alpha/2}$.
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+#| fig-align: center
+
+# Create data for standard normal
+x <- seq(-4, 4, length.out = 1000)
+y <- dnorm(x)
+df <- tibble(x = x, y = y)
+
+# Critical value for 95% CI
+alpha <- 0.05
+z_crit <- qnorm(1 - alpha/2)
+
+ggplot(df, aes(x, y)) +
+  # Middle region (1-alpha)
+  geom_area(data = filter(df, x >= -z_crit & x <= z_crit),
+            fill = "#648FFF", alpha = 0.4) +
+  # Left tail (alpha/2)
+  geom_area(data = filter(df, x <= -z_crit),
+            fill = "#DC267F", alpha = 0.4) +
+  # Right tail (alpha/2)
+  geom_area(data = filter(df, x >= z_crit),
+            fill = "#DC267F", alpha = 0.4) +
+  # Distribution curve
+  geom_line(linewidth = 1.2, color = colors["primary"]) +
+  # Critical value lines
+  geom_vline(xintercept = c(-z_crit, z_crit), linetype = "dashed",
+             color = "#785EF0", linewidth = 1) +
+  # Annotations
+
+  annotate("text", x = 0, y = 0.15, label = "1 - α = 95%",
+           size = 5, fontface = "bold", color = "#648FFF") +
+  annotate("text", x = -3, y = 0.05, label = "α/2 = 2.5%",
+           size = 4, color = "#DC267F", fontface = "bold") +
+  annotate("text", x = 3, y = 0.05, label = "α/2 = 2.5%",
+           size = 4, color = "#DC267F", fontface = "bold") +
+  annotate("text", x = -z_crit, y = -0.025, label = paste0("-z[α/2] == -", round(z_crit, 2)),
+           size = 4, color = "#785EF0", fontface = "bold", parse = TRUE) +
+  annotate("text", x = z_crit, y = -0.025, label = paste0("z[α/2] == ", round(z_crit, 2)),
+           size = 4, color = "#785EF0", fontface = "bold", parse = TRUE) +
+  scale_x_continuous(breaks = seq(-4, 4, 1)) +
+  scale_y_continuous(expand = expansion(mult = c(0.1, 0.05))) +
+  labs(x = "z", y = "Density",
+       title = "Critical values for a 95% confidence interval") +
+  theme(panel.grid.minor = element_blank())
+```
+
+## Why $z_{\alpha/2}$? {.pause}
+
+We want to construct an interval that captures the true parameter with probability $1-\alpha$ (e.g., if $\alpha = 0.05 \rightarrow 95\%$).
+
+. . .
+
+**The notation:** $z_p$ denotes the z-value with probability $p$ in the [upper tail]{.hi_cranberry}:
+
+$$P(Z > z_p) = p$$
+
+. . .
+
+**The logic:**
+
+1. We split the "error probability" $\alpha$ equally between [both tails]{.hi_cranberry} of the distribution
+
+2. Each tail gets $\alpha/2$ of the probability
+
+3. So we need $z_{\alpha/2}$: the z-value with $\alpha/2$ probability in the upper tail
+
+. . .
+
+<!-- **In R:** `qnorm(p)` returns the z-value with probability $p$ to the [left]{.hi_blue}: -->
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+```{r}
+# z_{0.025}: 2.5% in upper tail
+qnorm(1 - 0.025)  # = qnorm(0.975)
+```
+
+:::
+
+::: {.column width="50%"}
+
+```{r}
+# -z_{0.025}: 2.5% in lower tail
+qnorm(0.025)
+```
+
+:::
+:::
+
+## Why not $z_{\alpha}$?
+
+What if we used $z_{\alpha}$ instead of $z_{\alpha/2}$?
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 5
+#| fig-align: center
+
+library(patchwork)
+
+# Create data for standard normal
+x <- seq(-4, 4, length.out = 1000)
+y <- dnorm(x)
+df <- tibble(x = x, y = y)
+
+alpha <- 0.05
+z_alpha <- qnorm(1 - alpha)      # z_0.05 = 1.645
+z_alpha2 <- qnorm(1 - alpha/2)   # z_0.025 = 1.96
+
+# Plot 1: Using z_alpha (WRONG for two-sided CI)
+p1 <- ggplot(df, aes(x, y)) +
+  # Area below z_alpha (95%)
+  geom_area(data = filter(df, x <= z_alpha),
+            fill = "#648FFF", alpha = 0.4) +
+  # Area above z_alpha (5%)
+  geom_area(data = filter(df, x >= z_alpha),
+            fill = "#DC267F", alpha = 0.4) +
+  geom_line(linewidth = 1.2, color = colors["primary"]) +
+  geom_vline(xintercept = z_alpha, linetype = "dashed",
+             color = "#785EF0", linewidth = 1) +
+  geom_vline(xintercept = 0, linetype = "dotted", color = "gray50") +
+  annotate("text", x = -.5, y = 0.15, label = "95%",
+           size = 5, fontface = "bold", color = "#648FFF") +
+  annotate("text", x = 2.8, y = 0.05, label = "α = 5%",
+           size = 4, color = "#DC267F", fontface = "bold") +
+  annotate("text", x = z_alpha, y = -0.03, label = paste0("z[α] == ", round(z_alpha, 2)),
+           size = 4, color = "#785EF0", fontface = "bold", parse = TRUE) +
+  scale_x_continuous(breaks = seq(-4, 4, 1)) +
+  scale_y_continuous(expand = expansion(mult = c(0.15, 0.05))) +
+  labs(x = "z", y = "Density",
+       title = expression(paste("Using ", z[alpha], " (one-sided)")),
+       subtitle = "95% below, but NOT centered around 0!") +
+  theme(panel.grid.minor = element_blank(),
+        plot.subtitle = element_text(color = "#DC267F", face = "bold"))
+
+# Plot 2: Using z_alpha/2 (CORRECT for two-sided CI)
+p2 <- ggplot(df, aes(x, y)) +
+  # Middle region (95%)
+  geom_area(data = filter(df, x >= -z_alpha2 & x <= z_alpha2),
+            fill = "#648FFF", alpha = 0.4) +
+  # Left tail (2.5%)
+  geom_area(data = filter(df, x <= -z_alpha2),
+            fill = "#DC267F", alpha = 0.4) +
+  # Right tail (2.5%)
+  geom_area(data = filter(df, x >= z_alpha2),
+            fill = "#DC267F", alpha = 0.4) +
+  geom_line(linewidth = 1.2, color = colors["primary"]) +
+  geom_vline(xintercept = c(-z_alpha2, z_alpha2), linetype = "dashed",
+             color = "#785EF0", linewidth = 1) +
+  geom_vline(xintercept = 0, linetype = "dotted", color = "gray50") +
+  annotate("text", x = 0, y = 0.15, label = "95%",
+           size = 5, fontface = "bold", color = "#648FFF") +
+  annotate("text", x = -3, y = 0.05, label = "2.5%",
+           size = 4, color = "#DC267F", fontface = "bold") +
+  annotate("text", x = 3, y = 0.05, label = "2.5%",
+           size = 4, color = "#DC267F", fontface = "bold") +
+  annotate("text", x = -z_alpha2, y = -0.03, label = paste0("-z[α/2]"),
+           size = 4, color = "#785EF0", fontface = "bold", parse = TRUE) +
+  annotate("text", x = z_alpha2, y = -0.03, label = paste0("z[α/2]"),
+           size = 4, color = "#785EF0", fontface = "bold", parse = TRUE) +
+  scale_x_continuous(breaks = seq(-4, 4, 1)) +
+  scale_y_continuous(expand = expansion(mult = c(0.15, 0.05))) +
+  labs(x = "z", y = "Density",
+       title = expression(paste("Using ", z[alpha/2], " (two-sided)")),
+       subtitle = "95% in the middle, centered around 0!") +
+  theme(panel.grid.minor = element_blank(),
+        plot.subtitle = element_text(color = "#27AE60", face = "bold"))
+
+p1 + p2
+```
+
+. . .
+
+For a [symmetric]{.hi_purple} confidence interval around our estimate, we need to split $\alpha$ between **both** tails → use $z_{\alpha/2}$!
+
+## Confidence level: a trade-off
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 4.5
+
+# Show different confidence levels
+x <- seq(-4, 4, length.out = 1000)
+y <- dnorm(x)
+
+conf_levels <- c(0.90, 0.95, 0.99)
+z_values <- qnorm((1 + conf_levels) / 2)
+
+plot_data <- tibble(x = x, y = y)
+
+ci_comparison <- tibble(
+  conf = c("90%", "95%", "99%"),
+  z = z_values,
+  width = 2 * z_values
+) %>%
+  mutate(conf = factor(conf, levels = c("90%", "95%", "99%")))
+
+ggplot() +
+  geom_line(data = plot_data, aes(x, y), linewidth = 1, color = colors["primary"]) +
+  geom_area(data = filter(plot_data, x >= -z_values[2] & x <= z_values[2]),
+            aes(x, y), fill = colors["accent"], alpha = 0.3) +
+  # CI segments
+  geom_segment(data = ci_comparison, aes(x = -z, xend = z, y = -0.02 - as.numeric(conf)*0.04,
+                                          yend = -0.02 - as.numeric(conf)*0.04, color = conf),
+               linewidth = 4) +
+  # Labels on each segment
+  geom_text(data = ci_comparison, aes(x = 0, y = -0.02 - as.numeric(conf)*0.04,
+                                       label = conf, color = conf),
+            fontface = "bold", size = 4, vjust = 0.4) +
+  # Critical value labels
+  geom_text(data = ci_comparison, aes(x = z + 0.15, y = -0.02 - as.numeric(conf)*0.04,
+                                       label = round(z, 2)),
+            size = 3, hjust = 0, color = "gray40") +
+  geom_text(data = ci_comparison, aes(x = -z - 0.15, y = -0.02 - as.numeric(conf)*0.04,
+                                       label = round(-z, 2)),
+            size = 3, hjust = 1, color = "gray40") +
+  scale_color_manual(values = c("90%" = as.character(colors["success"]),
+                                "95%" = as.character(colors["accent"]),
+                                "99%" = as.character(colors["purple"]))) +
+  scale_y_continuous(expand = expansion(mult = c(0.07, 0.05))) +
+  labs(
+    title = "Higher confidence = wider interval",
+    subtitle = "The trade-off between precision and confidence",
+    x = "Standard deviations from mean",
+    y = "Density"
+  ) +
+  theme(legend.position = "none")
+```
+
+| Confidence Level | Critical Value ($z^*$) | Margin of Error |
+|:---------------:|:---------------------:|:---------------:|
+| [90%]{style="color:#27AE60; font-weight:bold;"} | 1.645 | Narrower |
+| [95%]{style="color:#3498DB; font-weight:bold;"} | 1.960 | Medium |
+| [99%]{style="color:#9B59B6; font-weight:bold;"} | 2.576 | Wider |
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** We can compute sample statistics, but how confident should we be that they reflect the true population parameters?
+:::
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Confidence intervals: a primer](#primer)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**2. CI for a population mean: theory-based**](#ci_mean)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. CI for a proportion: theory-based](#ci_proportion)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Bootstrap CI](#bootstrap)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Comparing two groups](#comparison)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Practical guidelines](#recap)
+
+# CI for a population mean: theory-based {.slide_section #ci_mean}
+
+## CI for a population mean ($\sigma$ known)
+
+**Setting:** $X_1, \ldots, X_n$ i.i.d. with unknown mean $\mu$ and [known]{.hi-red} variance $\sigma^2$
+
+. . .
+
+By the CLT, for large $n$:
+$$\bar{X}_n \sim \mathcal{N}\left(\mu, \frac{\sigma^2}{n}\right)$$
+
+. . .
+
+:::{.formula-box}
+[**95% Confidence Interval for $\mu$ ($\sigma$ known)**]{.formula-title}
+
+$$\bar{x} \pm 1.96 \times \frac{\sigma}{\sqrt{n}}$$
+:::
+
+. . .
+
+**General formula for $(1-\alpha)$% CI:**
+$$\bar{x} \pm z_{\alpha/2} \times \frac{\sigma}{\sqrt{n}}$$
+
+where $z_{\alpha/2}$ is the $(1-\alpha/2)$ quantile of $\mathcal{N}(0,1)$
+
+## Why does this formula work? {.smaller}
+
+We know that $\frac{\bar{X} - \mu}{\sigma/\sqrt{n}} \sim \mathcal{N}(0,1)$, so by definition of $z_{\alpha/2}$:
+
+$$1 - \alpha = \mathbb{P}\left( -z_{\alpha/2} \leq \frac{\bar{X} - \mu}{\sigma / \sqrt{n}} \leq z_{\alpha/2} \right)$$
+
+. . .
+
+Now we solve for $\mu$ in the inequalities:
+
+$$= \mathbb{P}\left( -z_{\alpha/2} \frac{\sigma}{\sqrt{n}} \leq \bar{X} - \mu \leq z_{\alpha/2} \frac{\sigma}{\sqrt{n}} \right)$$
+
+. . .
+
+$$= \mathbb{P}\left( -\bar{X} - z_{\alpha/2} \frac{\sigma}{\sqrt{n}} \leq - \mu \leq -\bar{X} + z_{\alpha/2} \frac{\sigma}{\sqrt{n}} \right)$$
+
+. . .
+
+$$= \mathbb{P}\left( \bar{X} - z_{\alpha/2} \frac{\sigma}{\sqrt{n}} \leq \mu \leq \bar{X} + z_{\alpha/2} \frac{\sigma}{\sqrt{n}} \right)$$
+
+. . .
+
+We therefore have: $\boxed{\mathbb{P}\left( \bar{X} - z_{\alpha/2} \frac{\sigma}{\sqrt{n}} \leq \mu \leq \bar{X} + z_{\alpha/2} \frac{\sigma}{\sqrt{n}} \right) = 1 - \alpha}$
+
+. . .
+
+This shows that the interval $\left[ \bar{X} - z_{\alpha/2} \frac{\sigma}{\sqrt{n}}, \bar{X} + z_{\alpha/2} \frac{\sigma}{\sqrt{n}} \right]$ contains $\mu$ with probability $1 - \alpha$. ✓
+
+## Example: IQ scores ($\sigma$ known)
+
+**Problem:** A sample of $n = 36$ students has a mean grade of $\bar{x} = 11$. Assuming grades have a known standard deviation $\sigma = 2$, compute a 95% CI for the population mean.
+
+. . .
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+**Manual calculation:**
+
+$$11 \pm 1.96 \times \frac{2}{\sqrt{36}} = [10.347, 11.653]$$
+
+**Interpretation:** we are 95% confident that the true mean IQ of the population is between **10.35** and **11.65**.
+
+:::
+
+::: {.column width="50%"}
+
+**Using R directly:**
+
+```{r}
+# Given values
+x_bar <- 11
+sigma <- 2
+n <- 36
+alpha <- 0.05
+
+# Critical value
+z_crit <- qnorm(1 - alpha/2)
+
+# Standard error
+se <- sigma / sqrt(n)
+
+# Margin of error
+me <- z_crit * se
+
+# Confidence interval
+c(x_bar - me, x_bar + me)
+```
+
+:::
+
+::::
+
+## CI for a population mean ($\sigma$ unknown)
+
+**The realistic case:** We almost never know $\sigma$!
+
+. . .
+
+**Solution:** Replace $\sigma$ with the sample standard deviation $s$
+
+$$s = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})^2}$$
+
+. . .
+
+As we saw last week, our standardized statistic follows a [**t-distribution**]{.hi_purple} with $n-1$ degrees of freedom:
+
+$$\frac{\bar{X}_n - \mu}{s/\sqrt{n}} \sim t_{n-1}$$
+
+## The t-distribution: a reminder
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 4.5
+
+x <- seq(-4, 4, length.out = 1000)
+
+t_data <- bind_rows(
+  tibble(x = x, dist = "Normal", y = dnorm(x)),
+  tibble(x = x, dist = "t (df=3)", y = dt(x, 3)),
+  tibble(x = x, dist = "t (df=10)", y = dt(x, 10)),
+  tibble(x = x, dist = "t (df=30)", y = dt(x, 30))
+)
+
+ggplot(t_data, aes(x, y, color = dist, linetype = dist)) +
+  geom_line(linewidth = 1.2) +
+  scale_color_manual(values = c("Normal" = as.vector(colors["primary"]),
+                                "t (df=3)" = as.vector(colors["secondary"]),
+                                "t (df=10)" = as.vector(colors["warning"]),
+                                "t (df=30)" = as.vector(colors["accent"])),
+                     name = "") +
+  scale_linetype_manual(values = c("Normal" = "solid",
+                                   "t (df=3)" = "dashed",
+                                   "t (df=10)" = "dotdash",
+                                   "t (df=30)" = "dotted"),
+                        name = "") +
+  labs(
+    title = "The t-distribution has heavier tails than the normal",
+    subtitle = "As degrees of freedom increase, t approaches normal",
+    x = "Value",
+    y = "Density"
+  ) +
+  theme(legend.position = "right")
+```
+
+. . .
+
+[**Key insight:**]{.hi-green} Heavier tails → wider CIs → accounts for uncertainty in estimating $\sigma$
+
+## Student's t critical values table {.smaller}
+
+```{r}
+#| echo: false
+
+# Create t-table for common degrees of freedom and confidence levels
+t_table <- tibble(
+  df = c(1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 50, 100, Inf)
+) |>
+  mutate(
+    `90%` = round(qt(0.95, df), 3),
+    `95%` = round(qt(0.975, df), 3),
+    `99%` = round(qt(0.995, df), 3)
+  ) |>
+  mutate(df = ifelse(df == Inf, "∞ (Normal)", as.character(df)))
+
+kable(t_table,
+      col.names = c("df", "90% (α = 0.10)", "95% (α = 0.05)", "99% (α = 0.01)"),
+      align = c("l", "c", "c", "c"),
+      caption = "Critical values t for two-sided confidence intervals")
+```
+
+. . .
+
+**In R:** Use `qt(1 - α/2, df)` to get critical values, e.g., `qt(0.975, df = 29)` for 95% CI with n = 30.
+
+## CI formula with t-distribution
+
+:::{.formula-box}
+[**$(1-\alpha)$% Confidence Interval for $\mu$ ($\sigma$ unknown)**]{.formula-title}
+
+$$\boxed{\bar{x} \pm t_{\alpha/2, n-1} \times \frac{s}{\sqrt{n}}}$$
+:::
+
+where $t_{\alpha/2, n-1}$ is the $(1-\alpha/2)$ quantile of $t_{n-1}$
+
+. . .
+
+**In R:**
+
+```{r}
+#| eval: false
+# Critical value for 95% CI with n=30
+qt(0.975, df = 29)
+```
+
+```{r}
+#| echo: false
+qt(0.975, df = 29)
+```
+
+. . .
+
+[**Note:**]{.hi-blue} For $n > 30$, $t_{n-1} \approx \mathcal{N}(0,1)$, so using $z$ instead of $t$ is often acceptable.
+
+## Real data example: European Social Survey
+
+Let's use data from the [**European Social Survey**](https://www.europeansocialsurvey.org/) (Round 11, 2023-2024) to estimate the 96% confidence interval for average life satisfaction in France. The data can be found [here](https://www.dropbox.com/scl/fi/25h4lezq3zuzla94ejmqq/ess_france_11ed.csv?rlkey=lf23ra0i6bvq5dzgtt2u1gy9a&dl=1).
+
+```{r}
+# Load ESS France data
+# In practice, download from https://ess.sikt.no/en/country/321b06ad-1b98-4b7d-93ad-ca8a24e8788a/fr/
+ess_france <- read.csv("https://www.dropbox.com/scl/fi/25h4lezq3zuzla94ejmqq/ess_france_11ed.csv?rlkey=lf23ra0i6bvq5dzgtt2u1gy9a&dl=1")
+```
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+```{r}
+# Summary statistics
+ess_france |> 
+  count(stflife)
+```
+
+:::
+
+::: {.column width="50%"}
+
+```{r}
+ess_france_clean <-  ess_france |>
+  filter(!stflife %in% c(77,88))
+
+ess_france_clean |> 
+  summarise(n = n(),
+            mean_life_satisfaction = mean(stflife),
+            sd_life_satis = sd(stflife))
+```
+
+:::
+:::
+
+## Computing the CI in R
+
+**Method 1: Manual calculation**
+
+```{r}
+# Extract summary stats
+n <- nrow(ess_france_clean)
+x_bar <- mean(ess_france_clean$stflife)
+s <- sd(ess_france_clean$stflife)
+se <- s / sqrt(n)
+
+# Critical value for 95% CI
+t_crit <- qt(0.975, df = n - 1)
+
+# Confidence interval
+ci_lower <- x_bar - t_crit * se
+ci_upper <- x_bar + t_crit * se
+
+c(ci_lower, ci_upper)
+```
+
+. . .
+
+**Method 2: Using `t.test()`**
+
+```{r}
+t.test(ess_france_clean$stflife, conf.level = 0.95)$conf.int
+```
+
+## Visualizing the result
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+ggplot(ess_france_clean, aes(x = stflife)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 30,
+                 fill = colors["accent"], alpha = 0.7, color = "white") +
+  geom_vline(xintercept = x_bar, color = colors["secondary"], linewidth = 1.5) +
+  geom_vline(xintercept = c(ci_lower, ci_upper), color = colors["purple"],
+             linewidth = 1.2, linetype = "dashed") +
+  annotate("rect", xmin = ci_lower, xmax = ci_upper, ymin = 0, ymax = Inf,
+           fill = colors["purple"], alpha = 0.1) +
+  annotate("text", x = x_bar + 0.15, y = 0.32, label = paste0("x̄ = ", round(x_bar, 1)),
+           color = colors["secondary"], fontface = "bold", hjust = 0) +
+  annotate("text", x = (ci_lower + ci_upper)/2, y = 0.28,
+           label = paste0("95% CI: [", round(ci_lower, 2), ", ", round(ci_upper, 2), "]"),
+           color = colors["purple"], fontface = "bold") +
+  labs(
+    title = "Distribution of life satisfaction in France",
+    subtitle = "ESS Round 11 data | The shaded region shows the 95% confidence interval",
+    x = "Life satisfaction (0-10)",
+    y = "Density"
+  ) +
+  scale_x_continuous(breaks = 0:10)
+```
+
+## Interpretation
+
+:::{.insight-box}
+[**Interpretation**]{.insight-title}
+
+We are **95% confident** that the true average life satisfaction for adults in France is between `r round(ci_lower, 1)` and `r round(ci_upper, 1)` (on a 0-10 scale).
+:::
+
+. . .
+
+**What this means practically:**
+
+- Life satisfaction is measured on a scale from 0 (extremely dissatisfied) to 10 (extremely satisfied)
+- The average French respondent reports being fairly satisfied with life
+
+. . .
+
+[**Remember:**]{.hi-red} The confidence is about the *procedure*, not this specific interval!
+
+## Your turn! #1 {.slide_task}
+
+{{< countdown "15:00" top=0 right=0 >}}
+
+1. Load the ESS Round 11 data for France
+
+```{r}
+ess_france <- read.csv("https://www.dropbox.com/scl/fi/25h4lezq3zuzla94ejmqq/ess_france_11ed.csv?rlkey=lf23ra0i6bvq5dzgtt2u1gy9a&dl=1")
+```
+
+2. Read the documentation on the *Trust in politicians* `trstplt` variable [here](https://ess.sikt.no/en/datafile/242aaa39-3bbb-40f5-98bf-bfb1ce53d8ef?tab=1&elems=12407541-8d0a-4bb6-bc2c-a0ac056dc0ba). Drop the values corresponding refusal, don't know and no answer.
+
+3. Compute the sample mean trust in politicians, the sample standard deviation and the standard error.
+
+4. Find the critical value for a 90% confidence interval.
+
+5. Compute the 90% confidence interval manually.
+
+6. Use the `t.test()` command to compute the 90% confidence interval directly.
+
+7. Interpret your results. 
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** We can compute sample statistics, but how confident should we be that they reflect the true population parameters?
+:::
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Confidence intervals: a primer](#primer)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. CI for a population mean: theory-based](#ci_mean)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**3. CI for a proportion: theory-based**](#ci_proportion)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Bootstrap CI](#bootstrap)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Comparing two groups](#comparison)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Practical guidelines](#recap)
+
+# CI for a proportion: theory-based {.slide_section #ci_proportion}
+
+## From means to proportions
+
+**Setting:** We want to estimate a population proportion $p$
+
+Examples:
+
+- What proportion of French adults support the EU?
+- What percentage of Americans trust the government?
+- What fraction of voters will vote for candidate X?
+
+. . .
+
+**Key insight:** A proportion is just a mean of 0s and 1s!
+
+If $X_i \in \{0, 1\}$ with $P(X_i = 1) = p$, then:
+$$\hat{p} = \bar{X} = \frac{\text{number of successes}}{n}$$
+
+## Sampling distribution of proportions
+
+Since $X_i \sim \text{Bernoulli}(p)$:
+
+- $\mathbb{E}[X_i] = p$
+- $\mathbb{V}(X_i) = p(1-p)$
+
+. . .
+
+By the CLT (for large $n$):
+
+$$\hat{p} \sim \mathcal{N}\left(p, \frac{p(1-p)}{n}\right)$$
+
+. . .
+
+:::{.formula-box}
+[**Standard Error of a Proportion**]{.formula-title}
+
+$$SE(\hat{p}) = \sqrt{\frac{\hat{p}(1-\hat{p})}{n}}$$
+:::
+
+## CI for a proportion
+
+:::{.formula-box}
+[**$(1-\alpha)$% Confidence Interval for p**]{.formula-title}
+
+$$\hat{p} \pm z_{\alpha/2} \times \sqrt{\frac{\hat{p}(1-\hat{p})}{n}}$$
+:::
+
+. . .
+
+**Rule of thumb for CLT validity:**
+
+- $n\hat{p} \geq 10$ and $n(1-\hat{p}) \geq 10$
+
+. . .
+
+:::{.warning-box}
+[**Caution**]{.warning-title}
+
+For small samples or extreme proportions (close to 0 or 1), other methods may be more appropriate.
+:::
+
+## Example: Interpersonal Trust
+
+Using ESS data, let's estimate the proportion of French respondents who have high interpersonal trust (i.e., believe most people can be trusted).
+
+```{r}
+# Create binary variable for high trust (> 5 on 0-10 scale)
+# Filter out refusals (77), don't know (88), and no answer (99)
+ess_trust_prop <- ess_france |> 
+  filter(!ppltrst %in% c(77, 88)) |> 
+  mutate(high_trust = ppltrst > 5)
+
+# Compute proportion and CI
+n_trust <- nrow(ess_trust_prop)
+p_hat <- mean(ess_trust_prop$high_trust)
+se_p <- sqrt(p_hat * (1 - p_hat) / n_trust)
+z_crit <- qnorm(0.975)
+
+ci_p_lower <- p_hat - z_crit * se_p
+ci_p_upper <- p_hat + z_crit * se_p
+
+p_hat
+c(ci_p_lower, ci_p_upper)
+```
+
+## Using `binom.confint()` in R
+
+```{r}
+# Alternative: prop.test (no specific correction applied)
+library(binom)
+binom.confint(x = sum(ess_trust_prop$high_trust), 
+              n = n_trust, 
+              methods = "asymptotic")
+
+# manual CI
+c(ci_p_lower, ci_p_upper)
+
+# a common method: prop.test
+prop.test(sum(ess_trust_prop$high_trust), n_trust, conf.level = 0.95)$conf.int
+```
+
+. . .
+
+[**Note:**]{.hi-blue} `prop.test()` uses the [Wilson score interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Wilson_score_interval), which is generally more accurate than the [Wald interval](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Problems_with_using_a_normal_approximation_or_%22Wald_interval%22) we computed manually.
+
+## Your turn! #2 {.slide_task}
+
+{{< countdown "12:00" top=0 right=0 >}}
+
+1. Create education groups and a binary variable for high interpersonal trust (`ppltrst > 5`):
+
+```{r}
+#| eval: false
+ess_trust_educ <- ess_france |>
+  filter(!ppltrst %in% c(77, 88),
+         !is.na(education)) |>
+  mutate(high_trust = ppltrst > 5)
+```
+
+2. Compute the proportion with high trust for each education group.
+
+3. Compute the standard error for each proportion.
+
+4. Compute 95% CIs for each education group.
+
+5. Create a visualization showing point estimates and CIs.
+
+6. Based on the CIs, do you think there are "true" differences in interpersonal trust across education levels? Why or why not?
+
+## Comparing proportions across education levels
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+# Compute CIs for each education group
+educ_trust_summary <- ess_trust_prop |>
+  filter(education != "") |>
+  group_by(education) |>
+  summarise(
+    n = n(),
+    p_hat = mean(high_trust),
+    se = sqrt(p_hat * (1 - p_hat) / n),
+    lower = p_hat - 1.96 * se,
+    upper = p_hat + 1.96 * se
+  ) |>
+  ungroup() |> 
+  mutate(education = factor(education, levels = c("High school diploma or less", "Short-cycle tertiary (BTS, DUT)", "Undergraduate degree (licence, licence pro)", "Masters degree or more")))
+
+ggplot(educ_trust_summary, aes(x = p_hat, y = fct_rev(education))) +
+  geom_segment(aes(x = lower, xend = upper, yend = education),
+               linewidth = 3, color = colors["accent"], alpha = 0.6) +
+  geom_point(size = 5, color = colors["secondary"]) +
+  geom_text(aes(label = scales::percent(p_hat, accuracy = 1)),
+            hjust = -0.5, fontface = "bold", color = colors["primary"]) +
+  scale_x_continuous(labels = scales::percent, limits = c(0, 0.6)) +
+  scale_y_discrete(labels = scales::label_wrap(20), drop = TRUE) +
+  labs(
+    title = "Interpersonal trust by education level in France",
+    subtitle = "Point estimates with 95% confidence intervals | ESS Round 11 data",
+    x = "Proportion with high trust (score > 5)",
+    y = "Education level"
+  )
+```
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** We can compute sample statistics, but how confident should we be that they reflect the true population parameters?
+:::
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Confidence intervals: a primer](#primer)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. CI for a population mean: theory-based](#ci_mean)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. CI for a proportion: theory-based](#ci_proportion)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**4. Bootstrap CI**](#bootstrap)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Comparing two groups](#comparison)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Practical guidelines](#recap)
+
+# Bootstrap CI {.slide_section #bootstrap}
+
+## Motivation: Why bootstrap?
+
+**Limitations of CLT-based CIs:**
+
+1. Require large samples for CLT to kick in
+2. Assume specific parametric forms
+3. Difficult for complex statistics (medians, ratios, correlations)
+
+. . .
+
+**The bootstrap idea:**
+
+> If we can't sample repeatedly from the population, let's sample repeatedly from our sample!
+
+. . .
+
+:::{.insight-box}
+[**Key insight**]{.insight-title}
+
+The sample is our best representation of the population. Resampling from the sample mimics sampling from the population.
+:::
+
+## Bootstrap: the procedure
+
+:::{.definition-box}
+[**Bootstrap Algorithm**]{.definition-title}
+
+1. **Original sample:** Start with sample of size $n$
+2. **Resample:** Draw $n$ observations [with replacement]{.hi-red}
+3. **Compute:** Calculate statistic of interest
+4. **Repeat:** Do this $B$ times (typically $B \geq 1000$)
+5. **CI:** Two methods:
+   - [**Percentile method:**]{.hi_purple} Use the 2.5th and 97.5th percentiles of bootstrap distribution
+   - [**SE method:**]{.hi_blue} $\hat{\theta} \pm z_{\alpha/2} \times SE_{boot}$, where $SE_{boot}$ is the SD of bootstrap estimates
+:::
+
+## Our original sample
+
+```{r}
+#| echo: false
+#| fig-width: 8
+#| fig-height: 5
+
+# Original sample
+original_sample <- c(23, 45, 31, 52, 19, 47, 33, 28, 41, 36)
+
+# Create visualization data for original only
+original_df <- tibble(
+  position = 1:10,
+  value = original_sample
+)
+
+ggplot(original_df, aes(x = position, y = value)) +
+  geom_col(width = 0.7, fill = colors["primary"]) +
+  geom_text(aes(label = value), vjust = -0.5, size = 5, fontface = "bold") +
+  scale_x_continuous(breaks = 1:10) +
+  scale_y_continuous(limits = c(0, 60)) +
+  labs(
+    title = "Original sample (n = 10)",
+    subtitle = paste0("Sample mean: ", round(mean(original_sample), 1)),
+    x = "Observation",
+    y = "Value"
+  )
+```
+
+. . .
+
+**Question:** How can we estimate the variability of $\bar{x}$ without taking new samples from the population?
+
+## Building a bootstrap sample
+
+We resample **with replacement** from our original sample:
+
+```{r}
+#| echo: false
+
+set.seed(42)
+original_sample <- c(23, 45, 31, 52, 19, 47, 33, 28, 41, 36)
+boot_indices <- sample(1:10, 10, replace = TRUE)
+boot_values <- original_sample[boot_indices]
+
+# Function to create progressive plot
+make_bootstrap_plot <- function(step, original_sample, boot_indices) {
+  library(patchwork)
+
+  # Data for original sample - highlight selected observations up to this step
+  selected_so_far <- boot_indices[1:step]
+
+  original_df <- tibble(position = 1:10, value = original_sample) |>
+    mutate(selected = position %in% selected_so_far,
+           fill_color = ifelse(selected, "selected", "not_selected"))
+
+  # Original sample plot
+  p_original <- ggplot(original_df, aes(x = position, y = value, fill = fill_color)) +
+    geom_col(width = 0.7) +
+    geom_text(aes(label = value), vjust = -0.5, size = 4, fontface = "bold") +
+    scale_fill_manual(values = c("selected" = as.character(colors["secondary"]),
+                                  "not_selected" = as.character(colors["primary"])),
+                      guide = "none") +
+    scale_x_continuous(breaks = 1:10) +
+    scale_y_continuous(limits = c(0, 60)) +
+    labs(title = "Original sample", subtitle = "Red = selected for bootstrap",
+         x = "Observation", y = "Value") +
+    theme(plot.title = element_text(size = 12))
+
+  # Bootstrap sample plot - show only draws up to this step
+  boot_df <- tibble(
+    draw = 1:step,
+    selected_index = boot_indices[1:step],
+    value = original_sample[boot_indices[1:step]]
+  )
+
+  p_bootstrap <- ggplot(boot_df, aes(x = draw, y = value)) +
+    geom_col(width = 0.7, fill = colors["accent"]) +
+    geom_text(aes(label = paste0(value, "\n(#", selected_index, ")")),
+              vjust = -0.3, size = 3) +
+    scale_x_continuous(breaks = 1:10, limits = c(0.5, 10.5)) +
+    scale_y_continuous(limits = c(0, 65)) +
+    labs(title = paste0("Bootstrap sample (", step, "/10 draws)"),
+         subtitle = paste0("Current mean: ", round(mean(boot_df$value), 1)),
+         x = "Draw", y = "Value") +
+    theme(plot.title = element_text(size = 12))
+
+  p_original + p_bootstrap
+}
+```
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+
+make_bootstrap_plot(1, original_sample, boot_indices)
+```
+
+## Building a bootstrap sample
+
+We resample **with replacement** from our original sample:
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+
+make_bootstrap_plot(2, original_sample, boot_indices)
+```
+
+## Building a bootstrap sample
+
+We resample **with replacement** from our original sample:
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+
+make_bootstrap_plot(3, original_sample, boot_indices)
+```
+
+## Building a bootstrap sample
+
+We resample **with replacement** from our original sample:
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+
+make_bootstrap_plot(4, original_sample, boot_indices)
+```
+
+## Building a bootstrap sample
+
+We resample **with replacement** from our original sample:
+
+```{r}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5
+
+make_bootstrap_plot(10, original_sample, boot_indices)
+```
+
+::: {.callout-note}
+Each draw is **independent** and **with replacement** — the same observation can be selected multiple times!
+:::
+
+## Bootstrap resampling
+
+```{r}
+#| echo: false
+#| fig-width: 12
+#| fig-height: 7
+
+# Use the same bootstrap sample from previous slides (seed 42)
+# and generate 2 more bootstrap samples
+set.seed(789)
+boot_samples <- tibble(
+  sample_type = c(rep("Original", 10),
+                  rep("Bootstrap 1", 10),
+                  rep("Bootstrap 2", 10),
+                  rep("Bootstrap 3", 10)),
+  value = c(original_sample,
+            boot_values,  # The bootstrap sample we just built step by step
+            sample(original_sample, 10, replace = TRUE),
+            sample(original_sample, 10, replace = TRUE)),
+  position = rep(1:10, 4)
+) |>
+  mutate(sample_type = factor(sample_type,
+                               levels = c("Original", "Bootstrap 1", "Bootstrap 2", "Bootstrap 3")))
+
+ggplot(boot_samples, aes(x = position, y = value, fill = sample_type)) +
+  geom_col(width = 0.7) +
+  geom_text(aes(label = value), vjust = -0.5, size = 3.5) +
+  facet_wrap(~sample_type, nrow = 1) +
+  scale_fill_manual(values = c("Original" = as.character(colors["primary"]),
+                               "Bootstrap 1" = as.character(colors["accent"]),
+                               "Bootstrap 2" = as.character(colors["teal"]),
+                               "Bootstrap 3" = as.character(colors["purple"]))) +
+  labs(
+    title = "Bootstrap resampling: Drawing with replacement",
+    subtitle = "Bootstrap 1 is the sample we just built; notice how values repeat and others are missing",
+    x = "Observation",
+    y = "Value"
+  ) +
+  theme(legend.position = "none",
+        strip.text = element_text(face = "bold", size = 12))
+```
+
+## Bootstrap in R with `infer`
+
+* Let's repeat the resampling procedure 1,000 times: there will be 1,000 bootstrap samples and 1,000 bootstrap estimates!
+
+:::: {.columns}
+::: {.column width="50%"}
+
+* We use the `infer` package to ease the bootstrapping procedure.
+
+```{r}
+# Using our working hours data
+bootstrap_means <- ess_france_clean |> 
+  # specify the variable of interest
+  specify(response = stflife) |> 
+  # generate 1000 bootstrap samples
+  generate(reps = 1000, type = "bootstrap") |> 
+  # calculate the mean
+  calculate(stat = "mean")
+```
+
+:::
+
+::: {.column width="50%"}
+
+```{r}
+# View first few bootstrap means
+head(bootstrap_means)
+
+nrow(bootstrap_means)
+```
+
+:::
+:::
+
+## Bootstrap distribution
+
+```{r}
+#| echo: false
+
+# Pre-compute all CIs for the progressive slides
+boot_ci_percentile <- bootstrap_means %>%
+  get_ci(level = 0.95, type = "percentile")
+
+boot_ci_se <- bootstrap_means %>%
+  get_ci(level = 0.95, type = "se", point_estimate = mean(ess_france_clean$stflife))
+
+t_ci <- t.test(ess_france_clean$stflife)$conf.int
+
+original_mean <- mean(ess_france_clean$stflife)
+bootstrap_mean <- mean(bootstrap_means$stat)
+```
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+ggplot(bootstrap_means, aes(x = stat)) +
+  geom_histogram(bins = 40, fill = colors["accent"], color = "white", alpha = 0.8) +
+  scale_y_continuous(limits = c(0, 105), expand = c(0, 0)) +
+  labs(
+    title = "Bootstrap distribution of the sample mean",
+    subtitle = "1000 bootstrap samples",
+    x = "Bootstrap sample mean",
+    y = "Count"
+  )
+```
+
+## Bootstrap distribution
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+ggplot(bootstrap_means, aes(x = stat)) +
+  geom_histogram(bins = 40, fill = colors["accent"], color = "white", alpha = 0.8) +
+  geom_vline(xintercept = bootstrap_mean, color = colors["teal"],
+             linewidth = 1.5, linetype = "solid") +
+  annotate("text", x = bootstrap_mean + 0.03, y = 95,
+           label = paste0("Mean of bootstrap means\n= ", round(bootstrap_mean, 2)),
+           color = colors["teal"],
+           fontface = "bold", hjust = 0, size = 4) +
+  scale_y_continuous(limits = c(0, 105), expand = c(0, 0)) +
+  labs(
+    title = "Bootstrap distribution of the sample mean",
+    subtitle = "1000 bootstrap samples",
+    x = "Bootstrap sample mean",
+    y = "Count"
+  )
+```
+
+```{r}
+mean(bootstrap_means$stat)
+```
+
+## Bootstrap distribution
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+ggplot(bootstrap_means, aes(x = stat)) +
+  geom_histogram(bins = 40, fill = colors["accent"], color = "white", alpha = 0.8) +
+  geom_vline(xintercept = bootstrap_mean, color = colors["teal"],
+             linewidth = 1.5, linetype = "solid") +
+  geom_vline(xintercept = original_mean, color = colors["secondary"],
+             linewidth = 1.5, linetype = "dashed") +
+  annotate("text", x = bootstrap_mean + 0.03, y = 95,
+           label = paste0("Bootstrap mean = ", round(bootstrap_mean, 2)),
+           color = colors["teal"],
+           fontface = "bold", hjust = 0, size = 4) +
+  annotate("text", x = original_mean - 0.03, y = 80,
+           label = paste0("Original x̄ = ", round(original_mean, 2)),
+           color = colors["secondary"],
+           fontface = "bold", hjust = 1, size = 4) +
+  scale_y_continuous(limits = c(0, 105), expand = c(0, 0)) +
+  labs(
+    title = "Bootstrap distribution of the sample mean",
+    subtitle = "The mean of bootstrap means ≈ original sample mean",
+    x = "Bootstrap sample mean",
+    y = "Count"
+  )
+```
+
+```{r}
+mean(ess_france_clean$stflife)
+```
+
+
+## Bootstrap distribution: Percentile CI
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+ggplot(bootstrap_means, aes(x = stat)) +
+  geom_histogram(bins = 40, fill = colors["accent"], color = "white", alpha = 0.8) +
+  geom_vline(xintercept = original_mean, color = colors["secondary"],
+             linewidth = 1.5, linetype = "solid") +
+  geom_vline(xintercept = c(boot_ci_percentile$lower_ci, boot_ci_percentile$upper_ci),
+             color = colors["purple"], linewidth = 1.2, linetype = "dashed") +
+  annotate("text", x = original_mean + 0.03, y = 95,
+           label = paste0("x̄ = ", round(original_mean, 2)),
+           color = colors["secondary"],
+           fontface = "bold", hjust = 0, size = 4) +
+  annotate("label", x = mean(c(boot_ci_percentile$lower_ci, boot_ci_percentile$upper_ci)), y = 80,
+           label = paste0("Percentile CI: [", round(boot_ci_percentile$lower_ci, 2), ", ",
+                          round(boot_ci_percentile$upper_ci, 2), "]"),
+           color = colors["purple"], fontface = "bold", size = 4, fill = "white") +
+  scale_y_continuous(limits = c(0, 105), expand = c(0, 0)) +
+  labs(
+    title = "Bootstrap distribution: Percentile method",
+    subtitle = "Use the 2.5th and 97.5th percentiles of bootstrap distribution",
+    x = "Bootstrap sample mean",
+    y = "Count"
+  )
+```
+
+```{r}
+quantile(bootstrap_means$stat, probs = c(0.025, 0.975))
+```
+
+
+## Bootstrap distribution: SE method
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+ggplot(bootstrap_means, aes(x = stat)) +
+  geom_histogram(bins = 40, fill = colors["accent"], color = "white", alpha = 0.8) +
+  geom_vline(xintercept = original_mean, color = colors["secondary"],
+             linewidth = 1.5, linetype = "solid") +
+  # Percentile CI
+  geom_vline(xintercept = c(boot_ci_percentile$lower_ci, boot_ci_percentile$upper_ci),
+             color = colors["purple"], linewidth = 1.2, linetype = "dashed") +
+  # SE CI
+  geom_vline(xintercept = c(boot_ci_se$lower_ci, boot_ci_se$upper_ci),
+             color = colors["teal"], linewidth = 1.2, linetype = "dotted") +
+  annotate("text", x = original_mean + 0.03, y = 95,
+           label = paste0("x̄ = ", round(original_mean, 2)),
+           color = colors["secondary"],
+           fontface = "bold", hjust = 0, size = 4) +
+  annotate("label", x = mean(c(boot_ci_percentile$lower_ci, boot_ci_percentile$upper_ci)), y = 80,
+           label = paste0("Percentile: [", round(boot_ci_percentile$lower_ci, 2), ", ",
+                          round(boot_ci_percentile$upper_ci, 2), "]"),
+           color = colors["purple"], fontface = "bold", size = 3.5, fill = "white") +
+  annotate("label", x = mean(c(boot_ci_se$lower_ci, boot_ci_se$upper_ci)), y = 65,
+           label = paste0("SE method: [", round(boot_ci_se$lower_ci, 2), ", ",
+                          round(boot_ci_se$upper_ci, 2), "]"),
+           color = colors["teal"], fontface = "bold", size = 3.5, fill = "white") +
+  scale_y_continuous(limits = c(0, 105), expand = c(0, 0)) +
+  labs(
+    title = "Bootstrap distribution: SE method",
+    subtitle = expression(paste("Use ", bar(x), " ± ", z[alpha/2], " × ", SE[boot])),
+    x = "Bootstrap sample mean",
+    y = "Count"
+  )
+```
+
+```{r}
+mean(bootstrap_means$stat) + 1.96 * sd(bootstrap_means$stat)
+```
+
+## Bootstrap distribution: Comparison with theory
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+ggplot(bootstrap_means, aes(x = stat)) +
+  geom_histogram(bins = 40, fill = colors["accent"], color = "white", alpha = 0.8) +
+  geom_vline(xintercept = original_mean, color = colors["secondary"],
+             linewidth = 1.5, linetype = "solid") +
+  # Percentile CI
+  geom_vline(xintercept = c(boot_ci_percentile$lower_ci, boot_ci_percentile$upper_ci),
+             color = colors["purple"], linewidth = 1.2, linetype = "dashed") +
+  # SE CI
+  geom_vline(xintercept = c(boot_ci_se$lower_ci, boot_ci_se$upper_ci),
+             color = colors["teal"], linewidth = 1.2, linetype = "dotted") +
+  # T-based CI
+  geom_vline(xintercept = c(t_ci[1], t_ci[2]),
+             color = colors["warning"], linewidth = 1.2, linetype = "longdash") +
+  annotate("text", x = original_mean + 0.03, y = 95,
+           label = paste0("x̄ = ", round(original_mean, 2)),
+           color = colors["secondary"],
+           fontface = "bold", hjust = 0, size = 4) +
+  annotate("label", x = boot_ci_percentile$lower_ci - 0.02, y = 80,
+           label = paste0("Percentile: [", round(boot_ci_percentile$lower_ci, 2), ", ",
+                          round(boot_ci_percentile$upper_ci, 2), "]"),
+           color = colors["purple"], fontface = "bold", size = 3.5, fill = "white", hjust = 1) +
+  annotate("label", x = boot_ci_se$lower_ci - 0.02, y = 65,
+           label = paste0("SE method: [", round(boot_ci_se$lower_ci, 2), ", ",
+                          round(boot_ci_se$upper_ci, 2), "]"),
+           color = colors["teal"], fontface = "bold", size = 3.5, fill = "white", hjust = 1) +
+  annotate("label", x = t_ci[1] - 0.02, y = 50,
+           label = paste0("T-based: [", round(t_ci[1], 2), ", ",
+                          round(t_ci[2], 2), "]"),
+           color = colors["warning"], fontface = "bold", size = 3.5, fill = "white", hjust = 1) +
+  scale_y_continuous(limits = c(0, 105), expand = c(0, 0)) +
+  labs(
+    title = "Comparing CI methods",
+    subtitle = "All three methods give very similar results!",
+    x = "Bootstrap sample mean",
+    y = "Count"
+  )
+```
+
+```{r}
+mean(ess_france_clean$stflife) + 1.96 * sd(ess_france_clean$stflife)/sqrt(nrow(ess_france_clean))
+```
+
+## Why the bootstrap works: Intuition
+
+```{r}
+#| echo: false
+
+# Pre-compute theoretical distribution
+theoretical_se <- sd(ess_france_clean$stflife) / sqrt(nrow(ess_france_clean))
+theoretical_x <- seq(original_mean - 4*theoretical_se, original_mean + 4*theoretical_se, length.out = 200)
+theoretical_y <- dnorm(theoretical_x, mean = original_mean, sd = theoretical_se)
+theoretical_df <- tibble(x = theoretical_x, y = theoretical_y)
+```
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+ggplot() +
+  # Bootstrap distribution (histogram)
+  geom_histogram(data = bootstrap_means, aes(x = stat, y = after_stat(density)),
+                 bins = 40, fill = colors["accent"], color = "white", alpha = 0.7) +
+  annotate("text", x = original_mean - 0.12, y = max(theoretical_y) * 0.8,
+           label = "Bootstrap\ndistribution", color = colors["accent"],
+           fontface = "bold", size = 5, hjust = 1) +
+  coord_cartesian(ylim = c(0, max(theoretical_y) * 1.1),
+                  xlim = c(min(theoretical_x), max(theoretical_x))) +
+  labs(
+    title = "Bootstrap distribution of the sample mean",
+    subtitle = "What does this distribution approximate?",
+    x = "Sample mean",
+    y = "Density"
+  ) +
+  theme(legend.position = "none")
+```
+
+## Why the bootstrap works: Intuition {.pause}
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+ggplot() +
+  # Bootstrap distribution (histogram)
+  geom_histogram(data = bootstrap_means, aes(x = stat, y = after_stat(density)),
+                 bins = 40, fill = colors["accent"], color = "white", alpha = 0.7) +
+  # Theoretical distribution (line)
+  geom_line(data = theoretical_df, aes(x = x, y = y),
+            color = colors["secondary"], linewidth = 1.5, linetype = "solid") +
+  geom_area(data = theoretical_df, aes(x = x, y = y),
+            fill = colors["secondary"], alpha = 0.3) +
+  annotate("text", x = original_mean + 0.08, y = max(theoretical_y) * 0.9,
+           label = "Theoretical\n(CLT-based)", color = colors["secondary"],
+           fontface = "bold", size = 5, hjust = 0) +
+  annotate("text", x = original_mean - 0.12, y = max(theoretical_y) * 0.8,
+           label = "Bootstrap\ndistribution", color = colors["accent"],
+           fontface = "bold", size = 5, hjust = 1) +
+  coord_cartesian(ylim = c(0, max(theoretical_y) * 1.1),
+                  xlim = c(min(theoretical_x), max(theoretical_x))) +
+  labs(
+    title = "Bootstrap distribution closely matches theory!",
+    subtitle = "Both methods give similar estimates of sampling variability",
+    x = "Sample mean",
+    y = "Density"
+  ) +
+  theme(legend.position = "none")
+```
+
+. . .
+
+**The bootstrap principle:** The empirical distribution of the sample is a good approximation of the population distribution.
+
+## Bootstrap for complex statistics
+
+**The power of bootstrap:** Works for [any]{.hi-red} statistic!
+
+```{r}
+# Bootstrap CI for the median
+boot_median <- ess_france_clean %>%
+  specify(response = stflife) %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "median")
+
+boot_median %>% get_ci(level = 0.95, type = "percentile")
+```
+
+. . .
+
+```{r}
+# Bootstrap CI for the standard deviation
+boot_sd <- ess_france_clean %>%
+  specify(response = stflife) %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "sd")
+
+boot_sd %>% get_ci(level = 0.95, type = "percentile")
+```
+
+## Your Turn! #3 {.slide_task}
+
+{{< countdown "15:00" top=0 right=0 >}}
+
+1. Compute the sample mean, standard deviation, and standard error for satisfaction with democracy (`stfdem`) in the ESS France data.
+
+2. Compute the t-based 95% CI for mean satisfaction manually and using `t.test()`.
+
+3. Compute the bootstrap 95% CI using the `infer` package (use 1000 reps):
+
+```{r}
+#| eval: false
+bootstrap_stfdem <- ess_france_clean |>
+  specify(response = stfdem) |>
+  generate(reps = 1000, type = "bootstrap") |>
+  calculate(stat = "mean")
+```
+
+4. Visualize the bootstrap distribution with a histogram.
+
+5. Compare the two methods — how similar are the CIs? Why might they differ?
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** We can compute sample statistics, but how confident should we be that they reflect the true population parameters?
+:::
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Confidence intervals: a primer](#primer)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. CI for a population mean: theory-based](#ci_mean)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. CI for a proportion: theory-based](#ci_proportion)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Bootstrap CI](#bootstrap)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**5. Comparing two groups**](#comparison)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Practical guidelines](#recap)
+
+# Comparing two groups {.slide_section #comparison}
+
+## Key distinctions in group comparisons {.pause}
+
+When comparing two groups, we need to consider three important dimensions:
+
+. . .
+
+**1. What are we comparing?**
+
+- [**Means:**]{.hi_purple} Continuous variables (e.g., average income, test scores)
+  - Use: t-tests, z-tests
+
+- [**Proportions:**]{.hi_blue} Binary/categorical outcomes (e.g., % with high trust)
+  - Use: proportion tests
+  
+. . .
+  
+**2. What do we know about variability?**
+
+- [**Known variance ($\sigma^2$):**]{.hi_purple} rarely in practice, use z-distribution
+  - $SE = \sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}$
+
+- [**Unknown variance:**]{.hi_blue} most realistic case, use t-distribution
+  - $SE = \sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}$
+
+## Key distinctions in group comparisons {.pause}
+
+**3. How are the samples related?**
+
+- [**Independent samples:**]{.hi_purple} Two separate groups (e.g., men vs women, treatment vs control)
+  - Standard errors add: $SE(\bar{x}_1 - \bar{x}_2) = \sqrt{SE_1^2 + SE_2^2}$
+
+- [**Dependent samples:**]{.hi_cranberry} Paired/matched observations (e.g., before-after, twins)
+  - Analyze differences: $\bar{d} = \frac{1}{n}\sum(x_i - y_i)$, then $SE(\bar{d}) = \frac{s_d}{\sqrt{n}}$
+
+## CI for difference in means
+
+**Question:** Is there a difference in life satisfaction between men and women in France?
+
+. . .
+
+**Setup:**
+
+- Population 1 (men): mean $\mu_M$, sample mean $\bar{x}_M$, sample size $n_M$
+- Population 2 (women): mean $\mu_F$, sample mean $\bar{x}_F$, sample size $n_F$
+
+**Parameter of interest:** $\mu_M - \mu_F$
+
+. . .
+
+**Independent samples:** the two samples are independent (pretty reasonable)
+
+. . .
+
+:::{.formula-box}
+[**CI for Difference in Means ([known]{.hi_purple} $\sigma$)**]{.formula-title}
+
+$$(\bar{x}_1 - \bar{x}_2) \pm z_{\alpha/2} \times \sqrt{\frac{\sigma_M^2}{n_M} + \frac{\sigma_F^2}{n_F}}$$
+:::
+
+## CI for difference in means
+
+**Question:** Is there a difference in life satisfaction between men and women in France?
+
+**Setup:**
+
+- Population 1 (men): mean $\mu_M$, sample mean $\bar{x}_M$, sample size $n_M$
+- Population 2 (women): mean $\mu_F$, sample mean $\bar{x}_F$, sample size $n_F$
+
+**Parameter of interest:** $\mu_M - \mu_F$
+
+**Independent samples:** the two samples are independent (pretty reasonable)
+
+:::{.formula-box}
+[**CI for Difference in Means ([unknown]{.hi_blue} $\sigma$)**]{.formula-title}
+
+$$(\bar{x}_1 - \bar{x}_2) \pm t_{\alpha/2,df} \times \sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}$$
+:::
+
+## 
+
+## Welch–Satterthwaite df
+
+[**CI for Difference in Means ([unknown]{.hi_blue} $\sigma$)**]{.formula-title}
+
+$$(\bar{x}_1 - \bar{x}_2) \pm t_{\alpha/2,df} \times \sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}$$
+
+. . .
+
+The degrees of freedom $(df)$ is this case is given by the **Welch–Satterthwaite** equation:
+
+$$
+df = \frac{\left(\frac{s_M^2}{n_M} + \frac{s_F^2}{n_F}\right)^2}{\frac{\left(\frac{s_M^2}{n_M}\right)^2}{n_M-1} + \frac{\left(\frac{s_F^2}{n_F}\right)^2}{n_F-1}}
+$$
+
+. . .
+
+This is what `t.test` does by default (see help).
+
+## Special case: equal variance {.smaller}
+
+If we assume $\sigma_M^2$ = $\sigma_F^2$, the pooled variance becomes:
+
+\begin{align*}
+\mathbb{V}(\bar{X}_M - \bar{X}_F) &= \mathbb{V}(\bar{X}_M) + \mathbb{V}(\bar{X}_F)  \\
+&= \frac{\sigma^2}{n_M} + \frac{\sigma^2}{n_F} \\
+&= \sigma^2 \left(\frac{1}{n_M} + \frac{1}{n_F} \right)
+\end{align*}
+
+. . .
+
+Natural unbiased **estimator** is a weighted average of the two sample variances:
+
+$$
+s_p^2 = \frac{(n_M-1)s_M^2 + (n_F-1)s_F^2}{n_M+n_F-2}
+$$
+
+. . .
+
+\begin{align*}
+&\Rightarrow \widehat{\mathbb{V}(\bar{X}_M - \bar{X}_F)} = s_p^2\left( \frac{1}{n_M} + \frac{1}{n_F} \right) \\
+&\Rightarrow \boxed{\hat{SE}_{pooled} = s_p \sqrt{\left( \frac{1}{n_M} + \frac{1}{n_F} \right)}}
+\end{align*}
+
+. . .
+
+The critical $t$-value has $n_M + n_F - 2$ degrees of freedom.
+
+<!-- ## Where does this formula come from? -->
+
+<!-- From the CLT, we have: -->
+
+<!-- \begin{align*} -->
+<!-- X_M &\sim \mathcal{N}\left(\mu_M, \frac{\sigma_M^2}{n_M}\right) \\ -->
+<!-- X_F &\sim \mathcal{N}\left(\mu_F, \frac{\sigma_F^2}{n_F}\right) \\ -->
+<!-- \end{align*} -->
+
+<!-- . . . -->
+
+<!-- $$ -->
+<!-- \Rightarrow \bar{X}_M - \bar{X}_F \sim \mathcal{N}\left(\mu_M - \mu_F, \frac{\sigma_M^2}{n_M} + \frac{\sigma_F^2}{n_F}\right) -->
+<!-- $$ -->
+
+<!-- . . . -->
+
+<!-- $$ -->
+<!-- SE(\bar{X}_M - \bar{X}_F) = \sqrt{\frac{\sigma_M^2}{n_M} + \frac{\sigma_F^2}{n_F}} -->
+<!-- $$ -->
+
+<!-- ## Where does this formula come from? -->
+
+<!-- Since $\sigma_M$ and $\sigma_F$ are usually not observed, we plug in the sample standard deviations $s_M$ and $s_F$ -->
+
+<!-- $$ -->
+<!-- \hat{SE}(\bar{X}_M - \bar{X}_F) = \sqrt{\frac{s_M^2}{n_M} + \frac{s_F^2}{n_F}} -->
+<!-- $$ -->
+
+## Example: gender gap in life satisfaction
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+```{r}
+# Compare life satisfaction by gender
+gender_summary <- ess_france_clean |> 
+  mutate(gender = ifelse(gndr == 1, "male", "female")) |> 
+  summarise(n = n(),
+            mean = mean(stflife),
+            sd = sd(stflife),
+            se = sd^2 / n, .by = gender) |> 
+  pivot_wider(names_from = gender,
+              values_from = c(n, mean, sd, se))
+
+diff_mean = gender_summary$mean_male - gender_summary$mean_female
+n_m = gender_summary$n_male
+n_f = gender_summary$n_female
+var_m = gender_summary$sd_male^2
+var_f = gender_summary$sd_female^2
+se_m = gender_summary$se_male
+se_f = gender_summary$se_female
+se_pooled = sqrt(se_m + se_f)
+df_welch = (se_m + se_f)^2/(((se_m)^2/(n_m -1)) + ((se_f)^2/(n_f -1)))
+
+t_stat = qt(0.975, df = df_welch)
+c(diff_mean - t_stat * se_pooled, diff_mean + t_stat * se_pooled)
+```
+
+:::
+
+::: {.column width="50%" .fragment}
+
+```{r}
+# Two-sample t-test
+t.test(stflife ~ gndr, data = ess_france_clean)
+```
+
+:::
+:::
+
+## Visualizing the difference
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 5
+
+# Compute CI for each group
+gender_ci <- ess_france_clean %>%
+  group_by(gndr) %>%
+  summarise(
+    mean = mean(stflife),
+    se = sd(stflife) / sqrt(n()),
+    lower = mean - qt(0.975, n()-1) * se,
+    upper = mean + qt(0.975, n()-1) * se
+  ) %>%
+  mutate(gender_label = ifelse(gndr == 1, "Male", "Female"))
+
+ggplot(gender_ci, aes(x = gender_label, y = mean, color = gender_label)) +
+  geom_point(size = 5) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2, linewidth = 1.2) +
+  scale_color_manual(values = c("Female" = as.character(colors["secondary"]),
+                                "Male" = as.character(colors["accent"]))) +
+  labs(
+    title = "Life satisfaction by gender in France",
+    subtitle = "Point estimates with 95% confidence intervals | ESS Round 11",
+    x = "",
+    y = "Mean life satisfaction (0-10)"
+  ) +
+  theme(legend.position = "none") +
+  coord_flip()
+```
+
+. . .
+
+[**Interpretation:**]{.hi-blue} If the CIs overlap substantially, we can't confidently conclude the means differ.
+
+## Bootstrap for difference in means
+
+```{r}
+# Bootstrap approach
+boot_diff <- ess_france_clean |> 
+  mutate(gender = ifelse(gndr == 1, "Male", "Female")) |> 
+  specify(stflife ~ gender) |> 
+  generate(reps = 1000, type = "bootstrap") |> 
+  calculate(stat = "diff in means", order = c("Male", "Female"))
+
+# Get CI
+boot_diff |> get_ci(level = 0.95, type = "percentile")
+```
+
+## CI for difference in means: [paired]{.hi_purple} samples
+
+**When samples are dependent (paired):**
+
+- [**Paired data:**]{.hi_purple} Two measurements on the same individuals (before/after, twins, matched pairs)
+- Ex: pre-test vs post-test scores, trust in parliament vs trust in politicians
+
+. . .
+
+**Key insight:** instead of comparing two independent samples, we analyze the [differences]{.hi_blue} within each pair!
+
+. . .
+
+**Approach:**
+
+1. Compute differences: $d_i = x_i - y_i$ for each pair
+2. Calculate mean difference: $\bar{d} = \frac{1}{n}\sum_{i=1}^n d_i$
+3. Calculate SD of differences: $s_d = \sqrt{\frac{1}{n-1}\sum_{i=1}^n(d_i - \bar{d})^2}$
+
+## CI for difference in means: [paired]{.hi_purple} samples
+
+:::{.formula-box}
+[**CI for Paired Difference in Means**]{.formula-title}
+
+$$\bar{d} \pm t_{\alpha/2, n-1} \times \frac{s_d}{\sqrt{n}}$$
+:::
+
+## Example: trust in parliament vs politicians
+
+**Question:** Do French adults trust parliament more than politicians?
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+```{r}
+# Prepare paired data (trust in parliament vs trust in politicians)
+ess_paired <- ess_france_clean |>
+  filter(!trstprl %in% c(77, 88),  # trust parliament
+         !trstplt %in% c(77, 88))   # trust politicians
+
+# Create differences
+ess_paired <- ess_paired %>%
+  mutate(diff = trstprl - trstplt)  # positive = more trust in parliament
+
+# Summary
+ess_paired |>
+  summarise(mean_parliament = mean(trstprl),
+            mean_politicians = mean(trstplt),
+            mean_difference = mean(diff))
+```
+
+:::
+
+::: {.column width="50%"}
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 4.5
+
+# Reshape data for visualization
+ess_trust_long <- ess_paired %>%
+  select(trstprl, trstplt) %>%
+  pivot_longer(cols = everything(),
+               names_to = "institution",
+               values_to = "trust") %>%
+  mutate(institution = case_when(
+    institution == "trstprl" ~ "Parliament",
+    institution == "trstplt" ~ "Politicians"
+  ),
+  institution = factor(institution, levels = c("Parliament", "Politicians")))
+
+# Calculate means for vertical lines
+trust_means <- ess_trust_long %>%
+  group_by(institution) %>%
+  summarise(mean_trust = mean(trust))
+
+# Create histogram
+ggplot(ess_trust_long, aes(x = trust, fill = institution)) +
+  geom_histogram(bins = 11, alpha = 0.7, position = "identity",
+                 color = "white", linewidth = 0.3) +
+  geom_vline(data = trust_means,
+             aes(xintercept = mean_trust, color = institution),
+             linewidth = 1.3, linetype = "dashed", show.legend = F) +
+  scale_fill_manual(values = c("Parliament" = "#3498DB",
+                                "Politicians" = "#E74C3C"),
+                    name = "Institution:",
+                    labels = c("Parliament", "Politicians")) +
+  scale_color_manual(values = c("Parliament" = "#2874A6",
+                                 "Politicians" = "#C0392B"),
+                     name = "Mean:",
+                     labels = c("Parliament", "Politicians")) +
+  scale_x_continuous(breaks = 0:10) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  labs(
+    title = "Distribution of trust by institution",
+    subtitle = "Dashed lines indicate mean values",
+    x = "Trust level (0-10)",
+    y = "Count"
+  ) +
+  theme(legend.position = "top",
+        legend.box = "horizontal",
+        legend.text = element_text(size = 10, face = "bold"),
+        legend.title = element_text(size = 10))
+```
+
+:::
+
+::::
+
+**Question:** is there a difference between these two variables?
+
+## Manual calculation: Paired t-test
+
+```{r}
+# Summary statistics
+n_paired <- nrow(ess_paired)
+mean_diff <- mean(ess_paired$diff)
+sd_diff <- sd(ess_paired$diff)
+se_diff <- sd_diff / sqrt(n_paired)
+
+t_crit <- qt(0.975, df = n_paired - 1)
+
+ci_lower <- mean_diff - t_crit * se_diff
+ci_upper <- mean_diff + t_crit * se_diff
+
+c(ci_lower, ci_upper)
+```
+
+. . .
+
+**Interpretation:** We are 95% confident that French adults trust parliament between `r round(ci_lower, 2)` and `r round(ci_upper, 2)` points more than politicians (on a 0-10 scale).
+
+## Using `t.test()` for paired samples
+
+```{r}
+# Using t.test with paired = TRUE
+t.test(ess_paired$trstprl, ess_paired$trstplt,
+       paired = TRUE,
+       conf.level = 0.95)
+```
+
+. . .
+
+**Why does pairing matter?**
+
+- Paired design [controls for individual differences]{.hi_purple} (some people are generally more/less trusting)
+- This [reduces variability]{.hi_blue} and gives more precise estimates
+- More statistical power to detect differences!
+
+## CI for difference in proportions: Theory
+
+**Setting:** We want to compare proportions between two [independent]{.hi_purple} groups
+
+- Group 1: proportion $p_1$, sample proportion $\hat{p}_1$, sample size $n_1$
+- Group 2: proportion $p_2$, sample proportion $\hat{p}_2$, sample size $n_2$
+
+**Parameter of interest:** $p_1 - p_2$
+
+. . .
+
+**Sampling distribution:**
+
+By the CLT (for large samples), each sample proportion follows:
+
+$$\hat{p}_1 \sim \mathcal{N}\left(p_1, \frac{p_1(1-p_1)}{n_1}\right) \quad \text{and} \quad \hat{p}_2 \sim \mathcal{N}\left(p_2, \frac{p_2(1-p_2)}{n_2}\right)$$
+
+. . .
+
+Therefore, the difference follows:
+
+$$\hat{p}_1 - \hat{p}_2 \sim \mathcal{N}\left(p_1 - p_2, \frac{p_1(1-p_1)}{n_1} + \frac{p_2(1-p_2)}{n_2}\right)$$
+
+## CI for difference in proportions: Formula
+
+**Standard error of the difference:**
+
+$$SE(\hat{p}_1 - \hat{p}_2) = \sqrt{\frac{\hat{p}_1(1-\hat{p}_1)}{n_1} + \frac{\hat{p}_2(1-\hat{p}_2)}{n_2}}$$
+
+. . .
+
+:::{.formula-box}
+[**$(1-\alpha)$% Confidence Interval for $p_1 - p_2$**]{.formula-title}
+
+$$(\hat{p}_1 - \hat{p}_2) \pm z_{\alpha/2} \times \sqrt{\frac{\hat{p}_1(1-\hat{p}_1)}{n_1} + \frac{\hat{p}_2(1-\hat{p}_2)}{n_2}}$$
+:::
+
+. . .
+
+**Rule of thumb for CLT validity:**
+
+- $n_1\hat{p}_1 \geq 10$, $n_1(1-\hat{p}_1) \geq 10$
+- $n_2\hat{p}_2 \geq 10$, $n_2(1-\hat{p}_2) \geq 10$
+
+## CI for difference in proportions: Example
+
+**Question:** Is the proportion of people with high interpersonal trust different by gender?
+
+. . .
+
+```{r}
+# Create binary variable for high trust (> 5 on 0-10 scale)
+ess_trust <- ess_france_clean |> 
+  filter(!ppltrst %in% c(77, 88)) |> 
+  mutate(high_trust = ppltrst > 5,
+         gender = ifelse(gndr == 1, "Male", "Female"))
+
+# Compare proportions by gender
+prop_comparison <- ess_trust |> 
+  summarise(n = n(),
+            p = mean(high_trust),
+            se = sqrt(p * (1 - p) / n),
+            .by = gender)
+prop_comparison
+```
+
+## Visualizing proportions with confidence intervals
+
+```{r}
+#| echo: false
+#| fig-width: 8
+#| fig-height: 5
+
+# Calculate proportions and CIs for each gender
+gender_prop_ci <- ess_trust %>%
+  summarise(
+    n = n(),
+    successes = sum(high_trust),
+    p_hat = mean(high_trust),
+    se = sqrt(p_hat * (1 - p_hat) / n),
+    # Using z-based CI
+    lower = p_hat - 1.96 * se,
+    upper = p_hat + 1.96 * se,
+    .by = gender) %>%
+  mutate(gender = factor(gender, levels = c("Male", "Female")))
+
+# Create bar plot with error bars
+ggplot(gender_prop_ci, aes(x = gender, y = p_hat, fill = gender)) +
+  geom_col(width = 0.6, alpha = 0.8) +
+  geom_errorbar(aes(ymin = lower, ymax = upper),
+                width = 0.2,
+                linewidth = 1.2,
+                color = "black") +
+  geom_text(aes(label = scales::percent(p_hat, accuracy = 0.1)),
+            vjust = -5, fontface = "bold", size = 5) +
+  geom_text(aes(label = paste0("95% CI:\n[",
+                               scales::percent(lower, accuracy = 0.1), ", ",
+                               scales::percent(upper, accuracy = 0.1), "]")),
+            vjust = -1, size = 3.5, color = "gray30") +
+  scale_fill_manual(values = c("Male" = "#3498DB", "Female" = "#E74C3C")) +
+  scale_y_continuous(labels = scales::percent,
+                     limits = c(0, 0.6),
+                     expand = expansion(mult = c(0, 0.05))) +
+  labs(
+    title = "Proportion with high interpersonal trust by gender",
+    subtitle = "Error bars show 95% confidence intervals | High trust = score > 5 on 0-10 scale",
+    x = "",
+    y = "Proportion with high trust",
+    caption = paste0("Sample sizes: Male (n=", gender_prop_ci$n[1],
+                    "), Female (n=", gender_prop_ci$n[2], ")")
+  ) +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 12, face = "bold"),
+        plot.caption = element_text(hjust = 0.5, size = 10))
+```
+
+. . .
+
+[**Interpretation:**]{.hi-blue} The confidence intervals overlap substantially, suggesting no significant difference in high trust proportions between males and females in France.
+
+## CI for difference in proportions: Example
+
+**Question:** Is the proportion of people with high interpersonal trust different by gender?
+
+```{r}
+# Two-sample proportion test
+male_trust <- sum(ess_trust$high_trust[ess_trust$gender == "Male"])
+female_trust <- sum(ess_trust$high_trust[ess_trust$gender == "Female"])
+n_male <- sum(ess_trust$gender == "Male")
+n_female <- sum(ess_trust$gender == "Female")
+
+diff_trust <- male_trust/n_male - female_trust/n_female
+se = sqrt((male_trust/n_male * (1 - male_trust/n_male))/n_male + (female_trust/n_female * (1 - female_trust/n_female))/n_female)
+
+c(diff_trust - 1.96 * se, diff_trust + 1.96 * se)
+
+prop.test(c(male_trust, female_trust), c(n_male, n_female))
+```
+
+## Your turn! #4 {.slide_task}
+
+{{< countdown "15:00" top=0 right=0 >}}
+
+Using the same data as for `Your Turn #2` (slide 35), investigate whether interpersonal trust (`ppltrst`) differs by education level.
+
+```{r}
+#| eval: false
+ess_trust_educ <- ess_france |>
+  filter(!ppltrst %in% c(77, 88),
+         education != "") |>
+  mutate(high_trust = ppltrst > 5,
+         edu_cat = case_when(education == "High school diploma or less" ~ "High school diploma or less",
+                             education != "High school diploma or less" ~ "Some higher eduation or more"))
+```
+
+1. Create a visualization comparing the groups with their associated 95% confidence intervals.
+
+2. Compute the 95% confidence interval for the difference in proportions using `t.test()`.
+
+3. What can you deduce about the difference by education level?
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** We can compute sample statistics, but how confident should we be that they reflect the true population parameters?
+:::
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Confidence intervals: a primer](#primer)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. CI for a population mean: theory-based](#ci_mean)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. CI for a proportion: theory-based](#ci_proportion)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Bootstrap CI](#bootstrap)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Comparing two groups](#comparison)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**6. Practical guidelines**](#recap)
+
+# Practical guidelines {.slide_section #recap}
+
+## When to use which method?
+
+| Method | Best for | Requirements |
+|--------|----------|--------------|
+| **z-interval** | Large n, known σ | n > 30, σ known |
+| **t-interval** | Means, unknown σ | Approx. normal or n > 30 |
+| **Proportion z** | Proportions | np ≥ 10, n(1-p) ≥ 10 |
+| **Bootstrap** | Any statistic | Representative sample |
+
+## Common mistakes to avoid
+
+:::{.warning-box}
+[**Don't say:**]{.warning-title}
+
+❌ "There's a 95% probability the true mean is in this interval"
+
+❌ "95% of the data falls in this interval"
+
+❌ "If we repeated this study, we'd get the same interval 95% of the time"
+:::
+
+. . .
+
+:::{.insight-box}
+[**Do say:**]{.insight-title}
+
+✅ "We are 95% confident that the true mean is between X and Y"
+
+✅ "This interval was constructed using a procedure that captures the true parameter 95% of the time"
+:::
+
+<!-- ## Sample size and precision -->
+
+<!-- How does sample size affect the margin of error? -->
+
+<!-- ```{r} -->
+<!-- #| echo: false -->
+<!-- #| fig-width: 10 -->
+<!-- #| fig-height: 4.5 -->
+
+<!-- # Show relationship between n and ME -->
+<!-- n_values <- seq(10, 500, by = 10) -->
+<!-- sigma <- 10  # assumed SD -->
+<!-- me_values <- 1.96 * sigma / sqrt(n_values) -->
+
+<!-- n_me_data <- tibble(n = n_values, me = me_values) -->
+
+<!-- ggplot(n_me_data, aes(x = n, y = me)) + -->
+<!--   geom_line(linewidth = 1.5, color = colors["accent"]) + -->
+<!--   geom_hline(yintercept = 1, linetype = "dashed", color = colors["secondary"]) + -->
+<!--   annotate("text", x = 450, y = 1.3, label = "ME = 1", color = colors["secondary"]) + -->
+<!--   geom_point(data = filter(n_me_data, n %in% c(50, 100, 200, 400)), -->
+<!--              size = 4, color = colors["secondary"]) + -->
+<!--   labs( -->
+<!--     title = "Margin of error decreases with sample size", -->
+<!--     subtitle = "But with diminishing returns! (ME ∝ 1/√n)", -->
+<!--     x = "Sample size (n)", -->
+<!--     y = "Margin of Error" -->
+<!--   ) -->
+<!-- ``` -->
+
+<!-- . . . -->
+
+<!-- **Key insight:** To halve the margin of error, you need to [quadruple]{.hi-red} the sample size! -->
+
+<!-- ## Sample size calculation -->
+
+<!-- **How large a sample do I need?** -->
+
+<!-- Given desired margin of error $E$ and confidence level $(1-\alpha)$: -->
+
+<!-- :::{.formula-box} -->
+<!-- $$n = \left(\frac{z_{\alpha/2} \cdot \sigma}{E}\right)^2$$ -->
+<!-- ::: -->
+
+<!-- . . . -->
+
+<!-- **Example:** Want ME = 2 for working hours (σ ≈ 10) with 95% confidence: -->
+
+<!-- ```{r} -->
+<!-- sigma <- 10 -->
+<!-- E <- 2 -->
+<!-- z <- 1.96 -->
+
+<!-- n_required <- (z * sigma / E)^2 -->
+<!-- ceiling(n_required) -->
+<!-- ``` -->
+
+## Reporting confidence intervals
+
+**Good practice in reporting:**
+
+> The average life satisfaction among French adults was **7.0 (95% CI: 6.9 to 7.1)** on a 0-10 scale. This estimate is based on a sample of 1,836 respondents from the European Social Survey (Round 11, 2023-2024).
+
+. . .
+
+**Include:**
+
+1. Point estimate
+2. CI bounds with confidence level
+3. Sample size
+4. Data source and time period
+
+## Summary: key formulas
+
+| Parameter | Point Estimate | Standard Error | CI Formula |
+|-----------|---------------|----------------|------------|
+| Mean (σ known) | $\bar{x}$ | $\sigma/\sqrt{n}$ | $\bar{x} \pm z^* \cdot \frac{\sigma}{\sqrt{n}}$ |
+| Mean (σ unknown) | $\bar{x}$ | $s/\sqrt{n}$ | $\bar{x} \pm t^* \cdot \frac{s}{\sqrt{n}}$ |
+| Proportion | $\hat{p}$ | $\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}$ | $\hat{p} \pm z^* \cdot SE$ |
+| Diff. in means | $\bar{x}_1 - \bar{x}_2$ | $\sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}$ | $(\bar{x}_1 - \bar{x}_2) \pm t^* \cdot SE$ |
+| Diff. in proportions | $\hat{p}_1 - \hat{p}_2$ | $\sqrt{\frac{\hat{p}_1(1-\hat{p}_1)}{n_1} + \frac{\hat{p}_2(1-\hat{p}_2)}{n_2}}$ | $(\hat{p}_1 - \hat{p}_2) \pm z^* \cdot SE$ |
+
+## Your turn! #5 {.slide_task}
+
+{{< countdown "15:00" top=0 right=0 >}}
+
+**Putting it all together** (15 minutes)
+
+Design and conduct a complete analysis:
+
+1. **Choose a question:** Pick one substantive question using the ESS France data
+2. **Compute the CI:** Use both CLT-based and bootstrap methods
+3. **Visualize:** Create an informative plot showing your results
+4. **Interpret:** Write a paragraph interpreting your findings
+
+**Examples:**
+
+- Compare trust in police (`trstplc`) between age groups
+- Analyze happiness (`happy`) by gender
+- Investigate feelings about the economy (`stfeco`) across education levels
+
+# See you next week! {.slide_section}

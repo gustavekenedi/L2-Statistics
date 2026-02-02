@@ -1,0 +1,578 @@
+/*-- scss:defaults --*/
+
+// Fonts
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500&family=Playfair+Display:wght@600;700&display=swap');
+
+// Color palette - refined and modern
+$color-primary: #2D3E50;      // Deep slate blue
+$color-secondary: #E74C3C;    // Vibrant coral red
+$color-accent: #3498DB;       // Bright blue
+$color-success: #27AE60;      // Emerald green
+$color-warning: #F39C12;      // Golden yellow
+$color-purple: #9B59B6;       // Rich purple
+$color-teal: #1ABC9C;         // Teal
+$color-light: #ECF0F1;        // Light gray
+$color-dark: #2C3E50;         // Dark blue-gray
+
+// Font settings
+$presentation-font-size-root: 28px;
+$font-family-sans-serif: 'Fira Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+$font-family-monospace: 'Fira Code', 'Monaco', 'Consolas', monospace;
+$presentation-heading-font: 'Playfair Display', Georgia, serif;
+
+// Presentation settings
+$presentation-h1-font-size: 2.2em;
+$presentation-h2-font-size: 1.6em;
+$presentation-h3-font-size: 1.3em;
+
+// Code block settings
+$code-block-font-size: 0.7em;
+$code-block-bg: #f8f9fa;
+$code-block-border-color: #e9ecef;
+
+/*-- scss:rules --*/
+
+// Base slide styling
+.reveal .slides {
+  text-align: left;
+}
+
+.reveal .slides section {
+  padding: 20px 40px;
+}
+
+// Typography enhancements
+.reveal h1, .reveal h2 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: $color-primary;
+  border-bottom: none;
+}
+
+.reveal h1 {
+  font-size: $presentation-h1-font-size;
+  margin-bottom: 0.5em;
+}
+
+.reveal h2 {
+  font-size: $presentation-h2-font-size;
+  margin-bottom: 0.6em;
+  padding-bottom: 0.3em;
+  border-bottom: 3px solid $color-accent;
+  display: inline-block;
+}
+
+.reveal h3 {
+  font-size: $presentation-h3-font-size;
+  color: $color-secondary;
+  font-weight: 600;
+}
+
+.reveal p, .reveal li {
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+// Code styling
+.reveal pre {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  border: 1px solid $code-block-border-color;
+  font-size: $code-block-font-size;
+  width: 100%;
+  margin: 0.8em 0;
+}
+
+.reveal pre code {
+  padding: 15px 20px;
+  max-height: 500px;
+  background: $code-block-bg;
+  border-radius: 8px;
+}
+
+.reveal code {
+  font-family: $font-family-monospace;
+  font-size: 0.9em;
+  background: rgba($color-accent, 0.1);
+  color: $color-secondary;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+// Slide output styling
+.cell-output-stdout pre {
+  background: #f1f3f4;
+  border-left: 4px solid $color-success;
+}
+
+// Section title slides
+.reveal section.slide_section {
+  background: linear-gradient(135deg, $color-primary 0%, darken($color-primary, 10%) 100%);
+  color: white;
+  text-align: center;
+
+  h1, h2, h3 {
+    color: white;
+    border-bottom: none;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  h2 {
+    font-size: 2.5em;
+    font-weight: 700;
+  }
+}
+
+// Task slides - interactive exercises
+.reveal section.slide_task {
+  background: linear-gradient(135deg, $color-purple 0%, darken($color-purple, 15%) 100%);
+  color: white;
+
+  h1, h2, h3 {
+    color: white;
+    border-bottom: none;
+  }
+
+  h2 {
+    border-bottom: 3px solid rgba(255, 255, 255, 0.5);
+  }
+
+  code {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+
+  .task-icon {
+    font-size: 2em;
+    margin-bottom: 0.5em;
+  }
+}
+
+// Key concept slides
+.reveal section.slide_concept {
+  background: linear-gradient(135deg, $color-teal 0%, darken($color-teal, 10%) 100%);
+  color: white;
+
+  h1, h2, h3 {
+    color: white;
+    border-bottom: none;
+  }
+
+  h2 {
+    border-bottom: 3px solid rgba(255, 255, 255, 0.5);
+  }
+}
+
+// Inverse slides
+.reveal section.slide_inverse {
+  background: linear-gradient(135deg, $color-secondary 0%, darken($color-secondary, 15%) 100%);
+  color: white;
+
+  h1, h2, h3 {
+    color: white;
+    border-bottom: none;
+  }
+}
+
+// Definition boxes
+.definition-box {
+  background: linear-gradient(to right, rgba($color-accent, 0.1), rgba($color-accent, 0.05));
+  border-left: 5px solid $color-accent;
+  padding: 20px 25px;
+  margin: 20px 0;
+  border-radius: 0 8px 8px 0;
+
+  .definition-title {
+    font-weight: 700;
+    color: $color-accent;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+  }
+}
+
+// Formula boxes
+.formula-box {
+  background: linear-gradient(to right, rgba($color-secondary, 0.08), rgba($color-secondary, 0.03));
+  border: 2px solid $color-secondary;
+  padding: 20px 25px;
+  margin: 20px 0;
+  border-radius: 8px;
+  text-align: center;
+
+  .formula-title {
+    font-weight: 600;
+    color: $color-secondary;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+// Key insight boxes
+.insight-box {
+  background: linear-gradient(to right, rgba($color-success, 0.1), rgba($color-success, 0.05));
+  border-left: 5px solid $color-success;
+  padding: 20px 25px;
+  margin: 20px 0;
+  border-radius: 0 8px 8px 0;
+
+  .insight-title {
+    font-weight: 700;
+    color: $color-success;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+  }
+}
+
+// Warning boxes
+.warning-box {
+  background: linear-gradient(to right, rgba($color-warning, 0.15), rgba($color-warning, 0.05));
+  border-left: 5px solid $color-warning;
+  padding: 20px 25px;
+  margin: 20px 0;
+  border-radius: 0 8px 8px 0;
+
+  .warning-title {
+    font-weight: 700;
+    color: darken($color-warning, 10%);
+    font-size: 1.1em;
+    margin-bottom: 8px;
+  }
+}
+
+// Two-column layout
+.columns-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.columns-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+// Highlight colors
+.hi {
+  font-weight: 600;
+}
+
+.hi-blue {
+  color: $color-accent;
+  font-weight: 600;
+}
+
+.hi-red {
+  color: $color-secondary;
+  font-weight: 600;
+}
+
+.hi-green {
+  color: $color-success;
+  font-weight: 600;
+}
+
+.hi-purple {
+  color: $color-purple;
+  font-weight: 600;
+}
+
+.hi-orange {
+  color: $color-warning;
+  font-weight: 600;
+}
+
+.hi-teal {
+  color: $color-teal;
+  font-weight: 600;
+}
+
+// Text sizes
+.small {
+  font-size: 0.8em;
+}
+
+.smaller {
+  font-size: 0.7em;
+}
+
+.tiny {
+  font-size: 0.6em;
+}
+
+.large {
+  font-size: 1.2em;
+}
+
+// Figure source styling
+.fig-source {
+  font-style: italic;
+  color: #888;
+  font-size: 0.65em;
+  margin-top: 5px;
+}
+
+// Centered content
+.center {
+  text-align: center;
+}
+
+// Math styling
+.reveal .MathJax {
+  font-size: 1.1em;
+}
+
+// Table styling
+.reveal table {
+  margin: 20px auto;
+  border-collapse: collapse;
+  font-size: 0.85em;
+}
+
+.reveal table th {
+  background: $color-primary;
+  color: white;
+  padding: 12px 16px;
+  font-weight: 600;
+}
+
+.reveal table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+.reveal table tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+// Outline/agenda styling
+.outline-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  margin: 10px 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateX(10px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .outline-number {
+    background: $color-accent;
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-right: 15px;
+    flex-shrink: 0;
+  }
+
+  .outline-text {
+    font-size: 1.1em;
+  }
+}
+
+.outline-item.active {
+  background: $color-accent;
+  color: white;
+
+  .outline-number {
+    background: white;
+    color: $color-accent;
+  }
+}
+
+.outline-item.completed {
+  opacity: 0.6;
+
+  .outline-number {
+    background: $color-success;
+  }
+}
+
+// Fragment animations
+.reveal .fragment.highlight-box {
+  opacity: 1;
+  visibility: visible;
+}
+
+.reveal .fragment.highlight-box.visible {
+  background: rgba($color-warning, 0.2);
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+// Timer/countdown styling
+.countdown {
+  font-family: $font-family-monospace;
+  font-size: 2em;
+  color: $color-secondary;
+}
+
+// Progress indicator
+.progress-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.progress-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ddd;
+
+  &.active {
+    background: $color-accent;
+  }
+
+  &.completed {
+    background: $color-success;
+  }
+}
+
+// Quote styling
+.reveal blockquote {
+  border-left: 5px solid $color-purple;
+  background: rgba($color-purple, 0.05);
+  padding: 20px 30px;
+  margin: 20px 0;
+  font-style: italic;
+  border-radius: 0 8px 8px 0;
+
+  cite {
+    display: block;
+    margin-top: 10px;
+    font-style: normal;
+    font-weight: 600;
+    color: $color-purple;
+  }
+}
+
+// Emoji styling for task headers
+.task-emoji {
+  font-size: 1.5em;
+  margin-right: 10px;
+}
+
+// Break slides
+.reveal section.slide_break {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-align: center;
+
+  h2 {
+    color: white;
+    border-bottom: none;
+    font-size: 2em;
+  }
+
+  .break-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+  }
+}
+
+// Image styling
+.reveal img {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+// Inline flex for side-by-side elements
+.flex-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+// Spacing utilities
+.mt-1 { margin-top: 1em; }
+.mt-2 { margin-top: 2em; }
+.mb-1 { margin-bottom: 1em; }
+.mb-2 { margin-bottom: 2em; }
+
+// List styling improvements
+.reveal ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.reveal ul li {
+  position: relative;
+  padding-left: 25px;
+  margin-bottom: 0.5em;
+}
+
+.reveal ul li::before {
+  content: "▸";
+  color: $color-accent;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+.reveal ul ul li::before {
+  content: "◦";
+  color: $color-secondary;
+}
+
+// Numbered list styling
+.reveal ol {
+  padding-left: 25px;
+}
+
+.reveal ol li {
+  margin-bottom: 0.5em;
+}
+
+// Footer styling
+.reveal .slide-footer {
+  font-size: 0.6em;
+  color: #888;
+}
+
+// Logo positioning
+.reveal .slide-logo {
+  height: 50px;
+}
+
+// Transition refinements
+.reveal .slides section .fragment {
+  transition: all 0.3s ease;
+}
+
+// Print adjustments
+@media print {
+  .reveal section.slide_section,
+  .reveal section.slide_task,
+  .reveal section.slide_concept,
+  .reveal section.slide_inverse,
+  .reveal section.slide_break {
+    background: white !important;
+    color: black !important;
+
+    h1, h2, h3 {
+      color: black !important;
+    }
+  }
+}
