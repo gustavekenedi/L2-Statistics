@@ -10,7 +10,7 @@
 | Lecture 1: Introduction | [HTML](https://raw.githack.com/gustavekenedi/L2-Statistics/master/1_intro/1_intro.html) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/1_intro/1_intro.pdf) | [HTML](https://raw.githack.com/gustavekenedi/L2-Statistics/master/1_intro/tasks_solutions.html)
 | Lectures 2/3: Summarizing, tidying, and visualizing data | [HTML](https://raw.githack.com/gustavekenedi/L2-Statistics/master/2_visualizing_summarizing/2_visualizing_summarizing.html) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/2_visualizing_summarizing/2_visualizing_summarizing.pdf) | [HTML](https://raw.githack.com/gustavekenedi/L2-Statistics/master/2_visualizing_summarizing/tasks_solutions.html)
 | Lecture 4: Sampling and inferential statistics | [HTML](https://raw.githack.com/gustavekenedi/L2-Statistics/master/3_sampling_inferential_stats/3_sampling_inferential_stats.html) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/3_sampling_inferential_stats/3_sampling_inferential_stats.pdf) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/3_sampling_inferential_stats/tasks_solutions.pdf)
-| Lecture 5: Confidence intervals | [HTML](https://raw.githack.com/gustavekenedi/L2-Statistics/master/4_confidence_intervals/4_confidence_intervals.html) | [PDF]() |
+| Lecture 5: Confidence intervals | [HTML](https://raw.githack.com/gustavekenedi/L2-Statistics/master/4_confidence_intervals/4_confidence_intervals.html) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/4_confidence_intervals/4_confidence_intervals.pdf) |
 | Lecture 6: Hypothesis testing | [HTML]() | [PDF]() |
 | Lecture 7: Statistical power | [HTML]() | [PDF]() |
 | Lecture 8: Correlation and causality | [HTML]() | [PDF]() |
