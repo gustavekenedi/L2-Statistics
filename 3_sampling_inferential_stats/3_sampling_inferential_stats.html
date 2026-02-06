@@ -1306,7 +1306,7 @@ margin-left: 1rem;
   <meta name="generator" content="quarto-1.6.42">
 
   <meta name="author" content="Gustave Kenedi">
-  <meta name="dcterms.date" content="2026-01-26">
+  <meta name="dcterms.date" content="2026-02-06">
   <title>Lecture 3: Sampling and Inferential Statistics</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2019,7 +2019,7 @@ Gustave Kenedi
 </div>
 </div>
 
-  <p class="date">2026-01-26</p>
+  <p class="date">2026-02-06</p>
 </section>
 <section id="recap-quiz" class="slide level2">
 <h2>Recap quiz</h2>
@@ -2501,7 +2501,7 @@ X \rightarrow \frac{1}{n}\sum_{i=1}^{n}X_i \rightarrow \bar{x} \xrightarrow{\tex
 </section>
 <section id="your-turn-1" class="slide level2 slide_task">
 <h2>Your turn! #1</h2>
-<countdown-timer id="timer_e374a4adb4fa2fd9b8212778da2cbc090b5597da" minutes="10" seconds="00" class="countdown" warn-when="0" update-every="1" play-sound="false" blink-colon="false" start-immediately="false" tabindex="0" style="top: 0;right: 0;">
+<countdown-timer id="timer_4ec9c620a34207218e48e421d0e6ff4b1c89b694" minutes="10" seconds="00" class="countdown" warn-when="0" update-every="1" play-sound="false" blink-colon="false" start-immediately="false" tabindex="0" style="top: 0;right: 0;">
  </countdown-timer>
 <ol type="1">
 <li><p>Create a data.frame containing the proportions of Pumpernickel voters from the previous slide. Name it <code>vote_share</code> and name the variable containing the proportions <code>prop_votes</code>. (Hint: to create a data.frame you need to use the data.frame() function.) The proportions are as follows: <code>(0.25, 0.25, 0.35, 0.20, 0.20, 0.35, 0.1, 0.35, 0.35, 0.2, 0.25, 0.25, 0.2, 0.15, 0.25, 0.2, 0.15, 0.15, 0.2, 0.1)</code>.</p></li>
@@ -2737,7 +2737,7 @@ X \rightarrow \frac{1}{n}\sum_{i=1}^{n}X_i \rightarrow \bar{x} \xrightarrow{\tex
 </section>
 <section id="your-turn-2" class="slide level2 slide_task">
 <h2>Your turn! #2</h2>
-<countdown-timer id="timer_e374a4adb4fa2fd9b8212778da2cbc090b5597da" minutes="10" seconds="00" class="countdown" warn-when="0" update-every="1" play-sound="false" blink-colon="false" start-immediately="false" tabindex="0" style="top: 0;right: 0;">
+<countdown-timer id="timer_4ec9c620a34207218e48e421d0e6ff4b1c89b694" minutes="10" seconds="00" class="countdown" warn-when="0" update-every="1" play-sound="false" blink-colon="false" start-immediately="false" tabindex="0" style="top: 0;right: 0;">
  </countdown-timer>
 <p>Instead of taking only 100 samples, let’s take <code>1000</code>!</p>
 <ol type="1">
@@ -3281,7 +3281,7 @@ Z_n = \sqrt{n}\frac{\bar{X_n} - \mu}{\sigma} \sim \mathcal{N}(0, 1)
 <h2>CLT for proportions</h2>
 <p>The CLT can just as easily be applied to a sample proportion, <span class="math inline">\(\hat{p}\)</span>. Substitute <span class="math inline">\(p = \mu\)</span> and <span class="math inline">\(p \cdot (1-p) = \sigma^2\)</span> and you obtain:</p>
 <p><span class="math display">\[
-Z_n = \sqrt{n}\frac{\hat{p} - p}{p \cdot (1-p)} \sim \mathcal{N}(0, 1)
+Z_n = \sqrt{n}\frac{\hat{p} - p}{\sqrt{p \cdot (1-p)}} \sim \mathcal{N}(0, 1)
 \]</span></p>
 </section>
 <section id="r-and-normal-distributions" class="slide level2">

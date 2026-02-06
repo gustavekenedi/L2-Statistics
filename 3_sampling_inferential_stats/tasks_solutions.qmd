@@ -9,9 +9,15 @@ editor: visual
 # Your Turn #1
 
 ```{r}
+#| message: false
+#| warning: false
+
+
 library(tidyverse)
 
-vote_share <- data.frame(prop_voters = c(0.25, 0.25, 0.35, 0.20, 0.20, 0.35, 0.1, 0.35, 0.35, 0.2, 0.25, 0.25, 0.2, 0.15, 0.25, 0.2, 0.15, 0.15, 0.2, 0.1))
+vote_share <- data.frame(prop_voters = c(0.25, 0.25, 0.35, 0.20, 0.20, 0.35,
+                                         0.1, 0.35, 0.35, 0.2, 0.25, 0.25,
+                                         0.2, 0.15, 0.25, 0.2, 0.15, 0.15, 0.2, 0.1))
 
 vote_share |> 
   ggplot(aes(x = prop_voters)) +
@@ -58,10 +64,6 @@ Sampling distribution looks normally distributed. The most common voter shares a
 ## Question 6
 
 It's rather unlikely that we sample 50 voters of which less than 15% are Pumpernickel voters.
-
-
-
-
 
 # Your Turn #3
 
@@ -199,7 +201,10 @@ se <- sqrt((pop_prop*(1-pop_prop)) / sample_size)
 lower_bound = 0.05
 upper_bound = 0.07
 
-pnorm(upper_bound, mean = pop_prop, sd = se) - pnorm(lower_bound, mean = pop_prop, sd = se)
+pnorm(upper_bound,
+      mean = pop_prop, sd = se) -
+  pnorm(lower_bound,
+        mean = pop_prop, sd = se)
 ```
 
 ## Question 4
