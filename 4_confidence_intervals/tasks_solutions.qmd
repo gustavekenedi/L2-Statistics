@@ -8,8 +8,6 @@ format:
     toc-depth: 2
     number-sections: true
     colorlinks: true
-    geometry:
-      - margin=1in
 execute:
   echo: true
   eval: true
@@ -31,7 +29,7 @@ set.seed(42)
 ess_france <- read.csv("https://www.dropbox.com/scl/fi/25h4lezq3zuzla94ejmqq/ess_france_11ed.csv?rlkey=lf23ra0i6bvq5dzgtt2u1gy9a&dl=1")
 
 # Clean the data
-ess_france_clean <- ess_france %>%
+ess_france_clean <- ess_france |> 
   filter(!stflife %in% c(77, 88))
 ```
 
@@ -45,7 +43,7 @@ ess_france_clean <- ess_france %>%
 
 ```{r}
 # Prepare data: filter out refusals (77), don't know (88)
-ess_politicians <- ess_france %>%
+ess_politicians <- ess_france |> 
   filter(!trstplt %in% c(77, 88))
 
 # Check the data
@@ -58,13 +56,11 @@ summary(ess_politicians$trstplt)
 ### Step 1: Compute sample mean, SD, and SE
 
 ```{r}
-summary_stats <- ess_politicians %>%
-  summarise(
-    n = n(),
-    mean_trust = mean(trstplt),
-    sd_trust = sd(trstplt),
-    se_trust = sd_trust / sqrt(n)
-  )
+summary_stats <- ess_politicians |> 
+  summarise(n = n(),
+            mean_trust = mean(trstplt),
+            sd_trust = sd(trstplt),
+            se_trust = sd_trust / sqrt(n))
 
 summary_stats
 ```
@@ -107,12 +103,6 @@ The results match!
 
 We are **90% confident** that the true average trust in politicians among French adults falls between `r round(ci_lower, 2)` and `r round(ci_upper, 2)` on a scale from 0 (no trust at all) to 10 (complete trust).
 
-**Substantive interpretation:**
-
-- The sample mean of approximately `r round(x_bar, 2)` suggests relatively low trust in politicians
-- The 90% CI is narrower than a 95% CI would be, reflecting the trade-off between confidence level and precision
-- This low trust in politicians is consistent with patterns observed across many European democracies
-
 \newpage
 
 # Your Turn #2: Interpersonal Trust Across Education Levels
@@ -123,13 +113,13 @@ We are **90% confident** that the true average trust in politicians among French
 
 ```{r}
 # Filter data and create high trust variable
-ess_trust_educ <- ess_france %>%
+ess_trust_educ <- ess_france |> 
   filter(!ppltrst %in% c(77, 88),
-         !is.na(education)) %>%
+         education != "") |> 
   mutate(high_trust = ppltrst > 5)
 
 # Check the data
-table(ess_trust_educ$education)
+ess_trust_educ |> count(education)
 ```
 
 ## Solution
@@ -137,24 +127,22 @@ table(ess_trust_educ$education)
 ### Step 1: Compute proportion with high trust for each education level
 
 ```{r}
-educ_summary <- ess_trust_educ %>%
-  group_by(education) %>%
-  summarise(
-    n = n(),
-    n_high_trust = sum(high_trust),
-    p_hat = mean(high_trust)
-  )
+educ_summary <- ess_trust_educ |> 
+  summarise(n = n(),
+            n_high_trust = sum(high_trust),
+            p_hat = mean(high_trust),
+            .by = education)
 
-kable(educ_summary, digits = 3, caption = "Proportion with High Interpersonal Trust by Education Level")
+educ_summary
 ```
 
 ### Step 2: Compute standard error for each proportion
 
 ```{r}
-educ_summary <- educ_summary %>%
+educ_summary <- educ_summary |> 
   mutate(se = sqrt(p_hat * (1 - p_hat) / n))
 
-kable(educ_summary, digits = 4, caption = "With Standard Errors")
+educ_summary
 ```
 
 ### Step 3: Compute 95% CIs (Wald interval) for each education level
@@ -162,15 +150,11 @@ kable(educ_summary, digits = 4, caption = "With Standard Errors")
 ```{r}
 z_crit <- qnorm(0.975)
 
-educ_summary <- educ_summary %>%
-  mutate(
-    ci_lower = p_hat - z_crit * se,
-    ci_upper = p_hat + z_crit * se
-  )
+educ_summary <- educ_summary |> 
+  mutate(ci_lower = p_hat - z_crit * se,
+         ci_upper = p_hat + z_crit * se)
 
-kable(educ_summary %>% select(education, n, p_hat, ci_lower, ci_upper),
-      digits = 3,
-      caption = "95% Confidence Intervals for Each Education Level")
+educ_summary |> select(education, n, p_hat, ci_lower, ci_upper)
 ```
 
 ### Step 4: Visualization
@@ -179,19 +163,18 @@ kable(educ_summary %>% select(education, n, p_hat, ci_lower, ci_upper),
 #| fig-width: 8
 #| fig-height: 4
 
-ggplot(educ_summary, aes(x = p_hat, y = education)) +
-  geom_segment(aes(x = ci_lower, xend = ci_upper, yend = education),
-               linewidth = 3, color = "#3498DB", alpha = 0.6) +
-  geom_point(size = 5, color = "#E74C3C") +
+educ_summary |> 
+  ggplot(aes(x = p_hat, y = fct_reorder(education, -p_hat))) +
+  geom_errorbar(aes(xmin = ci_lower, xmax = ci_upper),
+               width = .1) +
+  geom_point(size = 3, color = "#E74C3C") +
   geom_text(aes(label = scales::percent(p_hat, accuracy = 1)),
-            hjust = -0.5, fontface = "bold") +
+            vjust = -1, fontface = "bold") +
   scale_x_continuous(labels = scales::percent, limits = c(0, 0.6)) +
-  labs(
-    title = "Interpersonal Trust by Education Level in France",
-    subtitle = "Point estimates with 95% confidence intervals | ESS Round 11",
-    x = "Proportion with high trust (score > 5)",
-    y = "Education level"
-  ) +
+  labs(title = "Interpersonal Trust by Education Level in France",
+       subtitle = "Point estimates with 95% confidence intervals | ESS Round 11",
+       x = "Proportion with high trust (score > 5)",
+       y = "Education level") +
   theme_minimal(base_size = 12)
 ```
 
@@ -201,9 +184,8 @@ ggplot(educ_summary, aes(x = p_hat, y = education)) +
 
 ```{r}
 # Display the CIs side by side for comparison
-educ_summary %>%
-  select(education, p_hat, ci_lower, ci_upper) %>%
-  kable(digits = 3, caption = "Comparing CIs Across Education Levels")
+educ_summary |> 
+  select(education, p_hat, ci_lower, ci_upper)
 ```
 
 **Discussion:**
@@ -257,13 +239,13 @@ t_ci$conf.int
 ```{r}
 # Bootstrap distribution
 set.seed(123)
-bootstrap_stfdem <- ess_france_clean %>%
-  specify(response = stfdem) %>%
-  generate(reps = 1000, type = "bootstrap") %>%
+bootstrap_stfdem <- ess_france_clean |> 
+  specify(response = stfdem) |> 
+  generate(reps = 1000, type = "bootstrap") |> 
   calculate(stat = "mean")
 
 # Percentile CI
-boot_ci_percentile <- bootstrap_stfdem %>%
+boot_ci_percentile <- bootstrap_stfdem |> 
   get_ci(level = 0.95, type = "percentile")
 
 cat("Bootstrap percentile CI:\n")
@@ -272,7 +254,7 @@ boot_ci_percentile
 
 ```{r}
 # SE-based bootstrap CI
-boot_ci_se <- bootstrap_stfdem %>%
+boot_ci_se <- bootstrap_stfdem |> 
   get_ci(level = 0.95, type = "se", point_estimate = mean_stfdem)
 
 cat("\nBootstrap SE CI:\n")
@@ -328,7 +310,6 @@ The three confidence intervals are remarkably similar:
 
 - All three methods produce nearly identical lower and upper bounds
 - The widths differ by only small amounts on the 0-10 scale
-- The point estimate (sample mean = `r round(mean_stfdem, 2)`) is the center of all intervals
 
 **Why might they differ?**
 
@@ -336,13 +317,9 @@ The methods may differ for several reasons:
 
 1. **Sample size:** With a large sample ($n = `r n`$), the CLT approximation is very accurate, so t-based and bootstrap methods converge
 
-2. **Distribution shape:** Satisfaction with democracy is measured on a 0-10 scale and may show some skewness. For:
-   - *Symmetric distributions:* Bootstrap and t-based methods give similar results
-   - *Skewed distributions:* Bootstrap percentile CI may differ from t-based CI because it doesn't assume symmetry
+2. **Bootstrap variability:** Each bootstrap run produces slightly different results due to random resampling. With 1000 replicates, this variability is small but present
 
-3. **Bootstrap variability:** Each bootstrap run produces slightly different results due to random resampling. With 1000 replicates, this variability is small but present
-
-4. **Method assumptions:**
+3. **Method assumptions:**
    - T-based CI assumes the sampling distribution is approximately normal
    - Bootstrap percentile CI makes no distributional assumptions
    - Bootstrap SE CI assumes normality of the bootstrap distribution
@@ -368,37 +345,32 @@ Create education groups and filter the trust variable:
 
 ```{r}
 # Prepare data: create education groups and filter trust variable
-ess_education <- ess_france_clean %>%
-  filter(!ppltrst %in% c(77, 88, 99)) %>%
+ess_education <- ess_france_clean |> 
+  filter(!ppltrst %in% c(77, 88, 99)) |> 
   mutate(
     # eisced: education level (1-7 scale, 55=other)
     education = case_when(
       eisced <= 3 ~ "No higher education",
       eisced >= 4 & eisced <= 7 ~ "Higher education",
-      TRUE ~ NA_character_
-    )
-  ) %>%
+      TRUE ~ NA_character_)) |> 
   filter(!is.na(education))
 
 # Check the data
-head(ess_education %>% select(ppltrst, eisced, education))
-table(ess_education$education)
+head(ess_education |> select(ppltrst, eisced, education))
+ess_education |> count(education)
 ```
 
 ### Step 2: Compute mean trust score for each education group
 
 ```{r}
-education_summary <- ess_education %>%
-  group_by(education) %>%
-  summarise(
-    n = n(),
-    mean_trust = mean(ppltrst),
-    sd_trust = sd(ppltrst),
-    se_trust = sd_trust / sqrt(n)
-  )
+education_summary <- ess_education |> 
+  summarise(n = n(),
+            mean_trust = mean(ppltrst),
+            sd_trust = sd(ppltrst),
+            se_trust = sd_trust / sqrt(n),
+            .by = education)
 
-kable(education_summary, digits = 3,
-      caption = "Summary Statistics by Education Level")
+education_summary
 ```
 
 ### Step 3: Compute 95% CIs for each group (t-based)
@@ -431,7 +403,6 @@ two_sample_test
 
 - The **difference in means** is `r round(diff(two_sample_test$estimate), 3)` (Higher education minus No higher education)
 - The **95% CI for the difference** is [`r round(two_sample_test$conf.int[1], 3)`, `r round(two_sample_test$conf.int[2], 3)`]
-- The **p-value** is `r format.pval(two_sample_test$p.value, digits = 3)`
 - `r ifelse(two_sample_test$p.value < 0.05, "Since the CI does not include 0 and p < 0.05, we conclude there is a **statistically significant difference**", "Since the CI includes 0 and p > 0.05, we cannot conclude there is a statistically significant difference")` in interpersonal trust between education groups
 
 ### Step 5: Create a visualization comparing the groups with confidence intervals
@@ -441,18 +412,17 @@ two_sample_test
 #| fig-height: 5
 
 # Create summary data for plotting
-plot_data <- ess_education %>%
-  group_by(education) %>%
-  summarise(
-    mean = mean(ppltrst),
-    se = sd(ppltrst) / sqrt(n()),
-    lower = mean - 1.96 * se,
-    upper = mean + 1.96 * se
-  )
+plot_data <- ess_education |> 
+  summarise(mean = mean(ppltrst),
+            se = sd(ppltrst) / sqrt(n()),
+            lower = mean - 1.96 * se,
+            upper = mean + 1.96 * se,
+            .by = education)
 
-ggplot(plot_data, aes(x = education, y = mean, color = education)) +
-  geom_point(size = 5) +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.15, linewidth = 1.2) +
+plot_data |> 
+  ggplot(aes(x = education, y = mean, color = education)) +
+  geom_point(size = 1) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.05) +
   geom_text(aes(label = round(mean, 2)), vjust = -2, fontface = "bold") +
   scale_color_manual(values = c("No higher education" = "#E74C3C", "Higher education" = "#3498DB")) +
   scale_y_continuous(limits = c(0, 10), breaks = 0:10) +
@@ -471,13 +441,13 @@ ggplot(plot_data, aes(x = education, y = mean, color = education)) +
 ```{r}
 # Bootstrap for difference in means
 set.seed(999)
-boot_diff_edu <- ess_education %>%
-  specify(ppltrst ~ education) %>%
-  generate(reps = 1000, type = "bootstrap") %>%
+boot_diff_edu <- ess_education |> 
+  specify(ppltrst ~ education) |> 
+  generate(reps = 1000, type = "bootstrap") |> 
   calculate(stat = "diff in means", order = c("Higher education", "No higher education"))
 
 # Bootstrap CI
-boot_ci_edu <- boot_diff_edu %>%
+boot_ci_edu <- boot_diff_edu |> 
   get_ci(level = 0.95, type = "percentile")
 
 cat("Bootstrap 95% CI for difference (Higher - No higher education):\n")
@@ -535,31 +505,25 @@ Do younger and older adults in France differ in their average life satisfaction?
 
 ```{r}
 # Create age groups
-ess_age_analysis <- ess_france_clean %>%
-  mutate(
-    age_group = case_when(
-      agea < 35 ~ "Young (18-34)",
-      agea >= 35 & agea < 50 ~ "Middle (35-49)",
-      agea >= 50 ~ "Older (50+)"
-    ),
+ess_age_analysis <- ess_france_clean |> 
+  mutate(age_group = case_when(
+    agea < 35 ~ "Young (18-34)",
+    agea >= 35 & agea < 50 ~ "Middle (35-49)",
+    agea >= 50 ~ "Older (50+)"),
     age_group = factor(age_group,
-                       levels = c("Young (18-34)", "Middle (35-49)", "Older (50+)"))
-  )
+                       levels = c("Young (18-34)", "Middle (35-49)", "Older (50+)")))
 
 # Summary by age group
-age_summary <- ess_age_analysis %>%
-  group_by(age_group) %>%
-  summarise(
-    n = n(),
-    mean_satisfaction = mean(stflife),
-    sd_satisfaction = sd(stflife),
-    se_satisfaction = sd_satisfaction / sqrt(n),
-    lower_ci = mean_satisfaction - 1.96 * se_satisfaction,
-    upper_ci = mean_satisfaction + 1.96 * se_satisfaction
-  )
+age_summary <- ess_age_analysis |> 
+  summarise(n = n(),
+            mean_satisfaction = mean(stflife),
+            sd_satisfaction = sd(stflife),
+            se_satisfaction = sd_satisfaction / sqrt(n),
+            lower_ci = mean_satisfaction - 1.96 * se_satisfaction,
+            upper_ci = mean_satisfaction + 1.96 * se_satisfaction,
+            .by = age_group)
 
-kable(age_summary, digits = 2,
-      caption = "Life Satisfaction by Age Group (t-based 95% CIs)")
+age_summary
 ```
 
 ### CLT-Based Confidence Intervals
@@ -584,13 +548,13 @@ cat("p-value:", format.pval(young_vs_older$p.value, digits = 3), "\n")
 ```{r}
 # Bootstrap for Young vs. Older
 set.seed(777)
-boot_young_older <- ess_age_analysis %>%
-  filter(age_group %in% c("Young (18-34)", "Older (50+)")) %>%
-  specify(stflife ~ age_group) %>%
-  generate(reps = 1000, type = "bootstrap") %>%
+boot_young_older <- ess_age_analysis |> 
+  filter(age_group %in% c("Young (18-34)", "Older (50+)")) |> 
+  specify(stflife ~ age_group) |> 
+  generate(reps = 1000, type = "bootstrap") |> 
   calculate(stat = "diff in means", order = c("Older (50+)", "Young (18-34)"))
 
-boot_ci_age <- boot_young_older %>%
+boot_ci_age <- boot_young_older |> 
   get_ci(level = 0.95, type = "percentile")
 
 cat("Bootstrap 95% CI for difference (Older - Young):\n")
@@ -605,9 +569,9 @@ boot_ci_age
 
 # Main plot: CIs by age group
 ggplot(age_summary, aes(x = age_group, y = mean_satisfaction, color = age_group)) +
-  geom_point(size = 5) +
+  geom_point(size = 2) +
   geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci),
-                width = 0.2, linewidth = 1.2) +
+                width = 0.05) +
   scale_color_manual(values = c("#3498DB", "#9B59B6", "#E74C3C")) +
   scale_y_continuous(limits = c(0, 10), breaks = 0:10) +
   labs(
@@ -662,9 +626,3 @@ Based on our analysis of European Social Survey data for France (Round 11, 2023-
 - Life satisfaction is self-reported and may be subject to social desirability bias
 - The ESS sample may not be perfectly representative of all French adults
 - Other confounding variables (income, health, employment) are not controlled for
-
-**Practical implications:**
-
-- Life satisfaction patterns across age groups in France can inform social policy
-- Understanding well-being differences may help target support programs
-- These findings can be compared with other European countries using ESS data
