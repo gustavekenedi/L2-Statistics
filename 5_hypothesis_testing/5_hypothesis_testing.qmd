@@ -1,0 +1,3101 @@
+---
+title: "Lecture 5: Hypothesis Testing"
+subtitle: "L2 - Statistics"
+author: "Gustave Kenedi"
+date: today
+format:
+  revealjs:
+    self-contained: true
+    css: css/custom-styles.css
+    theme: [simple, css/custom.scss]
+    highlight-style: github
+    html-math-method: mathjax
+    slide-number: true
+    footer: "Lecture 5: Hypothesis Testing"
+    logo: img/logo_cy_transparent.png
+    code-overflow: wrap
+    execute:
+      echo: true
+      eval: true
+      warning: false
+      message: false
+editor: source
+editor_options:
+  chunk_output_type: console
+---
+
+```{r}
+#| echo: false
+
+# Load required packages
+library(tidyverse)
+library(moderndive)
+library(infer)
+library(knitr)
+library(scales)
+library(effectsize)
+
+# Set seed for reproducibility
+set.seed(42)
+```
+
+```{r}
+#| echo: false
+#| output: false
+#| cache: false
+
+# Set theme for all plots
+theme_set(theme_minimal(base_size = 14) +
+            theme(plot.title = element_text(face = "bold", color = "#2D3E50"),
+                  plot.subtitle = element_text(color = "#666666"),
+                  panel.grid.minor = element_blank(),
+                  axis.line = element_line(),
+                  axis.ticks = element_line(),
+                  panel.grid.major = element_line(color = "#E9ECEF"),
+                  axis.title = element_text(face = "bold")
+                  # legend.position = "bottom"
+                  ))
+
+# Color palette
+colors <- c(
+  primary = "#2D3E50",
+  secondary = "#E74C3C",
+  accent = "#3498DB",
+  success = "#27AE60",
+  warning = "#F39C12",
+  purple = "#9B59B6",
+  teal = "#1ABC9C"
+)
+
+source("../assets/r/common_loading.R")
+```
+
+## Recap quiz
+
+![](img/wooclap_quiz.png)
+
+Or click here: [link to Wooclap](https://app.wooclap.com/L2STATCI2?from=instruction-slide)
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How do we test whether our data provides evidence for or against a claim about the population?
+:::
+
+. . .
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[**1. Introduction to hypothesis testing**](#intro)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. The hypothesis testing framework](#framework)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. One-sample tests](#one_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Two-sample tests](#two_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Paired tests](#paired)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Chi-square test of independence](#chi_square)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[7. Randomization methods](#randomization)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[8. Statistical power and sample size](#power_size)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[9. Practical guidelines](#guidelines)
+
+
+# Introduction to hypothesis testing {.slide_inverse #intro}
+
+## From confidence intervals to hypothesis tests
+
+**Last lecture:** We learned how to construct confidence intervals to quantify uncertainty about population parameters.
+
+. . .
+
+:::{.callout-note}
+## Example: Life satisfaction in France
+We estimated that the average life satisfaction in France is **7.0 (95% CI: 6.9 to 7.1)** based on European Social Survey data.
+:::
+
+. . .
+
+**This lecture:** Instead of estimating a range of plausible values, we often want to test specific claims about the population.
+
+. . .
+
+:::{.callout-note}
+## Research questions
+- Is the average life satisfaction in France different from 7?
+- Do men and women have different levels of life satisfaction?
+- Is trust in parliament higher than trust in politicians?
+- Does interpersonal trust really vary by education level?
+:::
+
+## What is a hypothesis test?
+
+A [**hypothesis test**]{.hi_purple} is a statistical method for making decisions about population parameters based on sample data.
+
+. . .
+
+**The logic:**
+
+1. Start with a claim (hypothesis) about the population
+2. Collect sample data
+3. Calculate how [compatible]{.hi_blue} the data is with the claim
+4. Make a decision: *reject the claim* or *fail to reject it*
+
+. . .
+
+:::{.callout-important}
+## Important
+We never "prove" a hypothesis is true. We only assess whether the data provides [sufficient evidence against]{.hi-red} a claimed value.
+:::
+
+## A simple example
+
+Suppose a politician claims that **60% of French adults trust parliament**.
+
+. . .
+
+You survey 100 randomly selected adults and find that [**45% trust parliament**]{.hi_blue}.
+
+. . .
+
+**Questions:**
+
+- Is this evidence against the politician's claim?
+- Could we observe 45% just by chance if the true proportion is 60%?
+- How unlikely would our result need to be before we reject the claim?
+
+. . .
+
+[**Hypothesis testing**]{.hi_purple} provides a formal framework to answer these questions.
+
+## Connection to confidence intervals
+
+Hypothesis testing and confidence intervals are [two sides of the same coin]{.hi_purple}.
+
+. . .
+
+:::{.callout-tip}
+## Equivalence
+- If a 95% confidence interval for $\mu$ is $(6.9, 7.1)$, then we would **reject** any hypothesis that $\mu$ equals a value outside this interval (e.g., $\mu = 6.5$) at the 5% significance level.
+- If a hypothesized value $\mu_0$ falls inside the 95% CI, we would **fail to reject** the hypothesis that $\mu = \mu_0$ at the 5% level.
+:::
+
+. . .
+
+**Today:** We'll learn the formal hypothesis testing framework, which gives us more flexibility:
+
+- One-sided vs two-sided tests
+- Comparing groups
+- Testing relationships between variables
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How do we test whether our data provides evidence for or against a claim about the population?
+:::
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Introduction to hypothesis testing](#intro)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**2. The hypothesis testing framework**](#framework)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. One-sample tests](#one_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Two-sample tests](#two_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Paired tests](#paired)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Chi-square test of independence](#chi_square)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[7. Randomization methods](#randomization)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[8. Statistical power and sample size](#power_size)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[9. Practical guidelines](#guidelines)
+
+# The hypothesis testing framework {.slide_inverse #framework}
+
+## The six steps of hypothesis testing
+
+Every hypothesis test follows the same structure:
+
+::: {.incremental}
+
+1. [**State the hypotheses:**]{.hi_blue} Define null ($H_0$) and alternative ($H_A$) hypotheses
+
+2. [**Choose significance level:**]{.hi_blue} Set significance level $\alpha$ (typically 0.05)
+
+3. [**Calculate test statistic:**]{.hi_blue} Compute from sample data
+
+4. [**Find the p-value:**]{.hi_blue} Probability of observing our result (or more extreme) if $H_0$ is true
+
+5. [**Make a decision:**]{.hi_blue} Reject $H_0$ if p-value < $\alpha$
+
+6. [**Interpret in context:**]{.hi_blue} State conclusion in plain language
+
+:::
+
+## Step 1: State the hypotheses
+
+Every hypothesis test involves two competing hypotheses:
+
+. . .
+
+:::{.callout-important}
+## Definitions
+
+**Null hypothesis** ($H_0$): The claim we are testing, typically representing "no effect" or "no difference"
+
+**Alternative hypothesis** ($H_A$ or $H_1$): What we conclude if we reject $H_0$
+:::
+
+. . .
+
+**Key principle:** $H_0$ always contains an equality (=, ≤, or ≥)
+
+. . .
+
+:::{.callout-note}
+## Example: Life satisfaction
+- $H_0: \mu = 7$ (average life satisfaction equals 7)
+- $H_A: \mu \neq 7$ (average life satisfaction differs from 7)
+:::
+
+## One-sided vs two-sided tests
+
+The alternative hypothesis can be:
+
+. . .
+
+**Two-sided (non-directional):**
+$$H_0: \mu = \mu_0 \quad \text{vs} \quad H_A: \mu \neq \mu_0$$
+
+Used when we care about differences in *either* direction.
+
+. . .
+
+**One-sided (directional):**
+$$H_0: \mu \leq \mu_0 \quad \text{vs} \quad H_A: \mu > \mu_0$$
+or
+$$H_0: \mu \geq \mu_0 \quad \text{vs} \quad H_A: \mu < \mu_0$$
+
+Used when we only care about differences in *one* direction.
+
+## Step 2: Choose significance level ($\alpha$)
+
+The [**significance level**]{.hi_purple} ($\alpha$) is the probability threshold for rejecting $H_0$.
+
+. . .
+
+**Common choices:**
+
+- $\alpha = 0.05$ (5% level) — most common
+- $\alpha = 0.01$ (1% level) — more stringent
+- $\alpha = 0.10$ (10% level) — more lenient
+
+. . .
+
+**Interpretation:**
+
+$\alpha = 0.05$ means we're willing to reject $H_0$ when there's only a 5% chance of observing data this extreme if $H_0$ were true.
+
+. . .
+
+:::{.callout-note}
+The significance level $\alpha$ represents the [**maximum probability of a *Type I* error**]{.hi_blue} we're willing to tolerate (more on this soon!).
+:::
+
+## Step 3: Calculate the test statistic
+
+A [**test statistic**]{.hi_purple} measures how far our sample estimate is from the hypothesized value, in units of standard errors.
+
+. . .
+
+**For a population mean:**
+$$t = \frac{\bar{x} - \mu_0}{SE(\bar{x})} = \frac{\bar{x} - \mu_0}{s / \sqrt{n}}$$
+
+where:
+
+- $\bar{x}$ = sample mean
+- $\mu_0$ = hypothesized population mean
+- $s$ = sample standard deviation
+- $n$ = sample size
+
+. . .
+
+**Interpretation:** The test statistic tells us "how many standard errors away" our sample estimate is from the hypothesized value.
+
+## Step 4: Calculate the p-value
+
+:::{.callout-important}
+## Definition
+
+The [**p-value**]{.hi_purple} is the probability of observing a test statistic as extreme as (or more extreme than) what we actually observed, *assuming the null hypothesis $H_0$ is true*.
+:::
+
+. . .
+
+**Example setup** — testing whether mean life satisfaction in France equals 7:
+
+- $H_0: \mu = 7$ &emsp; vs &emsp; $H_A: \mu \neq 7$
+- Significance level: $5\%$
+- Observed sample mean: $\bar{x} = 7.4$, with $s = 2.1$, $n = 150$
+- Test statistic: $t = \dfrac{7.4 - 7}{2.1/\sqrt{150}} \approx 2.33$
+
+```{r}
+#| echo: false
+
+library(ggplot2)
+library(patchwork)
+
+# Shared parameters — defined once, reused across the next four slides
+mu0 <- 7; n_ex <- 150; s_ex <- 2.1
+se <- s_ex / sqrt(n_ex)          # ≈ 0.171
+obs_value <- 7.4
+
+x <- seq(mu0 - 5*se, mu0 + 5*se, length.out = 1000)
+y <- dnorm(x, mean = mu0, sd = se)
+df_pv <- data.frame(x = x, y = y)
+
+crit_upper <- mu0 + abs(obs_value - mu0)
+crit_lower <- mu0 - abs(obs_value - mu0)
+pval_exact <- round(2 * pnorm(-abs(obs_value - mu0) / se), 3)
+
+# Fixed x-axis limits used on every slide so the axis never jumps
+x_lim <- c(mu0 - 5*se, mu0 + 5*se)
+
+invisible(NULL)
+```
+
+## Step 4: The null distribution {.smaller}
+
+**Under $H_0$**, if $\mu = 7$, repeated samples of size $n = 150$ would give sample means distributed as:
+
+```{r}
+#| echo: false
+#| fig-height: 4
+#| fig-width: 9
+
+ggplot(df_pv, aes(x = x, y = y)) +
+  geom_line(linewidth = 1.5, color = colors["primary"]) +
+  geom_vline(xintercept = mu0, linetype = "dotted", linewidth = 1.2,
+             color = colors["primary"]) +
+  annotate("text", x = mu0, y = max(y) * 1.07,
+           label = expression(paste("H"[0], ": μ = 7")),
+           color = colors["primary"], fontface = "bold", size = 5) +
+  coord_cartesian(xlim = x_lim) +
+  labs(x = "Sample mean (x̄)", y = "Density",
+       subtitle = "Sampling distribution of x̄ under H0") +
+  theme_minimal(base_size = 14) +
+  theme(plot.subtitle = element_text(color = "gray40"))
+```
+
+This is the distribution of $\bar{x}$ we'd expect to see **if the null were true**.
+
+## Step 4: Where did our sample fall? {.smaller}
+
+We observed $\bar{x} = 7.4$. How does it sit relative to the null distribution?
+
+```{r}
+#| echo: false
+#| fig-height: 4
+#| fig-width: 9
+
+ggplot(df_pv, aes(x = x, y = y)) +
+  geom_line(linewidth = 1.5, color = colors["primary"]) +
+  geom_vline(xintercept = mu0, linetype = "dotted", linewidth = 1.2,
+             color = colors["primary"]) +
+  geom_vline(xintercept = obs_value, color = colors["secondary"],
+             linewidth = 1.8) +
+  annotate("text", x = mu0, y = max(y) * 1.07,
+           label = expression(paste("H"[0], ": μ = 7")),
+           color = colors["primary"], fontface = "bold", size = 5) +
+  annotate("text", x = obs_value, y = max(y) * 0.55,
+           label = "x̄ = 7.4\n(observed)",
+           color = colors["secondary"], fontface = "bold", size = 4.5, hjust = 1.1) +
+  coord_cartesian(xlim = x_lim) +
+  labs(x = "Sample mean (x̄)", y = "Density",
+       subtitle = "Our observed x̄ = 7.4 sits in the right tail") +
+  theme_minimal(base_size = 14) +
+  theme(plot.subtitle = element_text(color = "gray40"))
+```
+
+Our result looks [unusual]{.hi-red} under $H_0$ — but how unusual exactly?
+
+## Step 4: The p-value area {.smaller}
+
+The p-value = $P(|\bar{x} - 7| \geq 0.4 \mid H_0)$ — the shaded area in **both tails**:
+
+```{r}
+#| echo: false
+#| fig-height: 4
+#| fig-width: 9
+
+ggplot(df_pv, aes(x = x, y = y)) +
+  geom_line(linewidth = 1.5, color = colors["primary"]) +
+  geom_area(data = subset(df_pv, x <= crit_lower), aes(x = x, y = y),
+            fill = colors["secondary"], alpha = 0.55) +
+  geom_area(data = subset(df_pv, x >= crit_upper), aes(x = x, y = y),
+            fill = colors["secondary"], alpha = 0.55) +
+  geom_vline(xintercept = mu0, linetype = "dotted", linewidth = 1.2,
+             color = colors["primary"]) +
+  geom_vline(xintercept = obs_value, color = colors["secondary"], linewidth = 1.5) +
+  geom_vline(xintercept = crit_lower, color = colors["secondary"],
+             linetype = "dashed", linewidth = 1) +
+  annotate("text", x = mu0, y = max(y) * 1.07,
+           label = expression(paste("H"[0], ": μ = 7")),
+           color = colors["primary"], fontface = "bold", size = 5) +
+  annotate("text", x = crit_upper + 0.04, y = max(y) * 0.12,
+           label = "p/2", color = colors["secondary"], fontface = "bold", size = 5,
+           hjust = 0) +
+  annotate("text", x = crit_lower - 0.04, y = max(y) * 0.12,
+           label = "p/2", color = colors["secondary"], fontface = "bold", size = 5,
+           hjust = 1) +
+  annotate("text", x = obs_value, y = max(y) * 0.55,
+           label = paste0("p-value\n≈ ", pval_exact),
+           color = colors["secondary"], fontface = "bold", size = 4.5, hjust = 1.1) +
+  coord_cartesian(xlim = x_lim) +
+  labs(x = "Sample mean (x̄)", y = "Density",
+       subtitle = "Shaded area = probability of results this extreme or more, under H0") +
+  theme_minimal(base_size = 14) +
+  theme(plot.subtitle = element_text(color = "gray40"))
+```
+
+p-value $\approx$ `r pval_exact` — the data are unlikely under $H_0$. We reject $H_0$ at the 5% level. For a two-tailed test, the p-value is computed by: `2 * (1 - pnorm(abs(obs_value - mu0) / se))`
+
+## Step 4: How the p-value changes with the test statistic {.smaller}
+
+The further the observed $\bar{x}$ from $\mu_0$, the [smaller]{.hi-red} the p-value:
+
+```{r}
+#| echo: false
+#| fig-height: 4
+#| fig-width: 11
+
+make_pval_plot <- function(obs_val, mu0 = 7, se, xlim_fixed, title_label) {
+  x  <- seq(xlim_fixed[1], xlim_fixed[2], length.out = 1000)
+  y  <- dnorm(x, mean = mu0, sd = se)
+  df <- data.frame(x = x, y = y)
+  crit_upper <- mu0 + abs(obs_val - mu0)
+  crit_lower <- mu0 - abs(obs_val - mu0)
+  pval <- round(2 * pnorm(-abs(obs_val - mu0) / se), 3)
+
+  ggplot(df, aes(x = x, y = y)) +
+    geom_line(linewidth = 1.2, color = colors["primary"]) +
+    geom_area(data = subset(df, x <= crit_lower), aes(x = x, y = y),
+              fill = colors["secondary"], alpha = 0.55) +
+    geom_area(data = subset(df, x >= crit_upper), aes(x = x, y = y),
+              fill = colors["secondary"], alpha = 0.55) +
+    geom_vline(xintercept = mu0, linetype = "dotted", linewidth = 1.2,
+               color = colors["primary"]) +
+    geom_vline(xintercept = obs_val, color = colors["secondary"], linewidth = 1.5) +
+    annotate("text", x = mu0, y = max(y) * 1.06,
+             label = expression(paste("H"[0], ": μ = 7")),
+             color = colors["primary"], fontface = "bold", size = 3.8) +
+    annotate("text", x = (mu0 + xlim_fixed[2]) / 2, y = max(y) * 0.45,
+             label = paste0("p ≈ ", pval),
+             color = colors["secondary"], fontface = "bold", size = 4.2) +
+    coord_cartesian(xlim = xlim_fixed) +
+    labs(title = title_label, x = "Sample mean (x̄)", y = "Density") +
+    theme_minimal(base_size = 12) +
+    theme(plot.title = element_text(face = "bold", size = 12))
+}
+
+p_mild    <- make_pval_plot(7.1, se = se, xlim_fixed = x_lim,
+                            title_label = "Less extreme: x̄ = 7.1 → large p-value")
+p_extreme <- make_pval_plot(7.4, se = se, xlim_fixed = x_lim,
+                            title_label = "More extreme: x̄ = 7.4 → small p-value")
+
+p_mild + p_extreme
+```
+
+## Interpreting p-values {.smaller}
+
+:::{.callout-important}
+## What the p-value is (and isn't)
+
+**The p-value IS:**
+
+- The probability of obtaining results as extreme as observed, *assuming $H_0$ is true*
+- A measure of compatibility between data and $H_0$
+
+**The p-value is NOT:**
+
+- The probability that $H_0$ is true
+- The probability that the results occurred by chance
+- The probability that you've made a wrong decision
+:::
+
+. . .
+
+**Common interpretations:**
+
+- [**Small p-value**]{.hi-red} (< $\alpha$): Data is [incompatible]{.hi-red} with $H_0$ → reject $H_0$
+- [**Large p-value**]{.hi_blue} (≥ $\alpha$): Data is [compatible]{.hi_blue} with $H_0$ → fail to reject $H_0$
+
+. . .
+
+:::{.callout-warning}
+"Fail to reject $H_0$" ≠ "Accept $H_0$" or "Prove $H_0$ is true"
+
+We simply don't have sufficient evidence against $H_0$.
+:::
+
+## Step 5: Make a decision
+
+Compare the p-value to the significance level $\alpha$:
+
+. . .
+
+**Decision rule:**
+
+- If [p-value < $\alpha$]{.hi-red}: **Reject** $H_0$ (results are "statistically significant")
+- If [p-value ≥ $\alpha$]{.hi_blue}: **Fail to reject** $H_0$ (results are "not statistically significant")
+
+. . .
+
+:::{.callout-warning}
+## The 0.05 threshold is arbitrary!
+
+The conventional threshold of $\alpha = 0.05$ is [**not a magical number**]{.hi-red}. It's a historical convention introduced by [Fisher (1925)](https://www2.psych.ubc.ca/~schaller/528Readings/CowlesDavis1982.pdf) — chosen as a convenient round number, not for any deep statistical reason.
+
+- There's nothing special about 5% vs 4.9% or 5.1%
+- Results with p = 0.049 and p = 0.051 are not fundamentally different
+- [**Don't treat 0.05 as a bright line**]{.hi_purple} — report actual p-values and effect sizes!
+:::
+
+## Step 6: Interpret in context
+
+Always translate your statistical decision back into the real-world context.
+
+. . .
+
+**Bad interpretations:**
+
+- ❌ "We reject the null hypothesis"
+- ❌ "The p-value is 0.03"
+- ❌ "The result is significant"
+
+. . .
+
+**Good interpretations:**
+
+- ✅ "The data provide strong evidence that average life satisfaction in France differs from 7 (p = 0.03)"
+- ✅ "We found a statistically significant difference in life satisfaction between men and women (p = 0.02)"
+- ✅ "There is insufficient evidence to conclude that trust in parliament differs from trust in politicians (p = 0.18)"
+
+## Your turn! #1 {.slide_task}
+
+{{< countdown "12:00" top=0 right=0 >}}
+
+A government report states that French adults have an average interest in politics of **5** on a 0 (*Not at all interested*) – 10 (*Very interested*) scale. You survey a random sample of 50 French university students and find: $\bar{x} = 5.8$, with standard deviation $s = 2.3$.
+
+Work through all six steps to test whether students differ from the general population:
+
+1. **State the hypotheses.** Write $H_0$ and $H_A$.
+
+2. **Choose $\alpha$.** Use $\alpha = 0.05$.
+
+3. **Compute the test statistic.** Calculate $t = (\bar{x} - \mu_0)/(s / \sqrt{n})$.
+
+4. **Compute the p-value.** Use `2 * pt(-abs(t_stat), df = n - 1)` in R. Express it as $P(|\bar{X} - 5| \geq {\color{gray}{?}} \mid H_0)$.
+
+5. **Make a decision.** Do you reject $H_0$ at the 5% level?
+
+6. **Interpret in context.** Write one sentence summarising what you conclude about political interest among French university students.
+
+
+## Type I and Type II errors
+
+In hypothesis testing, we can make two types of errors:
+
+```{=html}
+<table style="width:95%; border-collapse:collapse; margin:0.6em auto; font-size:0.82em; line-height:1.5;">
+  <thead>
+    <tr>
+      <th style="border:2px solid #555; padding:10px 18px; background:#e8e8e8; width:28%;"></th>
+      <th style="border:2px solid #555; padding:10px 18px; background:#e8e8e8; text-align:center; width:36%;"><strong>H₀ is true</strong></th>
+      <th style="border:2px solid #555; padding:10px 18px; background:#e8e8e8; text-align:center; width:36%;"><strong>H₀ is false (Hₐ is true)</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="border:2px solid #555; padding:10px 18px; background:#e8e8e8;"><strong>Reject H₀</strong></td>
+      <td class="fragment" data-fragment-index="1" style="border:2px solid #555; padding:10px 18px; text-align:center; background:#fce4e4;">
+        ❌ <strong>Type I error</strong><br>
+        <span style="color:#888; font-size:0.9em;">False Positive</span><br>
+        Probability = α
+      </td>
+      <td class="fragment" data-fragment-index="4" style="border:2px solid #555; padding:10px 18px; text-align:center; background:#e4f4e4;">
+        ✅ <strong>Correct decision</strong><br>
+        <span style="color:#888; font-size:0.9em;">Power</span><br>
+        Probability = 1 − β
+      </td>
+    </tr>
+    <tr>
+      <td style="border:2px solid #555; padding:10px 18px; background:#e8e8e8;"><strong>Fail to reject H₀</strong></td>
+      <td class="fragment" data-fragment-index="2" style="border:2px solid #555; padding:10px 18px; text-align:center; background:#e4f4e4;">
+        ✅ <strong>Correct decision</strong><br>
+        Probability = 1 − α
+      </td>
+      <td class="fragment" data-fragment-index="3" style="border:2px solid #555; padding:10px 18px; text-align:center; background:#fce4e4;">
+        ❌ <strong>Type II error</strong><br>
+        <span style="color:#888; font-size:0.9em;">False Negative</span><br>
+        Probability = β
+      </td>
+    </tr>
+  </tbody>
+</table>
+```
+
+. . .
+
+:::{.callout-important}
+## Definitions
+
+- [**Type I error (α)**]{.hi-red}: Rejecting $H_0$ when it's actually true (false positive)
+- [**Type II error (β)**]{.hi_blue}: Failing to reject $H_0$ when it's actually false (false negative)
+- [**Power (1 - β)**]{.hi_purple}: Probability of correctly rejecting a false $H_0$
+:::
+
+## Understanding Type I and Type II errors
+
+:::{.callout-note}
+## Medical test analogy
+
+Think of a medical test for a disease:
+
+- **Type I error:** Test says you have the disease when you don't (false positive)
+- **Type II error:** Test says you don't have the disease when you do (false negative)
+:::
+
+. . .
+
+**In statistical testing:**
+
+- We [control Type I error]{.hi-red} by choosing $\alpha$ (typically 0.05)
+- We [cannot directly control Type II error]{.hi_blue} without knowing the true parameter value
+- Type II error depends on: sample size, effect size, and $\alpha$
+
+. . .
+
+**The trade-off:**
+
+- Decreasing $\alpha$ (e.g., from 0.05 to 0.01) [reduces]{.hi-red} Type I error
+- But it [increases]{.hi_blue} Type II error (harder to detect real effects)
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How do we test whether our data provides evidence for or against a claim about the population?
+:::
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Introduction to hypothesis testing](#intro)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. The hypothesis testing framework](#framework)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**3. One-sample tests**](#one_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Two-sample tests](#two_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Paired tests](#paired)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Chi-square test of independence](#chi_square)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[7. Randomization methods](#randomization)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[8. Statistical power and sample size](#power_size)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[9. Practical guidelines](#guidelines)
+
+# One-sample tests {.slide_inverse #one_sample}
+
+## One-sample test for means
+
+[**Goal:**]{.hi_purple} Test whether a population mean $\mu$ equals a specific hypothesized value $\mu_0$.
+
+. . .
+
+**Hypotheses:**
+$$H_0: \mu = \mu_0 \quad \text{vs} \quad H_A: \mu \neq \mu_0$$
+
+. . .
+
+**Test statistic:**
+$$T = \frac{\bar{X} - \mu_0}{S/\sqrt{n}}$$
+
+. . .
+
+**Under $H_0$:** $T \sim t_{n-1}$
+
+. . .
+
+:::{.callout-note}
+## If $\sigma$ is known
+
+If we know the true population SD $\sigma$, we can use the standard normal distribution $N(0,1)$. Since in practice we **estimate** $\sigma$ with the sample SD $s$, we use the t-distribution.
+:::
+
+. . .
+
+**P-value** (two-sided): $P(|T| \geq |t_{\text{obs}}| = |\frac{\bar{x} - \mu_0}{s/\sqrt{n}}|)$ where $T \sim t_{n-1}$
+
+## Example: Trust in parliament
+
+**Research question:** Is the average trust in parliament among French adults equal to 5 (the midpoint of the 0-10 scale)?
+
+```{r}
+# Load ESS data
+ess_france <- read.csv("https://www.dropbox.com/scl/fi/25h4lezq3zuzla94ejmqq/ess_france_11ed.csv?rlkey=lf23ra0i6bvq5dzgtt2u1gy9a&dl=1")
+
+# Clean trust in parliament variable
+ess_trust_parl <- ess_france |>
+  filter(trstprl %in% 0:10) |>
+  select(trstprl)
+
+# Summary statistics
+n <- nrow(ess_trust_parl)
+xbar <- mean(ess_trust_parl$trstprl)
+s <- sd(ess_trust_parl$trstprl)
+```
+
+```{r}
+#| echo: false
+
+cat("n =", n, "\n")
+cat("Sample mean =", round(xbar, 3), "\n")
+cat("Sample SD =", round(s, 3), "\n")
+```
+
+## Example: Trust in parliament (cont.) {.smaller}
+
+```{r}
+#| echo: false
+#| fig-height: 4.5
+#| fig-width: 10
+
+# Histogram of trust in parliament
+ggplot(ess_trust_parl, aes(x = trstprl)) +
+  geom_histogram(binwidth = 1, fill = colors["accent"], color = "white", alpha = 0.8) +
+  geom_vline(xintercept = xbar, color = colors["secondary"], linewidth = 1.2) +
+  geom_vline(xintercept = 5, color = colors["primary"], linetype = "dashed", linewidth = 1.2) +
+  annotate("text", x = xbar, y = 250,
+           label = paste0("x̄ = ", round(xbar, 2), "\ns = ", round(s, 2), "\nn = ", n),
+           color = colors["secondary"], fontface = "bold", hjust = 1.1, size = 4.5) +
+  annotate("text", x = 5, y = 250,
+           label = "H0: μ = 5",
+           color = colors["primary"], fontface = "bold", hjust = -.1, size = 4.5) +
+  labs(title = "Distribution of trust in parliament",
+       subtitle = "European Social Survey Round 11 (France)",
+       x = "Trust in parliament (0-10)",
+       y = "Count") +
+  scale_x_continuous(breaks = 0:10) +
+  theme_minimal(base_size = 14)
+```
+
+The sample mean ($\bar{x}$ = `r round(xbar, 2)`) looks close to 5 — but is it significantly different?
+
+## Example: Trust in parliament (cont.)
+
+**Step 1:** State hypotheses:
+
+- $H_0: \mu = 5$ (average trust equals 5)
+- $H_A: \mu \neq 5$ (average trust differs from 5)
+
+. . .
+
+**Step 2:** Choose $\alpha$: $0.05$
+
+. . .
+
+**Step 3:** Calculate test statistic $\dfrac{\bar{x} - \mu_0}{s/\sqrt{n}}$:
+
+```{r}
+mu0 <- 5
+t_stat <- (xbar - mu0) / (s / sqrt(n))
+```
+
+```{r}
+#| echo: false
+
+cat("Test statistic: t =", round(t_stat, 3))
+```
+
+. . .
+
+**Step 4:** Calculate p-value:
+
+```{r}
+# Two-sided p-value
+p_value <- 2 * pt(-abs(t_stat), df = n - 1)
+```
+
+```{r}
+#| echo: false
+
+cat("P-value =", format.pval(p_value, digits = 3))
+```
+
+## Example: Trust in parliament (cont.)
+
+**Using R's built-in function:**
+
+```{r}
+# Perform one-sample t-test
+t.test(ess_trust_parl$trstprl, mu = 5)
+```
+
+## Visualizing the result
+
+```{r}
+#| echo: false
+#| fig-height: 5
+#| fig-width: 11
+
+# Create visualization
+x_seq <- seq(-5, 5, length.out = 500)
+df_test <- data.frame(
+  x = x_seq,
+  density = dt(x_seq, df = n - 1)
+)
+
+# Get critical values
+t_crit <- qt(0.975, df = n - 1)
+
+ggplot(df_test, aes(x = x, y = density)) +
+  geom_line(linewidth = 1, color = colors["primary"]) +
+  # Rejection regions
+  geom_area(data = subset(df_test, x <= -t_crit), aes(x = x, y = density), fill = colors["secondary"], alpha = 0.4) +
+  geom_area(data = subset(df_test, x >= t_crit), aes(x = x, y = density), fill = colors["secondary"], alpha = 0.4) +
+  # Critical values
+  geom_vline(xintercept = c(-t_crit, t_crit), linetype = "dashed", linewidth = 1) +
+  # Observed test statistic
+  geom_vline(xintercept = t_stat, color = colors["warning"], linewidth = 1.5) +
+  # Labels
+  annotate("text", x = t_stat, y = 0.42,
+           label = paste0("Observed t = ", round(t_stat, 2)),
+           color = colors["warning"], fontface = "bold", hjust = -0.1, size = 5) +
+  annotate("text", x = -3, y = 0.05, label = "Reject H0",
+           color = colors["secondary"], fontface = "bold", size = 5) +
+  annotate("text", x = 3, y = 0.05, label = "Reject H0",
+           color = colors["secondary"], fontface = "bold", size = 5) +
+  annotate("text", x = 0, y = 0.2, label = "Fail to\nreject H0",
+           color = colors["primary"], fontface = "bold", size = 5) +
+  labs(title = "One-sample t-test: Trust in parliament",
+       subtitle = paste0("H0: μ = 5 vs Hₐ: μ ≠ 5 | α = 0.05 | p-value = ",
+                        format.pval(p_value, digits = 3)),
+       x = "t-statistic",
+       y = "Density") +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+**Decision:** Reject $H_0$ (p < 0.05) at the 5% level. The data provide strong evidence that average trust in parliament differs from 5. Can we reject at the 1% level?
+
+## CI and hypothesis testing {.smaller}
+
+```{r}
+#| echo: false
+#| fig-height: 4
+#| fig-width: 10
+
+# 95% CI
+ci_lower <- xbar - qt(0.975, df = n - 1) * (s / sqrt(n))
+ci_upper <- xbar + qt(0.975, df = n - 1) * (s / sqrt(n))
+
+# Y position for CI annotation (just above histogram)
+y_max   <- max(table(round(ess_trust_parl$trstprl)))
+y_ci    <- y_max * 1.10
+y_label <- y_max * 1.20
+
+ggplot(ess_trust_parl, aes(x = trstprl)) +
+  geom_histogram(binwidth = 1, fill = colors["accent"], color = "white", alpha = 0.8) +
+  geom_vline(xintercept = xbar, color = colors["secondary"], linewidth = 1.2) +
+  geom_vline(xintercept = 5, color = colors["primary"], linetype = "dashed", linewidth = 1.2) +
+  # 95% CI bracket
+  annotate("segment", x = ci_lower, xend = ci_upper, y = y_ci, yend = y_ci,
+           color = colors["secondary"], linewidth = 1, lineend = "round") +
+  annotate("segment", x = ci_lower, xend = ci_lower, y = y_ci * 0.97, yend = y_ci * 1.03,
+           color = colors["secondary"], linewidth = 1) +
+  annotate("segment", x = ci_upper, xend = ci_upper, y = y_ci * 0.97, yend = y_ci * 1.03,
+           color = colors["secondary"], linewidth = 1) +
+  annotate("point",   x = xbar, y = y_ci, color = colors["secondary"], size = 2) +
+  annotate("text", x = (ci_lower + ci_upper) / 2, y = y_label,
+           label = paste0("95% CI: [", round(ci_lower, 2), ", ", round(ci_upper, 2), "]"),
+           color = colors["secondary"], fontface = "bold", size = 4.5, hjust = 1.1) +
+  annotate("text", x = xbar, y = y_max * 0.85,
+           label = paste0("x̄ = ", round(xbar, 2)),
+           color = colors["secondary"], fontface = "bold", hjust = 1.1, size = 4.5) +
+  annotate("text", x = 5, y = y_max * 0.85,
+           label = "H₀: μ = 5",
+           color = colors["primary"], fontface = "bold", hjust = -0.1, size = 4.5) +
+  scale_x_continuous(breaks = 0:10) +
+  coord_cartesian(ylim = c(0, y_max * 1.35)) +
+  labs(title = "Distribution of trust in parliament with 95% CI",
+       subtitle = "European Social Survey Round 11 (France)",
+       x = "Trust in parliament (0-10)", y = "Count") +
+  theme_minimal(base_size = 14)
+```
+
+. . .
+
+:::{.callout-tip}
+## The CI–hypothesis test duality
+The 95% CI **does not contain** $\mu_0 = 5$ $\Rightarrow$ we **reject** $H_0$ at $\alpha = 0.05$.
+
+More generally: a two-sided test at level $\alpha$ rejects $H_0$ **if and only if** $\mu_0$ falls outside the $(1-\alpha)$ CI.
+:::
+
+## Quick example: Student sleep {.smaller}
+
+Health guidelines recommend at least **7 hours** of sleep per night. You survey a random sample of **40 students** and find that they report sleeping an average of **6 hours and 18 minutes** per night, with a standard deviation of **1 hour and 24 minutes**. Test at $\alpha = 0.05$ whether students sleep less than the recommended amount.
+
+. . .
+
+**Step 1:** State the hypothesis
+
+. . .
+
+$H_0: \mu = 7$ vs $H_A: \mu < 7$ (one-sided)
+
+. . .
+
+**Step 2:** Choose significance level
+
+. . .
+
+$\alpha = 0.05$
+
+. . .
+
+**Step 3:** Compute the test statistic:
+
+. . .
+
+$$
+t = \dfrac{\bar{x} - \mu}{\sigma/\sqrt{n}} = \dfrac{6.3 - 7}{1.4/\sqrt{40}} \approx -3.16
+$$
+
+. . .
+
+**Step 4:** Compute the p-value (one-sided, left tail):
+
+. . .
+
+```{r}
+#| echo: false
+n_sl = 40
+t_sl = (6.3-7)/(1.4/sqrt(n_sl))
+```
+
+```{r}
+pt(t_sl, df = n_sl - 1)
+```
+
+. . .
+
+**Steps 5–6:** Make a decision $\rightarrow$ reject or fail to reject $H_0$?
+
+. . .
+
+$p \approx 0.002 < 0.05 \rightarrow$ reject $H_0$. Strong evidence that students sleep significantly less than the recommended 7 hours.
+
+## One-sample test for proportions
+
+[**Goal:**]{.hi_purple} Test whether a population proportion $p$ equals a specific hypothesized value $p_0$.
+
+. . .
+
+**Hypotheses:**
+$$H_0: p = p_0 \quad \text{vs} \quad H_A: p \neq p_0$$
+
+. . .
+
+**Test statistic (large sample):**
+$$z = \frac{\hat{p} - p_0}{\sqrt{\dfrac{p_0(1-p_0)}{n}}}$$
+
+where $\hat{p}$ is the sample proportion. (Denominator uses $p_0$ because $H_0$ assumed to be true.)
+
+. . .
+
+**Under $H_0$:** $z \sim N(0, 1)$ approximately (when $np_0 \geq 10$ and $n(1-p_0) \geq 10$)
+
+## Example: High interpersonal trust
+
+**Research question:** Is the proportion of French adults with high interpersonal trust greater than 20%?
+
+. . .
+
+```{r}
+# Create high trust indicator
+ess_trust <- ess_france |>
+  filter(ppltrst %in% 0:10) |>
+  mutate(high_trust = ppltrst >= 7) |>
+  select(high_trust)
+
+# Summary
+n_trust <- nrow(ess_trust)
+p_hat <- mean(ess_trust$high_trust)
+num_high_trust <- sum(ess_trust$high_trust)
+```
+
+```{r}
+#| echo: false
+
+
+cat("n =", n_trust, "\n")
+cat("Number with high trust =", num_high_trust, "\n")
+cat("Sample proportion =", round(p_hat, 3), "\n")
+```
+
+## Example: High interpersonal trust (cont.)
+
+**Testing $H_0: p \le 0.20$ vs $H_A: p > 0.20$**.
+
+Manual calculation first:
+
+```{r}
+p0 <- 0.20
+
+# Step 3: Test statistic
+z_stat <- (p_hat - p0) / sqrt(p0 * (1 - p0) / n_trust)
+```
+
+```{r}
+#| echo: false
+
+cat("z =", round(z_stat, 3), "\n")
+```
+
+```{r}
+# Step 4: One-sided p-value
+p_value <- 1 - pnorm(z_stat)
+```
+
+```{r}
+#| echo: false
+
+cat("p-value =", format.pval(p_value, digits = 3), "\n")
+```
+
+. . .
+
+**Confirm with `prop.test()`:**
+
+```{r}
+prop.test(x = num_high_trust, n = n_trust, p = 0.20, alternative = "greater", correct = FALSE)
+```
+
+## Visualizing the result
+
+```{r}
+#| echo: false
+#| fig-height: 5
+#| fig-width: 11
+
+x_seq <- seq(-4, 4, length.out = 500)
+df_z <- data.frame(x = x_seq, density = dnorm(x_seq))
+
+# One-sided critical value (α = 0.05, right tail)
+z_crit <- qnorm(0.95)
+
+ggplot(df_z, aes(x = x, y = density)) +
+  geom_line(linewidth = 1, color = colors["primary"]) +
+  # Rejection region (right tail only)
+  geom_area(data = subset(df_z, x >= z_crit), aes(x = x, y = density),
+            fill = colors["secondary"], alpha = 0.4) +
+  # P-value area
+  geom_area(data = subset(df_z, x >= z_stat), aes(x = x, y = density),
+            fill = colors["warning"], alpha = 0.4) +
+  # Critical value
+  geom_vline(xintercept = z_crit, linetype = "dashed", linewidth = 1) +
+  # Observed test statistic
+  geom_vline(xintercept = z_stat, color = colors["warning"], linewidth = 1.5) +
+  # Labels
+  annotate("text", x = z_stat, y = 0.42,
+           label = paste0("Observed z = ", round(z_stat, 2)),
+           color = colors["warning"], fontface = "bold", hjust = -0.08, size = 5) +
+  annotate("text", x = z_crit, y = 0.05,
+           label = paste0("z* = ", round(z_crit, 2)),
+           color = "black", fontface = "bold", hjust = 1.1, size = 4.5) +
+  annotate("text", x = 3.2, y = 0.10, label = "Reject H0",
+           color = colors["secondary"], fontface = "bold", size = 5) +
+  annotate("text", x = 0, y = 0.2, label = "Fail to\nreject H0",
+           color = colors["primary"], fontface = "bold", size = 5) +
+  annotate("text", x = 3.5, y = 0.04,
+           label = paste0("p = ", format.pval(p_value, digits = 3)),
+           color = colors["warning"], fontface = "bold", size = 4.5) +
+  labs(title = "One-sample z-test: High interpersonal trust",
+       subtitle = expression(H[0]*": p = 0.20  vs  "*H[A]*": p > 0.20  |  α = 0.05"),
+       x = "z-statistic", y = "Density") +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+. . .
+
+**Decision:** Fail to reject $H_0$ (p > 0.05) at 5% level. No strong evidence that the proportion with high interpersonal trust exceeds 20%.
+
+## Your turn! #2 {.slide_task}
+
+{{< countdown "15:00" top=0 right=0 >}}
+
+1. Load the ESS France data and `tidyverse`. Select the life satisfaction variable (`stflife`) keeping only values between 0 and 10. The goal is to test whether average life satisfaction equals 6.5 (use $\alpha = 0.05$).
+
+```{r}
+library(tidyverse)
+
+ess_france <- read.csv("https://www.dropbox.com/scl/fi/25h4lezq3zuzla94ejmqq/ess_france_11ed.csv?rlkey=lf23ra0i6bvq5dzgtt2u1gy9a&dl=1")
+```
+
+
+1. State the null and alternative hypotheses.
+
+2. **Manually compute** the test statistic $t = (\bar{x} - \mu_0) / (s / \sqrt{n})$ and the two-sided p-value using `pt()`.
+
+3. Verify your result with `t.test()`.
+
+4. Make a decision and interpret.
+
+5. Compute the 95% confidence interval for overage life satisfaction. Compare it with the decision you made above.
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How do we test whether our data provides evidence for or against a claim about the population?
+:::
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Introduction to hypothesis testing](#intro)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. The hypothesis testing framework](#framework)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. One-sample tests](#one_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**4. Two-sample tests**](#two_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Paired tests](#paired)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Chi-square test of independence](#chi_square)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[7. Randomization methods](#randomization)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[8. Statistical power and sample size](#power_size)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[9. Practical guidelines](#guidelines)
+
+# Two-sample tests {.slide_inverse #two_sample}
+
+## Two-sample t-test: Independent groups
+
+[**Goal:**]{.hi_purple} Test whether two population means are equal: $\mu_1 = \mu_2$
+
+. . .
+
+**Hypotheses:**
+$$H_0: \mu_1 = \mu_2 \quad \text{vs} \quad H_A: \mu_1 \neq \mu_2$$
+
+Or equivalently: $H_0: \mu_1 - \mu_2 = 0$ vs $H_A: \mu_1 - \mu_2 \neq 0$
+
+. . .
+
+**Test statistic:**
+$$T = \frac{(\bar{X}_1 - \bar{X}_2) - (\mu_1 - \mu_2)}{SE(\bar{X}_1 - \bar{X}_2)} = \frac{(\bar{X}_1 - \bar{X}_2) - 0}{SE(\bar{X}_1 - \bar{X}_2)}$$
+
+. . .
+
+**Two versions:**
+
+1. [**Equal variances**]{.hi_blue} (pooled t-test): Assumes $\sigma_1^2 = \sigma_2^2$
+2. [**Unequal variances**]{.hi_blue} (Welch's t-test): Does not assume equal variances (default in R)
+
+## Standard error for difference in means
+
+**Unequal variances — Welch's t-test (recommended default in R):**
+$$SE_{\text{Welch}} = \sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}$$
+
+Degrees of freedom are approximated by the Welch-Satterthwaite equation we discussed in the confidence interval lecture (R handles this automatically).
+
+. . .
+
+**Equal variances — pooled t-test (only if variances are truly equal):**
+$$SE_{\text{pooled}} = s_p \sqrt{\frac{1}{n_1} + \frac{1}{n_2}}, \qquad s_p = \sqrt{\frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1 + n_2 - 2}}$$
+
+. . .
+
+:::{.callout-tip}
+**Rule of thumb:** Always use Welch's t-test. It reduces to the pooled test when variances are equal, so there is no downside to using it as the default. In R, `t.test()` uses Welch's test by default.
+:::
+
+## Example: Education and trust
+
+**Research question:** Does interpersonal trust differ between those with and without higher education?
+
+```{r}
+# Create education groups
+ess_educ_trust <- ess_france |>
+  filter(ppltrst %in% 0:10) |>
+  mutate(higher_educ = case_when(education == "High school diploma or less" ~ "No higher education",
+                                 education != "High school diploma or less" ~ "Higher education")) |>
+  filter(!is.na(higher_educ)) |>
+  select(ppltrst, higher_educ)
+
+# Summary statistics by group
+ess_educ_trust |>
+  group_by(higher_educ) |>
+  summarise(n = n(),
+            mean = mean(ppltrst),
+            sd = sd(ppltrst),
+            se = sd / sqrt(n))
+```
+
+## Example: Education and trust (cont.)
+
+**Visualize the distributions — do the groups look different?**
+
+```{r}
+#| echo: false
+#| fig-height: 6
+#| fig-width: 11
+
+# Group means for vertical lines
+educ_means <- ess_educ_trust |>
+  group_by(higher_educ) |>
+  summarise(mean = mean(ppltrst))
+
+group_colors <- c("No higher education" = unname(colors["secondary"]),
+                  "Higher education"    = unname(colors["accent"]))
+
+ggplot(ess_educ_trust, aes(x = ppltrst, fill = higher_educ)) +
+  geom_histogram(binwidth = 1, position = "identity", alpha = 0.55, color = "white") +
+  geom_vline(data = educ_means, aes(xintercept = mean, color = higher_educ),
+             linewidth = 1.3, linetype = "dashed") +
+  scale_fill_manual(values  = group_colors, name = "Education level",
+                    guide   = guide_legend(reverse = TRUE)) +
+  scale_color_manual(values = group_colors, guide = "none") +
+  scale_x_continuous(breaks = 0:10) +
+  labs(title = "Distribution of interpersonal trust by education level",
+       subtitle = "European Social Survey Round 11 (France)",
+       x = "Interpersonal trust (0-10)",
+       y = "Count") +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "top",
+        legend.text     = element_text(size = 13),
+        legend.title    = element_text(size = 13, face = "bold"))
+```
+
+## Example: Education and trust (cont.)
+
+**Before testing — visualize the group means with 95% CIs:**
+
+```{r}
+#| echo: false
+#| fig-height: 4.5
+#| fig-width: 9
+
+# Calculate summary stats for plotting
+educ_summary <- ess_educ_trust |>
+  group_by(higher_educ) |>
+  summarise(
+    n = n(),
+    mean = mean(ppltrst),
+    sd = sd(ppltrst),
+    ci_lower = t.test(ppltrst)$conf.int[1],
+    ci_upper = t.test(ppltrst)$conf.int[2]
+  ) |> 
+  mutate(higher_educ = fct_rev(higher_educ))
+
+ggplot(educ_summary, aes(x = higher_educ, y = mean, color = higher_educ)) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), width = 0.1, linewidth = 1.2) +
+  scale_color_manual(values = group_colors) +
+  scale_y_continuous(lim = c(0,NA)) +
+  labs(title = "Interpersonal trust by education level",
+       subtitle = "Point estimates with 95% confidence intervals | ESS Round 11 data",
+       x = "Education level",
+       y = "Mean interpersonal trust (0-10)") +
+  theme(legend.position = "none")
+```
+
+The CIs don't overlap — strong visual evidence of a difference. Let's confirm with a formal test.
+
+## Example: Education and trust (cont.)
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+**Manual computation — Welch's t-test:**
+
+```{r}
+# Group statistics
+stats <- educ_summary
+
+n1 <- stats$n[1]
+xbar1 <- stats$mean[1]
+s1 <- stats$sd[1]
+n2 <- stats$n[2]
+xbar2 <- stats$mean[2]
+s2 <- stats$sd[2]
+
+# SE (Welch)
+se <- sqrt(s1^2/n1 + s2^2/n2)
+```
+
+```{r}
+#| echo: false
+
+
+cat("SE =", round(se, 4), "\n")
+```
+
+```{r}
+# Test statistic
+t_stat <- (xbar1 - xbar2) / se
+```
+
+```{r}
+#| echo: false
+
+cat("t =", round(t_stat, 3), "\n")
+```
+
+```{r}
+# Approximate p-value (using large-sample z approximation for simplicity)
+p_value <- 2 * pnorm(-abs(t_stat))
+```
+
+
+```{r}
+#| echo: false
+# Approximate p-value (using large-sample z approximation for display)
+cat("p-value ≈", format.pval(p_value, digits = 3))
+```
+
+:::
+
+::: {.column width="50%" .fragment}
+
+**Confirm with `t.test()`:**
+
+(uses exact Welch-Satterthwaite df)
+
+```{r}
+t.test(ppltrst ~ higher_educ,
+       data = ess_educ_trust)
+```
+
+:::
+
+:::
+
+. . .
+
+**Conclusion:** Those with higher education have significantly higher trust (difference ≈ 0.67, p < 0.001).
+
+## Quick example: Study hours and exam outcome {.smaller}
+
+A university records the weekly study hours of students who sat a statistics exam. Among the **40 students who passed**, the average was **5.3 hours** per day with a standard deviation of **1.8 hours**. Among the **30 students who failed**, the average was **3.2 hours** per day with a standard deviation of **1.5 hours**. Test at $\alpha = 0.05$ whether students who passed studied more on average.
+
+. . .
+
+**Step 1:** State the hypotheses:
+
+. . .
+
+$H_0: \mu_1 = \mu_2$ vs $H_A: \mu_1 > \mu_2$ (one-sided)
+
+. . .
+
+**Step 2:** Choose significance level:
+
+. . .
+
+$\alpha = 0.05$
+
+. . .
+
+**Step 3:** Compute the test statistic:
+
+. . .
+
+$$t = \dfrac{\bar{x}_1 - \bar{x}_2}{SE} = \dfrac{5.3 - 3.2}{\sqrt{\dfrac{1.8^2}{40} + \dfrac{1.5^2}{30}}} \approx 5.32$$
+
+. . .
+
+**Step 4:** Compute the p-value (one-sided, right tail; use `df = 67.19` (Welch-Satterthwaite)):
+
+. . .
+
+```{r}
+#| echo: false
+n1_ts <- 40; xbar1_ts <- 5.3; s1_ts <- 1.8
+n2_ts <- 30; xbar2_ts <- 3.2; s2_ts <- 1.5
+se_ts <- sqrt(s1_ts^2/n1_ts + s2_ts^2/n2_ts)
+t_ts  <- (xbar1_ts - xbar2_ts) / se_ts
+
+v1_ts    <- s1_ts^2 / n1_ts
+v2_ts    <- s2_ts^2 / n2_ts
+df_ws_ts <- (v1_ts + v2_ts)^2 / (v1_ts^2/(n1_ts-1) + v2_ts^2/(n2_ts-1))
+```
+
+```{r}
+1 - pt(t_ts, df = 67.19)
+```
+
+. . .
+
+**Steps 5–6:** Make a decision $\rightarrow$ reject or fail to reject $H_0$?
+
+. . .
+
+$p < 0.001 < 0.05 \rightarrow$ reject $H_0$. Strong evidence that students who passed studied significantly more hours per day than those who failed.
+
+## Two-sample test for proportions
+
+[**Goal:**]{.hi_purple} Test whether two population proportions are equal: $p_1 = p_2$
+
+**Test statistic:**
+$$z = \frac{\hat{p}_1 - \hat{p}_2}{SE}, \qquad SE = \sqrt{\hat{p}(1-\hat{p})\!\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}$$
+
+where $\hat{p} = \dfrac{x_1 + x_2}{n_1 + n_2}$ is the **pooled proportion** (estimated under $H_0: p_1 = p_2$).
+
+. . .
+
+**Under $H_0$:** $z \sim N(0, 1)$ approximately (requires $n_i\hat{p}(1-\hat{p}) \geq 5$ for each group)
+
+## Example: High trust by education
+
+**Research question:** Does the proportion with high interpersonal trust differ by education?
+
+```{r}
+# Create high trust indicator by education
+ess_trust_educ <- ess_educ_trust |>
+  mutate(high_trust = ppltrst >= 7)
+
+# Summary
+prop_table <- ess_trust_educ |>
+  group_by(higher_educ) |>
+  summarise(n = n(),
+            n_high_trust = sum(high_trust),
+            prop_high_trust = mean(high_trust))
+
+prop_table
+```
+
+## Example: High trust by education (cont.)
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+**Manual calculation first:**
+
+```{r}
+# Group proportions
+ # Higher education
+p1_hat <- prop_table$prop_high_trust[1]
+# No higher education
+p2_hat <- prop_table$prop_high_trust[2]  
+
+n_high1 <- prop_table$n_high_trust[1]
+n_high2 <- prop_table$n_high_trust[2]
+n1 <- prop_table$n[1]
+n2 <- prop_table$n[2]
+
+# Pooled proportion (under H0: p1 = p2)
+p_pool <- (n_high1 + n_high2) / (n1 + n2)
+```
+
+```{r}
+#| echo: false
+cat("Pooled proportion:", round(p_pool, 3), "\n")
+```
+
+```{r}
+# SE and z-statistic
+SE_prop <- sqrt(p_pool * (1 - p_pool) * (1/n1 + 1/n2))
+z_stat_prop <- (p1_hat - p2_hat) / SE_prop
+```
+
+```{r}
+#| echo: false
+
+cat("z =", round(z_stat_prop, 3), "\n")
+```
+
+```{r}
+p_value <- 2 * pnorm(-abs(z_stat_prop))
+```
+
+```{r}
+#| echo: false
+
+cat("p-value =", format.pval(p_value, digits = 3), "\n")
+```
+
+:::
+
+::: {.column width="50%" .fragment}
+
+**Verify with `prop.test()`:**
+
+```{r}
+prop.test(x = prop_table$n_high_trust,
+          n = prop_table$n,
+          correct = FALSE)
+```
+
+:::
+:::
+
+. . .
+
+**Conclusion:** The proportion with high trust is significantly higher among those with higher education (p < 0.001).
+
+## Your turn! #3 {.slide_task}
+
+{{< countdown "15:00" top=0 right=0 >}}
+
+Part 1: Test whether average life satisfaction differs between men and women:
+
+1. Calculate summary statistics by gender
+
+2. Compute a 95% confidence interval for both means. Do they overlap?
+
+3. Perform a two-sample t-test manually (using `df = 1730.8`) and using `t.test`.
+
+4. Interpret: is the difference statistically significant? At what level? Practically meaningful?
+
+Part 2: Test whether the proportion who are "very satisfied" with democracy (`stfdem` ≥ 8) differs between those with and without higher education:
+
+1. Compute 95% confidence intervals for both proportions. Do they overlap?
+
+2. Perform a two-sample proportion test manually and using `prop.test`.
+
+3. Interpret: is the difference statistically significant? At what level? Practically meaningful?
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How do we test whether our data provides evidence for or against a claim about the population?
+:::
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Introduction to hypothesis testing](#intro)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. The hypothesis testing framework](#framework)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. One-sample tests](#one_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Two-sample tests](#two_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**5. Paired tests**](#paired)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Chi-square test of independence](#chi_square)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[7. Randomization methods](#randomization)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[8. Statistical power and sample size](#power_size)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[9. Practical guidelines](#guidelines)
+
+# Paired tests {.slide_inverse #paired}
+
+## Paired vs independent samples
+
+[**Independent samples:**]{.hi_blue} Two separate groups with no relationship between observations (e.g., men vs women)
+
+. . .
+
+[**Paired samples:**]{.hi_purple} Two measurements on the same individuals or matched pairs (e.g., before vs after, parliament vs politicians)
+
+. . .
+
+**Why does it matter?**
+
+- Paired data has [less variability]{.hi_purple} because we control for individual differences
+- Use a [different test]{.hi-red} that accounts for the pairing
+- More [statistical power]{.hi_blue} to detect differences
+
+. . .
+
+:::{.callout-important}
+## Key principle
+With paired data, we analyze the [**differences within pairs**]{.hi_purple}, not the two groups separately.
+:::
+
+## Paired t-test: Theory
+
+[**Goal:**]{.hi_purple} Test whether the mean difference between paired observations equals a hypothesized value $\delta_0$.
+
+. . .
+
+**Hypotheses:**
+$$H_0: \mu_d = \delta_0 \quad \text{vs} \quad H_A: \mu_d \neq \delta_0$$
+
+where $\mu_d = \mu_1 - \mu_2$ is the population mean of the pairwise differences. [Typically, $\delta_0 = 0$ (no difference).]{.hi_purple}
+
+. . .
+
+**Method:**
+
+1. Calculate differences: $d_i = x_{1i} - x_{2i}$ for each pair $i$
+2. Perform a one-sample t-test on the differences
+
+**Test statistic:** $t = \frac{\bar{d} - \delta_0}{s_d / \sqrt{n}}$
+
+When $\delta_0 = 0$ this simplifies to $t = \frac{\bar{d}}{s_d / \sqrt{n}}$.
+
+## Example: Trust in parliament vs politicians
+
+**Research question:** Do French adults trust parliament and politicians equally?
+
+. . .
+
+```{r}
+# Prepare paired data
+ess_paired <- ess_france |>
+  filter(trstprl %in% 1:10 & trstplt %in% 0:10) |>
+  select(trstprl, trstplt) |>
+  mutate(diff = trstprl - trstplt)
+
+# Summary statistics
+```
+
+```{r}
+#| echo: false
+
+cat("n =", nrow(ess_paired), "\n")
+cat("Mean trust in parliament:", round(mean(ess_paired$trstprl), 3), "\n")
+cat("Mean trust in politicians:", round(mean(ess_paired$trstplt), 3), "\n")
+cat("Mean difference:", round(mean(ess_paired$diff), 3), "\n")
+cat("SD of differences:", round(sd(ess_paired$diff), 3), "\n")
+```
+
+## Example: Trust comparison (cont.)
+
+**Visualize the paired data:**
+
+```{r}
+#| echo: false
+#| fig-height: 6
+#| fig-width: 10
+
+# Reshape for plotting
+ess_trust_long <- ess_paired |>
+  pivot_longer(cols = c(trstprl, trstplt),
+               names_to = "institution",
+               values_to = "trust") |>
+  mutate(institution = recode(institution,
+                              trstprl = "Parliament",
+                              trstplt = "Politicians"))
+
+trust_colors <- c("Parliament"  = unname(colors["accent"]),
+                  "Politicians" = unname(colors["secondary"]))
+
+trust_means <- ess_trust_long |>
+  group_by(institution) |>
+  summarise(mean = mean(trust))
+
+ggplot(ess_trust_long, aes(x = trust, fill = institution)) +
+  geom_histogram(binwidth = 1, position = "identity", alpha = 0.55, color = "white") +
+  geom_vline(data = trust_means, aes(xintercept = mean, color = institution),
+             linewidth = 1.3, linetype = "dashed") +
+  scale_fill_manual(values  = trust_colors, name = "Institution",
+                    guide   = guide_legend(reverse = TRUE)) +
+  scale_color_manual(values = trust_colors, guide = "none") +
+  scale_x_continuous(breaks = 0:10) +
+  labs(title = "Distribution of trust in parliament vs politicians",
+       subtitle = "European Social Survey Round 11 (France)",
+       x = "Trust (0-10)", y = "Count") +
+  theme_minimal(base_size = 14) +
+  theme(legend.position   = "top",
+        legend.text       = element_text(size = 13),
+        legend.title      = element_text(size = 13, face = "bold"))
+```
+
+## Example: Trust comparison (cont.)
+
+**Better visualization: Connected points**
+
+```{r}
+#| fig-height: 5
+#| fig-width: 10
+#| echo: false
+
+# Sample 100 random individuals for cleaner visualization
+set.seed(123)
+ess_sample <- ess_trust_long |>
+  group_by(institution) |>
+  mutate(id = row_number()) |>
+  ungroup() |>
+  filter(id <= 100)
+
+ggplot(ess_sample, aes(x = institution, y = trust, group = id)) +
+  geom_line(alpha = 0.3, color = colors["primary"]) +
+  geom_point(aes(color = institution), alpha = 0.5, size = 2) +
+  scale_color_manual(values = c(colors["accent"], colors["secondary"])) +
+  labs(title = "Paired trust ratings (sample of 100 individuals)",
+       subtitle = "Each line connects one person's ratings of both institutions",
+       x = "",
+       y = "Trust (0-10)") +
+  theme(legend.position = "none")
+```
+
+Most lines slope downward → trust in parliament > trust in politicians
+
+## Example: Trust comparison (cont.)
+
+**Visualize the differences:**
+
+```{r}
+#| fig-height: 4
+#| fig-width: 10
+#| echo: false
+
+ggplot(ess_paired, aes(x = diff)) +
+  geom_histogram(binwidth = 1, fill = colors["accent"], color = "white") +
+  geom_vline(xintercept = 0, linetype = "dashed", linewidth = 1, color = colors["secondary"]) +
+  geom_vline(xintercept = mean(ess_paired$diff), linewidth = 1.2, color = colors["warning"]) +
+  annotate("text", x = mean(ess_paired$diff), y = 250,
+           label = paste0("Mean difference = ", round(mean(ess_paired$diff), 2)),
+           color = colors["warning"], fontface = "bold", hjust = -0.1, size = 5) +
+  labs(title = "Distribution of differences (Parliament - Politicians)",
+       x = "Difference in trust",
+       y = "Count")
+```
+
+## Example: Trust comparison (cont.)
+
+```{r}
+#| echo: false
+xbar_prl <- mean(ess_paired$trstprl)
+xbar_plt <- mean(ess_paired$trstplt)
+d_bar    <- mean(ess_paired$diff)
+s_d      <- sd(ess_paired$diff)
+n_d      <- nrow(ess_paired)
+t_paired <- d_bar / (s_d / sqrt(n_d))
+p_paired <- 2 * pt(-abs(t_paired), df = n_d - 1)
+```
+
+**Paired t-test = one-sample t-test on the differences** $D_i =$ [**Parliament**]{style="color: #3498DB"} $-$ [**Politicians**]{style="color: #E74C3C"}
+
+[**Parliament**]{style="color: #3498DB"}: $\bar{x} = `r round(xbar_prl, 2)`$ &emsp;&emsp; [**Politicians**]{style="color: #E74C3C"}: $\bar{x} = `r round(xbar_plt, 2)`$
+
+$$\bar{d} = `r round(xbar_prl, 2)` - `r round(xbar_plt, 2)` = `r round(d_bar, 2)`, \qquad s_d = `r round(s_d, 2)`, \qquad n = `r n_d`$$
+
+$$t = \frac{\bar{d}}{s_d / \sqrt{n}} = \frac{`r round(d_bar, 3)`}{`r round(s_d, 3)` / \sqrt{`r n_d`}} \approx `r round(t_paired, 2)`, \qquad p < 0.001$$
+
+. . .
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+**Confirm with `t.test()`:**
+
+```{r}
+#| echo: false
+t.test(ess_paired$trstprl, ess_paired$trstplt, paired = TRUE)
+```
+
+:::
+
+::: {.column width="50%"}
+
+**Conclusion:** French adults trust [**parliament**]{style="color: #3498DB"} significantly more than [**politicians**]{style="color: #E74C3C"} (mean difference = `r round(d_bar, 2)`, p < 0.001).
+
+:::
+:::
+## Why pairing increases power
+
+Compare paired vs independent analysis:
+
+```{r}
+# Paired t-test (correct)
+paired_result <- t.test(ess_paired$trstprl, ess_paired$trstplt, paired = TRUE)
+
+# Independent t-test (WRONG! But for comparison)
+indep_result <- t.test(ess_paired$trstprl, ess_paired$trstplt, paired = FALSE)
+```
+
+```{r}
+#| echo: false
+
+tibble(
+  Test = c("Paired t-test", "Independent t-test"),
+  `Test statistic` = c(paired_result$statistic, indep_result$statistic),
+  `P-value` = c(paired_result$p.value, indep_result$p.value),
+  `95% CI` = c(
+    paste0("[", round(paired_result$conf.int[1], 2), ", ",
+           round(paired_result$conf.int[2], 2), "]"),
+    paste0("[", round(indep_result$conf.int[1], 2), ", ",
+           round(indep_result$conf.int[2], 2), "]")
+  )
+) |>
+  kable()
+```
+
+Paired test has much higher test statistic and narrower CI!
+
+## Your turn! #4 {.slide_task}
+
+{{< countdown "10:00" top=0 right=0 >}}
+
+Test whether satisfaction with the state of the economy (`stfeco`) differs from satisfaction with the government (`stfgov`).
+
+1. Create a new variable equal to the difference between the two satisfaction measures. Make sure to drop values not between 0 and 10.
+
+2. Perform a paired t-test manually and using `t.test`.
+
+3. Interpret: Are people more satisfied with the economy or government?
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How do we test whether our data provides evidence for or against a claim about the population?
+:::
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Introduction to hypothesis testing](#intro)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. The hypothesis testing framework](#framework)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. One-sample tests](#one_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Two-sample tests](#two_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Paired tests](#paired)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**6. Chi-square test of independence**](#chi_square)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[7. Randomization methods](#randomization)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[8. Statistical power and sample size](#power_size)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[9. Practical guidelines](#guidelines)
+
+# Chi-square test of independence {.slide_inverse #chi_square}
+
+## Testing relationships between categorical variables
+
+So far: Testing hypotheses about means and proportions
+
+. . .
+
+**New question:** Are two categorical variables [**independent**]{.hi_purple}, or is there an [**association**]{.hi_blue} between them?
+
+. . .
+
+**Examples:**
+
+- Is trust level (low/medium/high) independent of education (lower/higher)?
+- Is life satisfaction (dissatisfied/neutral/satisfied) independent of gender?
+- Is voting intention independent of age group?
+
+. . .
+
+**Tool:** [**Chi-square test of independence**]{.hi_purple} (also called chi-square test of association)
+
+## Contingency tables
+
+A [**contingency table**]{.hi_purple} (or cross-tabulation) shows the frequency distribution of two categorical variables.
+
+. . .
+
+**Example:** Trust level by education
+
+```{r}
+# Create trust categories
+ess_trust_cat <- ess_educ_trust |>
+  filter(ppltrst %in% 0:10) |> 
+  mutate(trust_level = case_when(
+    ppltrst <= 3 ~ "Low trust (0-3)",
+    ppltrst <= 6 ~ "Medium trust (4-6)",
+    ppltrst <= 10 ~ "High trust (7-10)"
+  ))
+
+# Create contingency table
+cont_table <- table(ess_trust_cat$higher_educ, ess_trust_cat$trust_level)
+cont_table
+```
+
+## Observed vs expected frequencies
+
+**Under independence:** The expected frequency in each cell is:
+$$E_{ij} = \frac{(\text{row } i \text{ total}) \times (\text{column } j \text{ total})}{\text{grand total}}$$
+
+. . .
+
+**Intuition:** Independence means $P(\text{row } i \cap \text{col } j) = P(\text{row } i) \times P(\text{col } j)$. Estimating marginal probabilities from the data:
+$$E_{ij} =  \underbrace{N}_{\text{\# obs.}} \times \underbrace{\frac{R_i}{N}}_{\hat{P}(\text{row } i)} \times \underbrace{\frac{C_j}{N}}_{\hat{P}(\text{col } j)} = \frac{R_i \times C_j}{N}$$
+
+i.e. "how many observations *should* be in this cell if the two variables were unrelated?"
+
+## Expected frequencies under independence
+
+```{r}
+# Add marginal totals
+addmargins(cont_table)
+```
+
+. . .
+
+```{r}
+# Calculate expected frequencies
+expected <- chisq.test(cont_table)$expected
+round(expected, 1)
+```
+
+. . .
+
+**Compare to observed:**
+
+```{r}
+cont_table
+```
+
+Notice: More higher education people in "high trust" than expected!
+
+## Chi-square test statistic
+
+**Measures the discrepancy between observed and expected frequencies:**
+
+$$\chi^2 = \sum_{i,j} \frac{(O_{ij} - E_{ij})^2}{E_{ij}}$$
+
+where:
+
+- $O_{ij}$ = observed frequency in cell $(i,j)$
+- $E_{ij}$ = expected frequency under independence
+
+. . .
+
+**Under $H_0$ (independence):**
+$$\chi^2 \sim \chi^2_{(r-1)(c-1)}$$
+
+where $r$ = number of rows, $c$ = number of columns.
+
+. . .
+
+**Degrees of freedom:** $(r-1)(c-1) = (2-1)(3-1) = 2$ for our example.
+
+## The chi-square distribution
+
+```{r}
+#| echo: false
+#| fig-height: 4.5
+#| fig-width: 10
+
+x <- seq(0, 20, length.out = 500)
+
+df_chi <- data.frame(
+  x = rep(x, 4),
+  density = c(dchisq(x, df = 1), dchisq(x, df = 2),
+              dchisq(x, df = 5), dchisq(x, df = 10)),
+  df = rep(c("df = 1", "df = 2", "df = 5", "df = 10"), each = length(x))
+)
+
+ggplot(df_chi, aes(x = x, y = density, color = df)) +
+  geom_line(linewidth = 1.2) +
+  scale_color_manual(values = c("df = 1"  = unname(colors["secondary"]),
+                                "df = 2"  = unname(colors["accent"]),
+                                "df = 5"  = unname(colors["success"]),
+                                "df = 10" = unname(colors["purple"]))) +
+  labs(title = "Chi-square distributions for different degrees of freedom",
+       x = expression(chi^2),
+       y = "Density",
+       color = "Degrees of freedom") +
+  theme(legend.position = "bottom")
+```
+
+**Note:** Chi-square distribution is [right-skewed]{.hi-red} and only takes [positive values]{.hi_blue}.
+
+## Example: Trust by education (cont.)
+
+**Hypotheses:**
+
+- $H_0$: Trust level and education are independent
+- $H_A$: Trust level and education are associated
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+**Manual computation:**
+
+```{r}
+# Observed and expected
+O <- as.matrix(cont_table)
+E <- chisq.test(cont_table)$expected
+
+# Chi-square statistic: sum of (O - E)^2 / E
+chi_manual <- sum((O - E)^2 / E)
+```
+
+```{r}
+#| echo: false
+
+cat("χ² =", round(chi_manual, 3), "\n")
+```
+
+```{r}
+df_chi <- (nrow(O) - 1) * (ncol(O) - 1)
+p_value <- pchisq(chi_manual, df = df_chi, lower.tail = FALSE)
+```
+
+```{r}
+#| echo: false
+cat("p-value =", format.pval(p_value, digits = 3), "\n")
+```
+
+:::
+
+::: {.column width="50%" .fragment}
+
+**Confirm with `chisq.test()`:**
+
+```{r}
+chi_result <- chisq.test(cont_table)
+chi_result
+```
+
+:::
+:::
+
+. . .
+
+We reject $H_0$: trust level and education are **not independent** $\rightarrow$ people with higher education tend to report systematically different levels of trust in parliament.
+
+## Visualizing the association
+
+```{r}
+#| echo: false
+#| fig-height: 5
+#| fig-width: 11
+
+# Calculate proportions within each education level
+props <- ess_trust_cat |>
+  group_by(higher_educ, trust_level) |>
+  summarise(n = n()) |>
+  mutate(prop = n / sum(n)) |>
+  ungroup() |>
+  mutate(trust_level = factor(trust_level,
+                              levels = c("Low trust (0-3)",
+                                       "Medium trust (4-6)",
+                                       "High trust (7-10)")))
+
+ggplot(props, aes(x = higher_educ, y = prop, fill = trust_level)) +
+  geom_bar(stat = "identity", position = "fill", color = "white", linewidth = 0.3) +
+  geom_text(aes(label = percent(prop, accuracy = 0.1)),
+            position = position_fill(vjust = 0.5),
+            color = "white", fontface = "bold", size = 5) +
+  scale_y_continuous(labels = percent) +
+  scale_fill_manual(values = c("Low trust (0-3)"    = unname(colors["secondary"]),
+                               "Medium trust (4-6)" = unname(colors["warning"]),
+                               "High trust (7-10)"  = unname(colors["success"]))) +
+  labs(title = "Distribution of trust levels by education",
+       subtitle = paste0("χ² = ", round(chi_result$statistic, 2),
+                        ", p ", format.pval(chi_result$p.value, digits = 3, eps = 0.001)),
+       x = "Education level",
+       y = "Proportion",
+       fill = "Trust level") +
+  theme(legend.position = "bottom")
+```
+
+## Your turn! #5 {.slide_task}
+
+{{< countdown "15:00" top=0 right=0 >}}
+
+Test whether life satisfaction is independent of gender:
+
+1. Create a contingency table of life satisfaction categories (low: 0-4, medium: 5-7, high: 8-10) by gender.
+
+```{r}
+ess_lifesat_cat <- ess_france |>
+  filter(stflife %in% 0:10, gndr %in% 1:2) |>
+  mutate(gender   = recode(gndr, `1` = "Male", `2` = "Female"),
+         sat_level = case_when(stflife <= 4  ~ "Low (0-4)",
+                               stflife <= 7  ~ "Medium (5-7)",
+                               stflife <= 10 ~ "High (8-10)"))
+```
+
+2. Calculate expected frequencies by hand ($E_{ij} = \text{row total} \times \text{col total} / n$).
+
+3. Compute the chi-square statistic manually using $\chi^2 = \sum (O-E)^2/E$.
+
+4. Find the p-value with `pchisq()`.
+
+5. Verify with `chisq.test()`.
+
+6. Interpret: Is there evidence of an association?
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How do we test whether our data provides evidence for or against a claim about the population?
+:::
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Introduction to hypothesis testing](#intro)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. The hypothesis testing framework](#framework)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. One-sample tests](#one_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Two-sample tests](#two_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Paired tests](#paired)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Chi-square test of independence](#chi_square)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**7. Randomization methods**](#randomization)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[8. Statistical power and sample size](#power_size)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[9. Practical guidelines](#guidelines)
+
+# Randomization methods {.slide_inverse #randomization}
+
+## Beyond theory-based tests
+
+**So far:** We've used [theory-based tests]{.hi_blue} that rely on distributional assumptions (t-distribution, normal distribution, chi-square distribution)
+
+. . .
+
+**Alternative approach:** [**Randomization tests**]{.hi_purple} (also called permutation tests)
+
+- Don't rely on distributional assumptions
+- Use simulation to create the null distribution
+- More intuitive: "What would we see if there were no effect?"
+
+. . .
+
+**The `infer` package** provides a tidy workflow for this approach!
+
+## The `infer` workflow
+
+Every hypothesis test with `infer` follows [four steps]{.hi_purple}:
+
+. . .
+
+1. [**`specify()`**]{.hi_blue}: Specify the variables and success (for proportions)
+
+2. [**`hypothesize()`**]{.hi_blue}: Declare the null hypothesis
+
+3. [**`generate()`**]{.hi_blue}: Generate simulated samples under $H_0$
+
+4. [**`calculate()`**]{.hi_blue}: Calculate the test statistic for each simulation
+
+. . .
+
+Then: [**`visualize()`**]{.hi_purple} and [**`get_p_value()`**]{.hi_purple}
+
+## Permutation test for two means
+
+**Logic:** If education and trust are unrelated, we could randomly shuffle the education labels and get similar differences by chance.
+
+. . .
+
+**Method:**
+
+1. Calculate observed difference in means
+2. Randomly permute the group labels many times (e.g., 1,000)
+3. Calculate the difference in means for each permutation
+4. Compare observed difference to permutation distribution
+
+. . .
+
+**P-value:** Proportion of permutations with difference ≥ observed (in absolute value)
+
+## Example: Education and trust (permutation)
+
+```{r}
+# Step 1: Calculate observed statistic
+obs_diff <- ess_educ_trust |>
+  specify(ppltrst ~ higher_educ) |>
+  calculate(stat = "diff in means", order = c("Higher education", "No higher education"))
+
+obs_diff
+```
+
+. . .
+
+```{r}
+# Steps 2-4: Generate null distribution via permutation
+set.seed(2024)
+null_dist <- ess_educ_trust |>
+  specify(ppltrst ~ higher_educ) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 10000, type = "permute") |>
+  calculate(stat = "diff in means", order = c("Higher education", "No higher education"))
+```
+
+## Visualizing the null distribution
+
+```{r}
+#| fig-height: 5
+#| fig-width: 11
+
+# Visualize
+null_dist |>
+  visualize() +
+  shade_p_value(obs_stat = obs_diff, direction = "both") +
+  labs(title = "Permutation distribution of difference in means",
+       subtitle = "Red line shows observed difference",
+       x = "Difference in mean trust (Higher ed - No higher ed)",
+       y = "Count")
+```
+
+## Calculate p-value
+
+```{r}
+# Get p-value
+p_value_perm <- null_dist |>
+  get_p_value(obs_stat = obs_diff, direction = "both")
+
+p_value_perm
+```
+
+. . .
+
+**Compare to theory-based test:**
+
+```{r}
+# Theory-based test (from earlier)
+t.test(ppltrst ~ higher_educ, data = ess_educ_trust)$p.value
+```
+
+. . .
+
+Very similar! Both show strong evidence of a difference (p < 0.001).
+
+## Theory-based vs randomization
+
+:::{.callout-tip}
+## When to use each approach?
+
+[**Theory-based tests:**]{.hi_blue}
+
+- Faster (no simulation needed)
+- Well-established and widely recognized
+- Require distributional assumptions
+- Work well when assumptions are met
+
+[**Randomization tests:**]{.hi_purple}
+
+- More flexible (fewer assumptions)
+- More intuitive interpretation
+- Computationally intensive
+- Ideal for small samples or non-normal data
+- Exact p-values (not approximate)
+:::
+
+. . .
+
+**In practice:** Theory-based tests are usually fine if assumptions are met.
+
+Use randomization when: sample is small, data is skewed, or you want to be conservative.
+
+## Your turn! #6 {.slide_task}
+
+{{< countdown "15:00" top=0 right=0 >}}
+
+Perform a permutation test for the difference in life satisfaction between men and women using `infer`.
+
+1. Calculate observed difference.
+
+2. Generate 10,000 permutations
+
+3. Visualize and calculate p-value.
+
+4. Compare to theory-based t-test.
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How do we test whether our data provides evidence for or against a claim about the population?
+:::
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Introduction to hypothesis testing](#intro)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. The hypothesis testing framework](#framework)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. One-sample tests](#one_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Two-sample tests](#two_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Paired tests](#paired)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Chi-square test of independence](#chi_square)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[7. Randomization methods](#randomization)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**8. Statistical power and sample size**](#power_size)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[9. Practical guidelines](#guidelines)
+
+# Statistical power and sample size {.slide_inverse #power_size}
+
+## Statistical power
+
+[**Statistical power**]{.hi_purple} = $1 - \beta$ = Probability of correctly rejecting a false null hypothesis
+
+. . .
+
+**Factors affecting power:**
+
+1. [**Effect size:**]{.hi_blue} Larger true effects → easier to detect → higher power
+
+. . .
+
+2. [**Sample size:**]{.hi_blue} Larger samples → more information → higher power
+
+. . .
+
+3. [**Significance level:**]{.hi_blue} Larger $\alpha$ → easier to reject $H_0$ → higher power (but more Type I errors!)
+
+. . .
+
+4. [**Variability:**]{.hi_blue} Less noise → clearer signal → higher power
+
+. . .
+
+**Rule of thumb:**
+
+Aim for power ≥ 0.80 (80% chance of detecting a true effect)
+
+## Power analysis visualization
+
+**Setup:** Testing $H_0: \mu = 7.0$ when the true value is $\mu = 7.3$ (effect size = 0.3, SE = 0.1)
+
+## Power analysis visualization (cont.)
+
+::: {.incremental}
+
+```{r}
+#| echo: false
+#| fig-height: 5
+#| fig-width: 11
+
+library(ggplot2)
+
+# Parameters
+mu0 <- 7    # Null hypothesis mean
+mu1 <- 7.3  # True mean (alternative)
+se <- 0.1   # Standard error (= sigma / sqrt(n), here sigma=1, n=100)
+n_vis <- 100
+alpha <- 0.05
+
+# Critical value for two-sided test (t-distribution, df = n - 1)
+crit_val <- mu0 + qt(1 - alpha/2, df = n_vis - 1) * se
+
+# Create data
+x_seq <- seq(6.5, 7.7, length.out = 500)
+
+# Null distribution
+null_df <- data.frame(
+  x = x_seq,
+  density = dnorm(x_seq, mean = mu0, sd = se),
+  distribution = "Under H₀"
+)
+
+# Plot 1: Just null distribution
+ggplot(null_df, aes(x = x, y = density)) +
+  geom_line(linewidth = 1.2, color = colors["secondary"]) +
+  geom_vline(xintercept = mu0, linetype = "dotted", linewidth = 1) +
+  annotate("text", x = mu0, y = 4.5, label = "H0: μ = 7.0",
+           fontface = "bold", size = 5) +
+  labs(title = "Step 1: Null hypothesis distribution",
+       subtitle = "Centered around 7",
+       x = "Life satisfaction",
+       y = "Density") +
+  coord_cartesian(ylim = c(0, 5.5)) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+:::
+
+## Power analysis visualization (cont. 2)
+
+::: {.incremental}
+
+```{r}
+#| echo: false
+#| fig-height: 5
+#| fig-width: 11
+
+# Plot 2: Null + critical value + Type I error
+ggplot(null_df, aes(x = x, y = density)) +
+  geom_line(linewidth = 1.2, color = colors["secondary"]) +
+  geom_area(data = subset(null_df, x >= crit_val), aes(x = x, y = density), fill = colors["secondary"], alpha = 0.3) +
+  geom_vline(xintercept = crit_val, linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = mu0, linetype = "dotted", linewidth = 1) +
+  annotate("text", x = crit_val, y = 4.5, label = "Critical value",
+           angle = 90, vjust = -0.5, size = 4, fontface = "bold") +
+  annotate("text", x = 7.25, y = 1.5, label = "α = 0.05\n(Type I error)",
+           color = colors["secondary"], size = 4.5, fontface = "bold") +
+  labs(title = "Step 2: Add critical value and Type I error region",
+       subtitle = "If we reject when sample mean > critical value, we have 5% Type I error",
+       x = "Life satisfaction",
+       y = "Density") +
+  coord_cartesian(ylim = c(0, 5.5)) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+:::
+
+## Power analysis visualization (cont. 3)
+
+::: {.incremental}
+
+```{r}
+#| echo: false
+#| fig-height: 5
+#| fig-width: 11
+
+# Alternative distribution
+alt_df <- data.frame(
+  x = x_seq,
+  density = dnorm(x_seq, mean = mu1, sd = se),
+  distribution = "Under Hₐ"
+)
+
+# Plot 3: Both distributions
+ggplot() +
+  geom_line(data = null_df, aes(x = x, y = density), linewidth = 1.2, color = colors["secondary"]) +
+  geom_line(data = alt_df, aes(x = x, y = density), linewidth = 1.2, color = colors["success"]) +
+  geom_vline(xintercept = crit_val, linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = mu0, linetype = "dotted", linewidth = 1, color = colors["secondary"]) +
+  geom_vline(xintercept = mu1, linetype = "dotted", linewidth = 1, color = colors["success"]) +
+  annotate("text", x = mu0, y = 4.3, label = "H0: μ = 7.0",
+           color = colors["secondary"], fontface = "bold", size = 4) +
+  annotate("text", x = mu1, y = 4.3, label = "True: μ = 7.3",
+           color = colors["success"], fontface = "bold", size = 4) +
+  labs(title = "Step 3: Add true distribution (if H0 is false)",
+       subtitle = "The true mean is actually 7.3, not 7.0",
+       x = "Life satisfaction",
+       y = "Density") +
+  coord_cartesian(ylim = c(0, 5.5)) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+:::
+
+## Power analysis visualization (cont. 4)
+
+::: {.incremental}
+
+```{r}
+#| echo: false
+#| fig-height: 5
+#| fig-width: 11
+
+# Plot 4: Final with power and Type II error
+ggplot() +
+  geom_line(data = null_df, aes(x = x, y = density), linewidth = 1.2, color = colors["secondary"]) +
+  geom_line(data = alt_df, aes(x = x, y = density), linewidth = 1.2, color = colors["success"]) +
+  geom_area(data = subset(null_df, x >= crit_val), aes(x = x, y = density), fill = colors["secondary"], alpha = 0.2) +
+  geom_area(data = subset(alt_df, x >= crit_val), aes(x = x, y = density), fill = colors["success"], alpha = 0.3) +
+  geom_area(data = subset(alt_df, x < crit_val), aes(x = x, y = density), fill = colors["warning"], alpha = 0.3) +
+  geom_vline(xintercept = crit_val, linetype = "dashed", linewidth = 1) +
+  annotate("text", x = crit_val, y = 4.5, label = "Critical value",
+           angle = 90, vjust = -0.5, size = 4, fontface = "bold") +
+  annotate("text", x = 7.25, y = 1.5, label = "α = 0.05",
+           color = colors["secondary"], size = 4, fontface = "bold") +
+  annotate("text", x = 7.45, y = 2, label = "Power = 1 - β\n(Correctly reject)",
+           color = colors["success"], size = 4, fontface = "bold") +
+  annotate("text", x = 7.12, y = 0.5, label = "β\n(Type II error)",
+           color = colors["warning"], size = 4, fontface = "bold") +
+  labs(title = "Step 4: Power and Type II error",
+       subtitle = "Power = probability of correctly rejecting when H0 is false",
+       x = "Life satisfaction",
+       y = "Density") +
+  coord_cartesian(ylim = c(0, 5.5)) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "bottom",
+        plot.title = element_text(face = "bold"))
+```
+
+:::
+
+## Power analysis: effect of larger $n$
+
+```{r}
+#| echo: false
+#| fig-height: 5
+#| fig-width: 11
+
+# Larger n → SE halved (e.g. n quadrupled)
+mu0_n  <- 7.0;  mu1_n  <- 7.3
+se_n   <- 0.05;  alpha_n <- 0.05
+n_n    <- 400  # SE = sigma/sqrt(n) = 1/sqrt(400) = 0.05
+
+crit_n  <- mu0_n + qt(1 - alpha_n / 2, df = n_n - 1) * se_n
+power_n <- pnorm(crit_n, mean = mu1_n, sd = se_n, lower.tail = FALSE)
+
+x_seq_n <- seq(6.65, 7.65, length.out = 500)
+null_n  <- data.frame(x = x_seq_n, density = dnorm(x_seq_n, mean = mu0_n, sd = se_n))
+alt_n   <- data.frame(x = x_seq_n, density = dnorm(x_seq_n, mean = mu1_n, sd = se_n))
+
+ggplot() +
+  geom_line(data = null_n, aes(x = x, y = density), linewidth = 1.2, color = colors["secondary"]) +
+  geom_line(data = alt_n,  aes(x = x, y = density), linewidth = 1.2, color = colors["success"]) +
+  geom_area(data = subset(null_n, x >= crit_n), aes(x = x, y = density),
+            fill = colors["secondary"], alpha = 0.2) +
+  geom_area(data = subset(alt_n,  x >= crit_n), aes(x = x, y = density),
+            fill = colors["success"],   alpha = 0.3) +
+  geom_area(data = subset(alt_n,  x <  crit_n), aes(x = x, y = density),
+            fill = colors["warning"],   alpha = 0.3) +
+  geom_vline(xintercept = crit_n, linetype = "dashed", linewidth = 1) +
+  annotate("text", x = crit_n, y = 9, label = "Critical value",
+           angle = 90, vjust = -0.5, size = 4, fontface = "bold") +
+  annotate("text", x = 7.13, y = 1.5, label = "α = 0.05",
+           color = colors["secondary"], size = 4, fontface = "bold") +
+  annotate("text", x = mu0_n, y = 8.5, label = "H0: μ = 7.0",
+           color = colors["secondary"], fontface = "bold", size = 4, vjust = -0.3) +
+  annotate("text", x = mu1_n, y = 8.5, label = "True: μ = 7.3",
+           color = colors["success"],   fontface = "bold", size = 4, vjust = -0.3) +
+  annotate("text", x = 7.42, y = 3, label = paste0("Power = ", round(power_n, 3), "\n(β ≈ 0)"),
+           color = colors["success"], size = 4, fontface = "bold") +
+  labs(title = "Larger n → smaller SE: distributions pull apart, power ↑",
+       subtitle = paste0("SE = 0.05  |  Power = ", round(power_n, 3),
+                         "  (vs. 0.844 with SE = 0.1)"),
+       x = "Life satisfaction", y = "Density") +
+  coord_cartesian(ylim = c(0, 10.5)) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+## Power analysis: effect of larger effect size
+
+```{r}
+#| echo: false
+#| fig-height: 5
+#| fig-width: 11
+
+# Larger effect: mu1 = 7.5 instead of 7.3
+mu0_e  <- 7.0;  mu1_e  <- 7.5
+se_e   <- 0.1;  alpha_e <- 0.05
+n_e    <- 100  # SE = sigma/sqrt(n) = 1/sqrt(100) = 0.1
+
+crit_e  <- mu0_e + qt(1 - alpha_e / 2, df = n_e - 1) * se_e
+power_e <- pnorm(crit_e, mean = mu1_e, sd = se_e, lower.tail = FALSE)
+
+x_seq_e <- seq(6.5, 8.1, length.out = 500)
+null_e  <- data.frame(x = x_seq_e, density = dnorm(x_seq_e, mean = mu0_e, sd = se_e))
+alt_e   <- data.frame(x = x_seq_e, density = dnorm(x_seq_e, mean = mu1_e, sd = se_e))
+
+ggplot() +
+  geom_line(data = null_e, aes(x = x, y = density), linewidth = 1.2, color = colors["secondary"]) +
+  geom_line(data = alt_e,  aes(x = x, y = density), linewidth = 1.2, color = colors["success"]) +
+  geom_area(data = subset(null_e, x >= crit_e), aes(x = x, y = density),
+            fill = colors["secondary"], alpha = 0.2) +
+  geom_area(data = subset(alt_e,  x >= crit_e), aes(x = x, y = density),
+            fill = colors["success"],   alpha = 0.3) +
+  geom_area(data = subset(alt_e,  x <  crit_e), aes(x = x, y = density),
+            fill = colors["warning"],   alpha = 0.3) +
+  geom_vline(xintercept = crit_e, linetype = "dashed", linewidth = 1) +
+  annotate("text", x = crit_e, y = 4.5, label = "Critical value",
+           angle = 90, vjust = -0.5, size = 4, fontface = "bold") +
+  annotate("text", x = 7.28, y = 1.5, label = "α = 0.05",
+           color = colors["secondary"], size = 4, fontface = "bold") +
+  annotate("text", x = mu0_e, y = 4.3, label = "H0: μ = 7.0",
+           color = colors["secondary"], fontface = "bold", size = 4) +
+  annotate("text", x = mu1_e, y = 4.3, label = "True: μ = 7.5",
+           color = colors["success"],   fontface = "bold", size = 4) +
+  annotate("text", x = 7.62, y = 2, label = paste0("Power = ", round(power_e, 3), "\n(β ≈ 0)"),
+           color = colors["success"], size = 4, fontface = "bold") +
+  labs(title = "Larger effect size: distributions further apart, power ↑",
+       subtitle = paste0("Effect = 0.5  |  Power = ", round(power_e, 3),
+                         "  (vs. 0.844 with effect = 0.3)"),
+       x = "Life satisfaction", y = "Density") +
+  coord_cartesian(ylim = c(0, 5.5)) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+## Computing power
+
+**Power = probability of correctly rejecting $H_0$ when it is false**
+
+. . .
+
+Power is the probability that $\bar{X}$ exceeds the critical value $c$ when the *true* mean is $\mu_1$:
+
+$$\text{Power} = P(\bar{X} > c \mid \mu = \mu_1), \qquad c = \mu_0 + t_{\alpha/2,\,n-1} \cdot \frac{\sigma}{\sqrt{n}}$$
+
+. . .
+
+Under the true distribution $\bar{X} \sim \mathcal{N}(\mu_1,\, \sigma^2/n)$, standardise:
+
+$$= P\!\left(Z > \frac{c - \mu_1}{\sigma/\sqrt{n}}\right)$$
+
+. . .
+
+Substitute $c = \mu_0 + t_{\alpha/2,\,n-1} \cdot \sigma/\sqrt{n}$ and simplify:
+
+$$= P\!\left(Z > t_{\alpha/2,\,n-1} - \frac{\mu_1 - \mu_0}{\sigma/\sqrt{n}}\right) = 1 - \Phi\!\left(t_{\alpha/2,\,n-1} - \frac{\mu_1 - \mu_0}{\sigma/\sqrt{n}}\right)$$
+
+$t_{\alpha/2,\,n-1}$ replaces $z_{\alpha/2}$ because $\sigma$ is unknown — but $\Phi$ (normal CDF) remains because we are standardising $\bar{X}$, not the t-statistic itself.
+
+## Computing power
+
+As the effect $(\mu_1 - \mu_0)$ or $n$ grows, the argument of $\Phi$ shrinks $\Rightarrow$ power increases.
+
+. . .
+
+The three levers that increase power:
+
+- [Larger effect size]{.hi_purple} $|\mu_1 - \mu_0|$ — the further the truth is from $H_0$, the easier it is to detect
+- [Larger $n$]{.hi_blue} — shrinks the SE, pulling the two distributions apart
+- [Larger $\alpha$]{.hi-red} — moves the critical value closer to $\mu_0$, but increases Type I error
+
+. . .
+
+**In R:** use `pwr::pwr.t.test()` (one-sample) or `pwr::pwr.t2n.test()` (two-sample):
+
+```r
+library(pwr)
+pwr.t.test(d = effect / sigma, n = n, sig.level = 0.05, type = "one.sample")
+```
+
+where `d = (μ₁ − μ₀) / σ` is Cohen's *d* (standardised effect size).
+
+## Computing power: example
+
+**Setup from the visualization:** $\mu_0 = 7.0$, true $\mu_1 = 7.3$, $\sigma = 1.0$, $n = 100$, $\alpha = 0.05$
+
+. . .
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+**Analytically (manual):**
+
+```{r}
+mu0 <- 7.0
+mu1 <- 7.3
+sigma <- 1.0
+n <- 100
+alpha <- 0.05
+se       <- sigma / sqrt(n)
+crit     <- mu0 + qt(1 - alpha / 2, df = n - 1) * se
+power_an <- pnorm(crit, mean = mu1, sd = se, lower.tail = FALSE)
+```
+
+
+
+```{r}
+#| echo: false
+cat("SE =", se, "\nCritical value =", round(crit, 4),
+    "\nPower =", round(power_an, 3), "\n")
+```
+
+:::
+
+::: {.column width="50%" .fragment}
+
+**Using `pwr` (Cohen's *d* = 0.3 / 1.0 = 0.3):**
+
+```{r}
+library(pwr)
+pwr.t.test(d = (mu1 - mu0) / sigma, n = n,
+           sig.level = alpha, type = "one.sample")
+```
+
+:::
+:::
+
+. . .
+
+Both give the same power. With $n = 100$ and a small effect ($d = 0.3$), power ≈ 80% — the conventional target.
+
+## Sample size and power
+
+**How many observations do we need?**
+
+This depends on:
+
+- The [effect size]{.hi_purple} we want to detect
+- The desired [power]{.hi_blue} (typically 0.80)
+- The [significance level]{.hi-red} $\alpha$ (typically 0.05)
+
+. . .
+
+**Derivation:** invert the power formula. We want power $= 1 - \beta$, so set:
+
+$$t_{\alpha/2,\,n-1} - \frac{\delta}{\sigma/\sqrt{n}} = -z_{1-\beta}$$
+
+where $\delta = |\mu_1 - \mu_0|$. Approximating $t_{\alpha/2,\,n-1} \approx z_{\alpha/2}$ (valid for large $n$) and rearranging:
+
+$$\frac{\delta}{\sigma/\sqrt{n}} = z_{\alpha/2} + z_{1-\beta} \implies \sqrt{n} = \frac{(z_{\alpha/2} + z_{1-\beta})\,\sigma}{\delta}$$
+
+$$\boxed{n = \left(\frac{z_{\alpha/2} + z_{1-\beta}}{\delta/\sigma}\right)^2}$$
+
+where $\delta/\sigma$ is Cohen's $d$ — the standardised effect size.
+
+## Sample size and power
+
+**Example:** To detect an effect of 0.3 points in life satisfaction ($\sigma$ = 2) with 80% power at α = 0.05:
+
+**Manual computation using the formula:**
+
+```{r}
+delta <- 0.3   # minimum effect to detect
+sigma <- 2.0   # population SD (estimated from data)
+
+# Critical values for α = 0.05 (two-sided) and power = 0.80 (β = 0.20)
+z_alpha2 <- qnorm(0.975)   # z_{1-α/2} ≈ 1.96
+z_beta   <- qnorm(0.80)    # z_{1-β}   ≈ 0.84
+
+# Required n
+n_manual <- ((z_alpha2 + z_beta) / (delta / sigma))^2
+cat("z_{1-α/2} =", round(z_alpha2, 3), "\n")
+cat("z_{1-β}   =", round(z_beta, 3), "\n")
+cat("n =", ceiling(n_manual), "\n")
+```
+
+. . .
+
+**Verify with `power.t.test()`:**
+
+```{r}
+power.t.test(delta = delta, sd = sigma, power = 0.80,
+             sig.level = 0.05, type = "one.sample")
+```
+
+We need [**n = `r ceiling(n_manual)`**]{.hi_purple} observations.
+
+
+# Practical guidelines {.slide_inverse #guidelines}
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How do we test whether our data provides evidence for or against a claim about the population?
+:::
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[1. Introduction to hypothesis testing](#intro)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. The hypothesis testing framework](#framework)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. One-sample tests](#one_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Two-sample tests](#two_sample)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Paired tests](#paired)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Chi-square test of independence](#chi_square)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[7. Randomization methods](#randomization)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[8. Statistical power and sample size](#power_size)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**9. Practical guidelines**](#guidelines)
+
+## Choosing the right test
+
+<table style="width:100%; border-collapse:collapse; font-size:0.85em; font-family:inherit;">
+  <thead>
+    <tr style="background:#2C3E50; color:white;">
+      <th style="padding:8px 12px; text-align:left; width:35%;">Research question</th>
+      <th style="padding:8px 12px; text-align:left; width:32%;">Test</th>
+      <th style="padding:8px 12px; text-align:left; width:33%;">R function</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#EBF5FB;">
+      <td style="padding:7px 12px; border-left:4px solid #3498DB;"><strong>One group</strong><br><span style="color:#555;">Mean vs. a value</span></td>
+      <td style="padding:7px 12px;">One-sample t-test</td>
+      <td style="padding:7px 12px;"><code>t.test(x, mu = ...)</code></td>
+    </tr>
+    <tr style="background:#D6EAF8;">
+      <td style="padding:7px 12px; border-left:4px solid #3498DB;"><strong>One group</strong><br><span style="color:#555;">Proportion vs. a value</span></td>
+      <td style="padding:7px 12px;">One-sample proportion test</td>
+      <td style="padding:7px 12px;"><code>prop.test(x, n, p = ...)</code></td>
+    </tr>
+    <tr style="background:#EAFAF1;">
+      <td style="padding:7px 12px; border-left:4px solid #27AE60;"><strong>Two groups (independent)</strong><br><span style="color:#555;">Compare means</span></td>
+      <td style="padding:7px 12px;">Two-sample t-test (Welch's)</td>
+      <td style="padding:7px 12px;"><code>t.test(y ~ x, data = ...)</code></td>
+    </tr>
+    <tr style="background:#D5F5E3;">
+      <td style="padding:7px 12px; border-left:4px solid #27AE60;"><strong>Two groups (independent)</strong><br><span style="color:#555;">Compare proportions</span></td>
+      <td style="padding:7px 12px;">Two-sample proportion test</td>
+      <td style="padding:7px 12px;"><code>prop.test(x, n)</code></td>
+    </tr>
+    <tr style="background:#FEF9E7;">
+      <td style="padding:7px 12px; border-left:4px solid #F39C12;"><strong>Two groups (paired)</strong><br><span style="color:#555;">Compare means</span></td>
+      <td style="padding:7px 12px;">Paired t-test</td>
+      <td style="padding:7px 12px;"><code>t.test(x, y, paired = TRUE)</code></td>
+    </tr>
+    <tr style="background:#FDEDEC;">
+      <td style="padding:7px 12px; border-left:4px solid #E74C3C;"><strong>Categorical association</strong><br><span style="color:#555;">Test independence</span></td>
+      <td style="padding:7px 12px;">Chi-square test</td>
+      <td style="padding:7px 12px;"><code>chisq.test(table(x, y))</code></td>
+    </tr>
+  </tbody>
+</table>
+
+## Common mistakes to avoid {.smaller}
+
+:::{.callout-warning}
+## Pitfalls
+
+1. [**Using paired test for independent data (or vice versa)**]{.hi-red}
+   - Always check: Are observations matched/paired?
+
+2. [**Confusing "fail to reject" with "accept $H_0$"**]{.hi-red}
+   - Absence of evidence ≠ evidence of absence
+
+3. [**Cherry-picking one-sided vs two-sided after seeing data**]{.hi-red}
+   - Decide before analyzing!
+
+4. [**Only reporting "significant" or "not significant"**]{.hi-red}
+   - Always report: effect size, CI, p-value, sample size
+
+5. [**Using chi-square with expected frequencies < 5**]{.hi-red}
+   - Check assumptions! Use Fisher's exact test if needed
+
+6. [**Interpreting p-value as probability $H_0$ is true**]{.hi-red}
+   - P-value is P(data | $H_0$), not P($H_0$ | data)
+
+7. [**Ignoring practical significance**]{.hi-red}
+   - Statistical significance ≠ practical importance
+:::
+
+## Statistical vs practical significance
+
+A result can be [**statistically significant**]{.hi-red} but [**not practically meaningful**]{.hi_blue}.
+
+. . .
+
+**Example:** With n = 10,000, we find that life satisfaction differs by gender:
+
+- Men: 7.00, Women: 7.05
+- Difference = 0.05, p = 0.001, 95% CI: [0.02, 0.08]
+
+. . .
+
+**Interpretation:**
+
+- ✅ [Statistically significant]{.hi-red}: p < 0.05
+- ❌ [Practically meaningful?]{.hi_blue} A 0.05 difference on a 0-10 scale is tiny!
+
+. . .
+
+:::{.callout-tip}
+Always consider both:
+1. Is the effect statistically significant? (p-value)
+2. Is the effect large enough to matter? (effect size, CI)
+:::
+
+## The ASA statement on p-values
+
+In 2016, the American Statistical Association issued [guidance](https://www.amstat.org/asa/files/pdfs/p-valuestatement.pdf) on proper use of p-values:
+
+. . .
+
+:::{.callout-important}
+## Six principles
+
+1. P-values can indicate how incompatible the data are with a specified statistical model
+2. P-values do NOT measure the probability that the studied hypothesis is true
+3. Scientific conclusions should NOT be based solely on whether a p-value passes a threshold
+4. Proper inference requires full reporting and transparency
+5. A p-value does NOT measure the size of an effect or importance of a result
+6. By itself, a p-value does NOT provide a good measure of evidence
+:::
+
+. . .
+
+**Bottom line:** Report effect sizes, confidence intervals, and context — not just p-values!
+
+## Reporting your results
+
+**Good practice includes:**
+
+. . .
+
+1. [**Effect size**]{.hi_blue}: Mean difference, odds ratio, etc.
+
+2. [**Confidence interval**]{.hi_blue}: Shows precision and range of plausible values
+
+3. [**Test statistic and p-value**]{.hi_blue}: Provides formal test result
+
+4. [**Sample size**]{.hi_blue}: Allows assessment of power
+
+5. [**Context and interpretation**]{.hi_blue}: What does it mean in plain language?
+
+. . .
+
+**Example:**
+
+> "French adults with higher education have significantly higher interpersonal trust (mean = 5.88, SD = 2.31) compared to those without higher education (mean = 5.21, SD = 2.52). The difference of 0.67 points [95% CI: 0.50, 0.85] represents a small-to-medium effect and is statistically significant (t = 7.73, p < .001)."
+
+
+# See you next week! {.slide_section}

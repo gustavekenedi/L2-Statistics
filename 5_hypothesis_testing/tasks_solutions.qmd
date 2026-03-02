@@ -1,0 +1,507 @@
+---
+title: "Lecture 5: Hypothesis Testing - Exercise Solutions"
+subtitle: "L2 - Statistics"
+author: "Gustave Kenedi"
+date: today
+format:
+  pdf:
+    toc: true
+    toc-depth: 1
+    number-sections: true
+    colorlinks: true
+    geometry: margin=2.5cm
+editor: source
+---
+
+```{r}
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+
+# Load required packages
+library(tidyverse)
+library(moderndive)
+library(infer)
+library(knitr)
+library(scales)
+library(effectsize)
+
+# Set seed for reproducibility
+set.seed(42)
+
+# Load ESS data
+ess_france <- read.csv("https://www.dropbox.com/scl/fi/25h4lezq3zuzla94ejmqq/ess_france_11ed.csv?rlkey=lf23ra0i6bvq5dzgtt2u1gy9a&dl=1")
+```
+
+\newpage
+
+# Your Turn 1: Hypothesis Test Overview
+
+**Scenario:** A government report states that French adults have an average interest in politics of **5** on a 0 (*Not at all interested*) – 10 (*Very interested*) scale. You survey a random sample of 50 French university students and find: $\bar{x} = 5.8$, with standard deviation $s = 2.3$.
+
+## Step 1: State the hypotheses
+
+$$H_0: \mu = 5 \quad \text{(students have the same average political interest as the general population)}$$
+$$H_A: \mu \neq 5 \quad \text{(students' average political interest differs from the general population)}$$
+
+We use a **two-sided** alternative because we have no prior reason to expect students to be either more or less politically interested, they could go either way.
+
+## Step 2: Choose $\alpha$
+
+$$\alpha = 0.05$$
+
+We accept a 5% probability of incorrectly rejecting $H_0$ (Type I error).
+
+## Step 3: Compute the test statistic
+
+$$t = \frac{\bar{x} - \mu_0}{s / \sqrt{n}} = \frac{5.8 - 5}{2.3 / \sqrt{50}} = \frac{0.8}{0.3253} \approx 2.46$$
+
+```{r}
+# Given values
+n     <- 50
+x_bar <- 5.8
+s     <- 2.3
+mu0   <- 5
+
+# Standard error
+se <- s / sqrt(n)
+se
+
+# Test statistic
+t_stat <- (x_bar - mu0) / se
+t_stat
+```
+
+## Step 4: Compute the p-value
+
+The p-value is $P(|\bar{X} - 5| \geq 0.8 \mid H_0)$, i.e., the probability of observing a sample mean at least 0.8 units away from 5 if the null hypothesis were true.
+
+```{r}
+# Two-sided p-value using t distribution with df = n - 1
+p_value <- 2 * pt(-abs(t_stat), df = n - 1)
+p_value
+```
+
+$$p\text{-value} = 2 \times P(T_{49} \leq -2.46) \approx 0.017$$
+
+## Step 5: Make a decision
+
+Since $p\text{-value} \approx 0.017 < \alpha = 0.05$, we **reject $H_0$ at the 5% level**.
+
+## Step 6: Interpret in context
+
+There is statistically significant evidence ($t = 2.46$, $p = 0.017$) that French university students have a higher average political interest score ($\bar{x} = 5.8$) than the general adult population ($\mu_0 = 5$). The difference of 0.8 points is unlikely to be due to sampling variation alone.
+
+\newpage
+
+# Your Turn 2: One-Sample Tests
+
+```{r}
+library(tidyverse)
+
+ess_france <- read.csv("https://www.dropbox.com/scl/fi/25h4lezq3zuzla94ejmqq/ess_france_11ed.csv?rlkey=lf23ra0i6bvq5dzgtt2u1gy9a&dl=1")
+
+ess_stflife <- ess_france |>
+  filter(stflife %in% 0:10)
+```
+
+## Question 1: State the hypotheses
+
+$$H_0: \mu = 6.5 \quad \text{(average life satisfaction equals 6.5)}$$
+$$H_A: \mu \neq 6.5 \quad \text{(average life satisfaction differs from 6.5)}$$
+
+We use a two-sided alternative as there is no prior reason to expect satisfaction to be specifically above or below 6.5.
+
+## Question 2: Manually compute the test statistic and p-value
+
+```{r}
+# Descriptive statistics
+n    <- nrow(ess_stflife)
+n
+
+xbar <- mean(ess_stflife$stflife)
+xbar
+
+s    <- sd(ess_stflife$stflife)
+s
+
+mu0 <- 6.5
+
+# Test statistic
+se     <- s / sqrt(n)
+t_stat <- (xbar - mu0) / se
+t_stat
+
+# Two-sided p-value
+p_val <- 2 * pt(-abs(t_stat), df = n - 1)
+p_val
+```
+
+$$t = \frac{\bar{x} - 6.5}{s/\sqrt{n}} = \frac{`r round(xbar, 2)` - 6.5}{`r round(s, 2)`/\sqrt{`r n`}} \approx `r round(t_stat, 2)`$$
+
+## Question 3: Verify with `t.test()`
+
+```{r}
+t.test(ess_stflife$stflife, mu = 6.5)
+```
+
+The `t.test()` output matches our manual computation exactly.
+
+## Question 4: Decision and interpretation
+
+Since $p$-value $= `r format.pval(p_val, digits = 3)` < \alpha = 0.05$, we **reject $H_0$** at the 5% level.
+
+There is strong evidence that average life satisfaction among French adults differs from 6.5. The observed mean ($\bar{x} = `r round(xbar, 2)`$) is statistically significantly higher than 6.5.
+
+## Question 5: 95% confidence interval
+
+The 95% CI is $\bar{x} \pm t^*_{n-1} \cdot \dfrac{s}{\sqrt{n}}$, where $t^*_{n-1}$ is the 97.5th percentile of the $t_{n-1}$ distribution.
+
+```{r}
+# Manual construction
+crit_value  <- qt(0.975, df = n - 1)
+crit_value
+
+ci_low  <- xbar - crit_value * se
+ci_high <- xbar + crit_value * se
+
+c(ci_low, ci_high)
+```
+
+$$\left[\bar{x} - t^*_{n-1} \cdot \frac{s}{\sqrt{n}},\ \bar{x} + t^*_{n-1} \cdot \frac{s}{\sqrt{n}}\right] = \left[`r round(ci_low, 2)`,\ `r round(ci_high, 2)`\right]$$
+
+**Verify with `t.test()`:**
+
+```{r}
+ci <- t.test(ess_stflife$stflife, mu = 6.5)$conf.int
+ci
+```
+
+The 95% CI is $[`r round(ci[1], 2)`,\ `r round(ci[2], 2)`]$, which **does not contain** $\mu_0 = 6.5$. This is fully consistent with our decision to reject $H_0$. As established in the lecture, a two-sided test at level $\alpha$ rejects $H_0$ if and only if $\mu_0$ falls outside the $(1-\alpha)$ CI.
+
+\newpage
+
+# Your Turn 3: Two-Sample Tests
+
+## Part 1: Life satisfaction by gender
+
+### Question 1: Summary statistics
+
+```{r}
+ess_gender <- ess_france |>
+  filter(stflife %in% 0:10, gndr %in% 1:2) |>
+  mutate(gender = recode(gndr, `1` = "Male", `2` = "Female"))
+
+gender_summary <- ess_gender |>
+  group_by(gender) |>
+  summarise(
+    n    = n(),
+    mean = mean(stflife),
+    sd   = sd(stflife),
+    se   = sd / sqrt(n)
+  )
+
+kable(gender_summary, digits = 3)
+```
+
+### Question 2: 95% CIs for both means
+
+```{r}
+gender_ci <- gender_summary |>
+  mutate(
+    ci_lower = mean - qt(0.975, df = n - 1) * se,
+    ci_upper = mean + qt(0.975, df = n - 1) * se
+  )
+
+kable(gender_ci |> select(gender, mean, ci_lower, ci_upper), digits = 3)
+```
+
+The 95% CIs for males ($[`r round(gender_ci$ci_lower[gender_ci$gender=="Male"],2)`, `r round(gender_ci$ci_upper[gender_ci$gender=="Male"],2)`]$) and females ($[`r round(gender_ci$ci_lower[gender_ci$gender=="Female"],2)`, `r round(gender_ci$ci_upper[gender_ci$gender=="Female"],2)`]$) **overlap substantially** — already suggesting no significant difference.
+
+### Question 3: Two-sample t-test
+
+**Manual computation (Welch's t-test):**
+
+```{r}
+n1    <- gender_summary$n[gender_summary$gender == "Female"]
+xbar1 <- gender_summary$mean[gender_summary$gender == "Female"]
+s1    <- gender_summary$sd[gender_summary$gender == "Female"]
+
+n2    <- gender_summary$n[gender_summary$gender == "Male"]
+xbar2 <- gender_summary$mean[gender_summary$gender == "Male"]
+s2    <- gender_summary$sd[gender_summary$gender == "Male"]
+
+SE_gender <- sqrt(s1^2/n1 + s2^2/n2)
+SE_gender
+
+t_manual  <- (xbar1 - xbar2) / SE_gender
+t_manual
+
+p_value <- 2 * pt(-abs(t_manual), df = 1730.8)
+p_value
+```
+
+**Verify with `t.test()`:**
+
+```{r}
+t_gender <- t.test(stflife ~ gender, data = ess_gender)
+t_gender
+```
+
+### Question 4: Interpretation
+
+- **Statistically significant?** No — $p = `r round(t_gender$p.value, 3)` > 0.05$. We fail to reject $H_0$.
+- **At what level?** The result is not significant even at $\alpha = 0.10$.
+- **Practically meaningful?** The mean difference is only `r abs(round(diff(t_gender$estimate), 2))` points on a 0–10 scale — negligible.
+
+**Conclusion:** There is no evidence of a difference in average life satisfaction between men and women in France.
+
+## Part 2: Very satisfied with democracy by education
+
+### Question 1: 95% CIs for both proportions
+
+```{r}
+ess_dem_educ <- ess_france |>
+  filter(stfdem %in% 0:10) |>
+  mutate(
+    very_sat    = stfdem >= 8,
+    higher_educ = case_when(education == "High school diploma or less" ~ "No higher education",
+                                 education != "High school diploma or less" ~ "Higher education")
+  )
+
+prop_summary <- ess_dem_educ |>
+  group_by(higher_educ) |>
+  summarise(
+    n       = n(),
+    x       = sum(very_sat),
+    p_hat   = mean(very_sat),
+    ci_lower = prop.test(x, n)$conf.int[1],
+    ci_upper = prop.test(x, n)$conf.int[2]
+  )
+
+kable(prop_summary |> select(higher_educ, n, p_hat, ci_lower, ci_upper), digits = 3)
+```
+
+The CIs **do not overlap** — strong visual evidence of a difference before even running the test.
+
+### Question 2: Two-sample proportion test
+
+**Manual computation:**
+
+```{r}
+x1 <- prop_summary$x[prop_summary$higher_educ == "Higher education"]
+n1 <- prop_summary$n[prop_summary$higher_educ == "Higher education"]
+x2 <- prop_summary$x[prop_summary$higher_educ == "No higher education"]
+n2 <- prop_summary$n[prop_summary$higher_educ == "No higher education"]
+
+p_hat1   <- x1 / n1
+p_hat2   <- x2 / n2
+p_pooled <- (x1 + x2) / (n1 + n2)
+
+SE_prop <- sqrt(p_pooled * (1 - p_pooled) * (1/n1 + 1/n2))
+SE_prop
+
+z_prop  <- (p_hat1 - p_hat2) / SE_prop
+z_prop
+
+p_prop  <- 2 * pnorm(-abs(z_prop))
+p_prop
+```
+
+**Verify with `prop.test()`:**
+
+```{r}
+prop.test(x = c(x1, x2), n = c(n1, n2), correct = FALSE)
+```
+
+### Question 3: Interpretation
+
+- **Statistically significant?** No — $p `r ifelse(p_prop < 0.001, "< 0.001", paste0("= ", round(p_prop,3)))` \gg 0.05$. We fail to reject $H_0$.
+- **Practically meaningful?** The proportions are `r round(p_hat1*100,1)`% (higher education) vs `r round(p_hat2*100,1)`% (no higher education) — a difference of `r round((p_hat1-p_hat2)*100,1)` percentage points, which turns out to not be substantively meaningful.
+
+**Conclusion:** Those with higher education are not significantly more likely to be very satisfied with democracy.
+
+\newpage
+
+# Your Turn 4: Paired Tests
+
+## Question 1: Create the difference variable
+
+```{r}
+ess_eco_gov <- ess_france |>
+  filter(stfeco %in% 0:10, stfgov %in% 0:10) |>
+  mutate(diff = stfeco - stfgov)
+
+nrow(ess_eco_gov)
+mean(ess_eco_gov$stfeco)
+mean(ess_eco_gov$stfgov)
+mean(ess_eco_gov$diff)
+```
+
+## Question 2: Paired t-test
+
+**Manual computation** (paired t-test = one-sample t-test on the differences):
+
+```{r}
+d_bar  <- mean(ess_eco_gov$diff)
+d_bar
+
+s_d    <- sd(ess_eco_gov$diff)
+s_d
+
+n_pair <- nrow(ess_eco_gov)
+n_pair
+
+se_d    <- s_d / sqrt(n_pair)
+t_pair  <- d_bar / se_d
+t_pair
+p_pair  <- 2 * pt(-abs(t_pair), df = n_pair - 1)
+p_pair
+```
+
+$$t = \frac{\bar{d}}{s_d/\sqrt{n}} = \frac{`r round(d_bar,3)`}{`r round(s_d,3)`/\sqrt{`r n_pair`}} \approx `r round(t_pair, 2)`$$
+
+**Verify with `t.test()`:**
+
+```{r}
+t.test(ess_eco_gov$stfeco, ess_eco_gov$stfgov, paired = TRUE)
+```
+
+## Question 3: Interpretation
+
+Since $p `r ifelse(p_pair < 0.001, "< 0.001", paste0("\\approx ", round(p_pair,3)))` > 0.05$ we **fail to reject $H_0$**. French adults are not significantly more satisfied with the **economy** than with the **government** (mean difference $\bar{d} = `r round(d_bar, 2)`$, 95% CI: $[`r round(t.test(ess_eco_gov$stfeco, ess_eco_gov$stfgov, paired=TRUE)$conf.int[1], 2)`,\ `r round(t.test(ess_eco_gov$stfeco, ess_eco_gov$stfgov, paired=TRUE)$conf.int[2], 2)`]$, $p > 0.05$).
+
+\newpage
+
+# Your Turn 5: Chi-Square Tests
+
+## Q1: Contingency table
+
+```{r}
+ess_lifesat_cat <- ess_france |>
+  filter(stflife %in% 0:10, gndr %in% 1:2) |>
+  mutate(gender    = recode(gndr, `1` = "Male", `2` = "Female"),
+         sat_level = case_when(stflife <= 4  ~ "Low (0-4)",
+                               stflife <= 7  ~ "Medium (5-7)",
+                               stflife <= 10 ~ "High (8-10)"))
+
+cont_table_gs <- table(ess_lifesat_cat$gender, ess_lifesat_cat$sat_level)
+addmargins(cont_table_gs)
+```
+
+## Q2: Expected frequencies
+
+```{r}
+E_gs <- chisq.test(cont_table_gs)$expected
+E_gs
+```
+
+## Q3: Chi-square statistic (manual)
+
+```{r}
+O_gs      <- as.matrix(cont_table_gs)
+chi_man   <- sum((O_gs - E_gs)^2 / E_gs)
+df_gs     <- (nrow(O_gs) - 1) * (ncol(O_gs) - 1)
+
+chi_man
+df_gs
+```
+
+## Q4: p-value
+
+```{r}
+p_gs <- pchisq(chi_man, df = df_gs, lower.tail = FALSE)
+p_gs
+```
+
+## Q5: Verify with `chisq.test()`
+
+```{r}
+chisq.test(cont_table_gs)
+```
+
+## Q6: Interpretation
+
+```{r}
+#| echo: false
+props_gs <- ess_lifesat_cat |>
+  group_by(gender, sat_level) |>
+  summarise(n = n(), .groups = "drop") |>
+  mutate(prop = n / sum(n), .by = gender) |>
+  mutate(sat_level = factor(sat_level, levels = c("Low (0-4)", "Medium (5-7)", "High (8-10)")))
+
+ggplot(props_gs, aes(x = gender, y = prop, fill = sat_level)) +
+  geom_bar(stat = "identity", position = "fill", color = "white", linewidth = 0.3) +
+  geom_text(aes(label = percent(prop, accuracy = 0.1)),
+            position = position_fill(vjust = 0.5),
+            color = "white", fontface = "bold", size = 5) +
+  scale_y_continuous(labels = percent) +
+  scale_fill_manual(values = c("Low (0-4)"    = "#E74C3C",
+                               "Medium (5-7)" = "#F39C12",
+                               "High (8-10)"  = "#27AE60")) +
+  labs(title = "Life satisfaction categories by gender",
+       subtitle = paste0("χ² = ", round(chi_man, 2),
+                        ", df = ", df_gs,
+                        ", p = ", format.pval(p_gs, digits = 3, eps = 0.001)),
+       x = "Gender", y = "Proportion", fill = "Life satisfaction") +
+  theme(legend.position = "bottom")
+```
+
+We **fail to reject $H_0$** (p = `r format.pval(p_gs, digits = 3, eps = 0.001)` > 0.05). There is no statistically significant evidence of an association between gender and life satisfaction categories.
+
+\newpage
+
+# Your Turn 6: Randomization Tests
+
+## Q1: Observed difference
+
+```{r}
+ess_gender_infer <- ess_france |>
+  filter(stflife %in% 0:10, gndr %in% 1:2) |>
+  mutate(gender = recode(gndr, `1` = "Male", `2` = "Female"))
+
+obs_diff <- ess_gender_infer |>
+  specify(stflife ~ gender) |>
+  calculate(stat = "diff in means", order = c("Male", "Female"))
+
+cat("Observed difference (Male - Female):", round(obs_diff$stat, 3), "\n")
+```
+
+## Q2: Generate 10,000 permutations
+
+```{r}
+set.seed(2024)
+null_dist <- ess_gender_infer |>
+  specify(stflife ~ gender) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 10000, type = "permute") |>
+  calculate(stat = "diff in means", order = c("Male", "Female"))
+```
+
+## Q3: Visualize and calculate p-value
+
+```{r}
+null_dist |>
+  visualize() +
+  shade_p_value(obs_stat = obs_diff, direction = "both") +
+  labs(title = "Permutation distribution: gender difference in life satisfaction",
+       x = "Difference in mean life satisfaction (Male - Female)",
+       y = "Count")
+```
+
+```{r}
+p_perm <- null_dist |>
+  get_p_value(obs_stat = obs_diff, direction = "both")
+
+cat("Permutation p-value:", p_perm$p_value, "\n")
+```
+
+## Q4: Compare to theory-based t-test
+
+```{r}
+p_theory <- t.test(stflife ~ gender, data = ess_gender_infer)$p.value
+cat("Theory-based p-value:", round(p_theory, 4), "\n")
+```
+
+Both approaches give similar p-values (`r round(p_perm$p_value, 3)` vs `r round(p_theory, 3)`) and reach the same conclusion: **no evidence of a gender difference in life satisfaction**. The permutation test confirms that the t-test result is not an artefact of its normality assumptions.
