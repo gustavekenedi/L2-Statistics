@@ -505,3 +505,76 @@ cat("Theory-based p-value:", round(p_theory, 4), "\n")
 ```
 
 Both approaches give similar p-values (`r round(p_perm$p_value, 3)` vs `r round(p_theory, 3)`) and reach the same conclusion: **no evidence of a gender difference in life satisfaction**. The permutation test confirms that the t-test result is not an artefact of its normality assumptions.
+
+---
+
+# Your Turn 7: Power and Sample Size
+
+## Part 1: Compute power
+
+**Setup:** $\sigma = 2$, $\mu_0 = 7.0$, $\mu_1 = 6.8$, $n = 80$, $\alpha = 0.05$
+
+### Q1: Manual computation
+
+```{r}
+mu0   <- 7.0
+mu1   <- 6.8
+sigma <- 2.0
+n     <- 80
+alpha <- 0.05
+
+se   <- sigma / sqrt(n)
+crit <- mu0 + qt(1 - alpha / 2, df = n - 1) * se   # upper critical value
+
+# Power = P(X-bar < lower crit | mu = mu1)  (effect is negative: mu1 < mu0)
+crit_lo <- mu0 - qt(1 - alpha / 2, df = n - 1) * se
+
+power_manual <- pnorm(crit_lo, mean = mu1, sd = se, lower.tail = TRUE)
+
+cat("SE =", round(se, 4), "\n")
+cat("Lower critical value =", round(crit_lo, 4), "\n")
+cat("Power =", round(power_manual, 3), "\n")
+```
+
+Since $\mu_1 = 6.8 < \mu_0 = 7.0$, the relevant rejection region is the **lower** tail — we reject when $\bar{X}$ is sufficiently *below* 7.0.
+
+### Q2: Verify with `power.t.test()`
+
+```{r}
+power.t.test(delta = abs(mu1 - mu0), sd = sigma, n = n,
+             sig.level = alpha, type = "one.sample")
+```
+
+With $n = 80$ the power is modest (~60%) — this study is underpowered to reliably detect a 0.2-point difference.
+
+---
+
+## Part 2: Minimum sample size
+
+**Setup:** detect $|\mu_1 - \mu_0| = 0.4$, $\sigma = 2$, power = 0.80, $\alpha = 0.05$
+
+### Q1: Manual computation
+
+```{r}
+delta  <- 0.4    # minimum effect to detect
+sigma2 <- 2.0
+power_target <- 0.80
+
+z_alpha2 <- qnorm(1 - alpha / 2)       # z_{alpha/2} ≈ 1.96
+z_beta   <- qnorm(power_target)         # z_{1-beta}  ≈ 0.84
+
+n_manual <- ((z_alpha2 + z_beta) / (delta / sigma2))^2
+
+cat("z_alpha/2 =", round(z_alpha2, 4), "\n")
+cat("z_beta    =", round(z_beta,   4), "\n")
+cat("n (formula) =", round(n_manual, 1), "→ round up to", ceiling(n_manual), "\n")
+```
+
+### Q2: Verify with `power.t.test()`
+
+```{r}
+power.t.test(delta = delta, sd = sigma2, power = power_target,
+             sig.level = alpha, type = "one.sample")
+```
+
+The formula gives $n \approx$ `r ceiling(n_manual)` while `power.t.test()` returns a slightly larger value due to using the exact non-central t-distribution rather than the normal approximation. Always round up and use `power.t.test()` for the final answer.

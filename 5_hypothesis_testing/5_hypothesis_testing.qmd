@@ -1804,35 +1804,35 @@ ggplot(ess_trust_long, aes(x = trust, fill = institution)) +
         legend.title      = element_text(size = 13, face = "bold"))
 ```
 
-## Example: Trust comparison (cont.)
+<!-- ## Example: Trust comparison (cont.) -->
 
-**Better visualization: Connected points**
+<!-- **Better visualization: Connected points** -->
 
-```{r}
-#| fig-height: 5
-#| fig-width: 10
-#| echo: false
+<!-- ```{r} -->
+<!-- #| fig-height: 5 -->
+<!-- #| fig-width: 10 -->
+<!-- #| echo: false -->
 
-# Sample 100 random individuals for cleaner visualization
-set.seed(123)
-ess_sample <- ess_trust_long |>
-  group_by(institution) |>
-  mutate(id = row_number()) |>
-  ungroup() |>
-  filter(id <= 100)
+<!-- # Sample 100 random individuals for cleaner visualization -->
+<!-- set.seed(123) -->
+<!-- ess_sample <- ess_trust_long |> -->
+<!--   group_by(institution) |> -->
+<!--   mutate(id = row_number()) |> -->
+<!--   ungroup() |> -->
+<!--   filter(id <= 100) -->
 
-ggplot(ess_sample, aes(x = institution, y = trust, group = id)) +
-  geom_line(alpha = 0.3, color = colors["primary"]) +
-  geom_point(aes(color = institution), alpha = 0.5, size = 2) +
-  scale_color_manual(values = c(colors["accent"], colors["secondary"])) +
-  labs(title = "Paired trust ratings (sample of 100 individuals)",
-       subtitle = "Each line connects one person's ratings of both institutions",
-       x = "",
-       y = "Trust (0-10)") +
-  theme(legend.position = "none")
-```
+<!-- ggplot(ess_sample, aes(x = institution, y = trust, group = id)) + -->
+<!--   geom_line(alpha = 0.3, color = colors["primary"]) + -->
+<!--   geom_point(aes(color = institution), alpha = 0.5, size = 2) + -->
+<!--   scale_color_manual(values = c(colors["accent"], colors["secondary"])) + -->
+<!--   labs(title = "Paired trust ratings (sample of 100 individuals)", -->
+<!--        subtitle = "Each line connects one person's ratings of both institutions", -->
+<!--        x = "", -->
+<!--        y = "Trust (0-10)") + -->
+<!--   theme(legend.position = "none") -->
+<!-- ``` -->
 
-Most lines slope downward → trust in parliament > trust in politicians
+<!-- Most lines slope downward → trust in parliament > trust in politicians -->
 
 ## Example: Trust comparison (cont.)
 
@@ -1897,36 +1897,36 @@ t.test(ess_paired$trstprl, ess_paired$trstplt, paired = TRUE)
 
 :::
 :::
-## Why pairing increases power
+<!-- ## Why pairing increases power -->
 
-Compare paired vs independent analysis:
+<!-- Compare paired vs independent analysis: -->
 
-```{r}
-# Paired t-test (correct)
-paired_result <- t.test(ess_paired$trstprl, ess_paired$trstplt, paired = TRUE)
+<!-- ```{r} -->
+<!-- # Paired t-test (correct) -->
+<!-- paired_result <- t.test(ess_paired$trstprl, ess_paired$trstplt, paired = TRUE) -->
 
-# Independent t-test (WRONG! But for comparison)
-indep_result <- t.test(ess_paired$trstprl, ess_paired$trstplt, paired = FALSE)
-```
+<!-- # Independent t-test (WRONG! But for comparison) -->
+<!-- indep_result <- t.test(ess_paired$trstprl, ess_paired$trstplt, paired = FALSE) -->
+<!-- ``` -->
 
-```{r}
-#| echo: false
+<!-- ```{r} -->
+<!-- #| echo: false -->
 
-tibble(
-  Test = c("Paired t-test", "Independent t-test"),
-  `Test statistic` = c(paired_result$statistic, indep_result$statistic),
-  `P-value` = c(paired_result$p.value, indep_result$p.value),
-  `95% CI` = c(
-    paste0("[", round(paired_result$conf.int[1], 2), ", ",
-           round(paired_result$conf.int[2], 2), "]"),
-    paste0("[", round(indep_result$conf.int[1], 2), ", ",
-           round(indep_result$conf.int[2], 2), "]")
-  )
-) |>
-  kable()
-```
+<!-- tibble( -->
+<!--   Test = c("Paired t-test", "Independent t-test"), -->
+<!--   `Test statistic` = c(paired_result$statistic, indep_result$statistic), -->
+<!--   `P-value` = c(paired_result$p.value, indep_result$p.value), -->
+<!--   `95% CI` = c( -->
+<!--     paste0("[", round(paired_result$conf.int[1], 2), ", ", -->
+<!--            round(paired_result$conf.int[2], 2), "]"), -->
+<!--     paste0("[", round(indep_result$conf.int[1], 2), ", ", -->
+<!--            round(indep_result$conf.int[2], 2), "]") -->
+<!--   ) -->
+<!-- ) |> -->
+<!--   kable() -->
+<!-- ``` -->
 
-Paired test has much higher test statistic and narrower CI!
+<!-- Paired test has much higher test statistic and narrower CI! -->
 
 ## Your turn! #4 {.slide_task}
 
@@ -2567,18 +2567,28 @@ ggplot(null_df, aes(x = x, y = density)) +
 #| fig-height: 5
 #| fig-width: 11
 
-# Plot 2: Null + critical value + Type I error
+# Plot 2: Null + critical values + Type I error (two-sided)
+crit_val_lo <- 2 * mu0 - crit_val   # lower critical value by symmetry
+
 ggplot(null_df, aes(x = x, y = density)) +
   geom_line(linewidth = 1.2, color = colors["secondary"]) +
-  geom_area(data = subset(null_df, x >= crit_val), aes(x = x, y = density), fill = colors["secondary"], alpha = 0.3) +
-  geom_vline(xintercept = crit_val, linetype = "dashed", linewidth = 1) +
-  geom_vline(xintercept = mu0, linetype = "dotted", linewidth = 1) +
-  annotate("text", x = crit_val, y = 4.5, label = "Critical value",
+  geom_area(data = subset(null_df, x >= crit_val),    aes(x = x, y = density),
+            fill = colors["secondary"], alpha = 0.3) +
+  geom_area(data = subset(null_df, x <= crit_val_lo), aes(x = x, y = density),
+            fill = colors["secondary"], alpha = 0.3) +
+  geom_vline(xintercept = crit_val,    linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = crit_val_lo, linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = mu0,         linetype = "dotted", linewidth = 1) +
+  annotate("text", x = crit_val,    y = 4.5, label = "Critical value",
            angle = 90, vjust = -0.5, size = 4, fontface = "bold") +
-  annotate("text", x = 7.25, y = 1.5, label = "α = 0.05\n(Type I error)",
-           color = colors["secondary"], size = 4.5, fontface = "bold") +
-  labs(title = "Step 2: Add critical value and Type I error region",
-       subtitle = "If we reject when sample mean > critical value, we have 5% Type I error",
+  annotate("text", x = crit_val_lo, y = 4.5, label = "Critical value",
+           angle = 90, vjust =  1.5, size = 4, fontface = "bold") +
+  annotate("text", x = 7.27, y = 1.2, label = "α/2 = 0.025",
+           color = colors["secondary"], size = 4, fontface = "bold") +
+  annotate("text", x = 6.73, y = 1.2, label = "α/2 = 0.025",
+           color = colors["secondary"], size = 4, fontface = "bold") +
+  labs(title = "Step 2: Add critical values and Type I error regions (two-sided test)",
+       subtitle = "We reject H0 if the sample mean falls in either tail — each has probability α/2 = 0.025",
        x = "Life satisfaction",
        y = "Density") +
   coord_cartesian(ylim = c(0, 5.5)) +
@@ -2645,7 +2655,7 @@ ggplot() +
   geom_vline(xintercept = crit_val, linetype = "dashed", linewidth = 1) +
   annotate("text", x = crit_val, y = 4.5, label = "Critical value",
            angle = 90, vjust = -0.5, size = 4, fontface = "bold") +
-  annotate("text", x = 7.25, y = 1.5, label = "α = 0.05",
+  annotate("text", x = 7.25, y = 1.5, label = "α = 0.025",
            color = colors["secondary"], size = 4, fontface = "bold") +
   annotate("text", x = 7.45, y = 2, label = "Power = 1 - β\n(Correctly reject)",
            color = colors["success"], size = 4, fontface = "bold") +
@@ -2694,7 +2704,7 @@ ggplot() +
   geom_vline(xintercept = crit_n, linetype = "dashed", linewidth = 1) +
   annotate("text", x = crit_n, y = 9, label = "Critical value",
            angle = 90, vjust = -0.5, size = 4, fontface = "bold") +
-  annotate("text", x = 7.13, y = 1.5, label = "α = 0.05",
+  annotate("text", x = 7.13, y = 1.5, label = "α = 0.025",
            color = colors["secondary"], size = 4, fontface = "bold") +
   annotate("text", x = mu0_n, y = 8.5, label = "H0: μ = 7.0",
            color = colors["secondary"], fontface = "bold", size = 4, vjust = -0.3) +
@@ -2742,7 +2752,7 @@ ggplot() +
   geom_vline(xintercept = crit_e, linetype = "dashed", linewidth = 1) +
   annotate("text", x = crit_e, y = 4.5, label = "Critical value",
            angle = 90, vjust = -0.5, size = 4, fontface = "bold") +
-  annotate("text", x = 7.28, y = 1.5, label = "α = 0.05",
+  annotate("text", x = 7.28, y = 1.5, label = "α = 0.025",
            color = colors["secondary"], size = 4, fontface = "bold") +
   annotate("text", x = mu0_e, y = 4.3, label = "H0: μ = 7.0",
            color = colors["secondary"], fontface = "bold", size = 4) +
@@ -2771,15 +2781,15 @@ $$\text{Power} = P(\bar{X} > c \mid \mu = \mu_1), \qquad c = \mu_0 + t_{\alpha/2
 
 . . .
 
-Under the true distribution $\bar{X} \sim \mathcal{N}(\mu_1,\, \sigma^2/n)$, standardise:
+Under the true distribution $\bar{X} \sim \mathcal{N}(\mu_1,\, \sigma^2/n)$. Standardise:
 
-$$= P\!\left(Z > \frac{c - \mu_1}{\sigma/\sqrt{n}}\right)$$
+$$\text{Power} = P\!\left(Z > \frac{c - \mu_1}{\sigma/\sqrt{n}}\right)$$
 
 . . .
 
 Substitute $c = \mu_0 + t_{\alpha/2,\,n-1} \cdot \sigma/\sqrt{n}$ and simplify:
 
-$$= P\!\left(Z > t_{\alpha/2,\,n-1} - \frac{\mu_1 - \mu_0}{\sigma/\sqrt{n}}\right) = 1 - \Phi\!\left(t_{\alpha/2,\,n-1} - \frac{\mu_1 - \mu_0}{\sigma/\sqrt{n}}\right)$$
+$$\text{Power} = P\!\left(Z > t_{\alpha/2,\,n-1} - \frac{\mu_1 - \mu_0}{\sigma/\sqrt{n}}\right) = 1 - \Phi\!\left(t_{\alpha/2,\,n-1} - \frac{\mu_1 - \mu_0}{\sigma/\sqrt{n}}\right)$$
 
 $t_{\alpha/2,\,n-1}$ replaces $z_{\alpha/2}$ because $\sigma$ is unknown — but $\Phi$ (normal CDF) remains because we are standardising $\bar{X}$, not the t-statistic itself.
 
@@ -2825,8 +2835,9 @@ sigma <- 1.0
 n <- 100
 alpha <- 0.05
 se       <- sigma / sqrt(n)
-crit     <- mu0 + qt(1 - alpha / 2, df = n - 1) * se
-power_an <- pnorm(crit, mean = mu1, sd = se, lower.tail = FALSE)
+t_crit <- qt(1-alpha/2, df = n -1)
+crit     <- t_crit - (mu1 - mu0)/se
+power_an <- 1 - pnorm(crit)
 ```
 
 
@@ -2847,6 +2858,8 @@ cat("SE =", se, "\nCritical value =", round(crit, 4),
 library(pwr)
 pwr.t.test(d = (mu1 - mu0) / sigma, n = n,
            sig.level = alpha, type = "one.sample")
+# the slight difference comes from normal
+# distribution approx (left) vs t-distribution (right)
 ```
 
 :::
@@ -2866,54 +2879,117 @@ This depends on:
 - The desired [power]{.hi_blue} (typically 0.80)
 - The [significance level]{.hi-red} $\alpha$ (typically 0.05)
 
+## Sample size and power {.smaller}
+
+**Derivation:** start from the power formula and set it equal to the desired power $1 - \beta$:
+
+$$1 - \Phi\!\left(t_{\alpha/2,\,n-1} - \frac{|\mu_1 - \mu_0|}{\sigma/\sqrt{n}}\right) = 1 - \beta$$
+
 . . .
 
-**Derivation:** invert the power formula. We want power $= 1 - \beta$, so set:
+Apply $\Phi^{-1}$ to both sides (recall $\Phi^{-1}(p) = z_{p} = -z_{1-p}$, i.e., it's `qnorm`):
 
-$$t_{\alpha/2,\,n-1} - \frac{\delta}{\sigma/\sqrt{n}} = -z_{1-\beta}$$
+$$t_{\alpha/2,\,n-1} - \frac{|\mu_1 - \mu_0|}{\sigma/\sqrt{n}} = -z_{1-\beta}$$
 
-where $\delta = |\mu_1 - \mu_0|$. Approximating $t_{\alpha/2,\,n-1} \approx z_{\alpha/2}$ (valid for large $n$) and rearranging:
+. . .
 
-$$\frac{\delta}{\sigma/\sqrt{n}} = z_{\alpha/2} + z_{1-\beta} \implies \sqrt{n} = \frac{(z_{\alpha/2} + z_{1-\beta})\,\sigma}{\delta}$$
+Approximate $t_{\alpha/2,\,n-1} \approx z_{\alpha/2}$ (valid for large $n$) and rearrange to isolate $\sqrt{n}$:
 
-$$\boxed{n = \left(\frac{z_{\alpha/2} + z_{1-\beta}}{\delta/\sigma}\right)^2}$$
+$$\frac{|\mu_1 - \mu_0|}{\sigma/\sqrt{n}} = z_{\alpha/2} + z_{1-\beta} \implies \sqrt{n} = \frac{(z_{\alpha/2} + z_{1-\beta})\,\sigma}{|\mu_1 - \mu_0|}$$
 
-where $\delta/\sigma$ is Cohen's $d$ — the standardised effect size.
+. . .
+
+Square both sides:
+
+$$\boxed{n = \left(\frac{z_{\alpha/2} + z_{1-\beta}}{|\mu_1 - \mu_0|/\sigma}\right)^2}$$
+
+where $|\mu_1 - \mu_0|/\sigma$ is Cohen's $d$, i.e., the standardised effect size (always positive)
 
 ## Sample size and power
 
-**Example:** To detect an effect of 0.3 points in life satisfaction ($\sigma$ = 2) with 80% power at α = 0.05:
+**Example:** What's the sample size needed to detect an effect of 0.3 points in life satisfaction ($\sigma$ = 2) with 80% power at $\alpha$ = 0.05? (Note: $z_{0.8} \approx 0.84$.)
 
-**Manual computation using the formula:**
+. . .
+
+Let's use the formula from the previous slide:
+
+\begin{align*}
+n &= \left(\frac{z_{\alpha/2} + z_{1-\beta}}{|\mu_1 - \mu_0|/\sigma}\right)^2\\
+&\approx \left(\frac{1.96 + 0.84}{0.3/2}\right)^2\\
+&\approx \left(\frac{2.8}{0.15}\right)^2\\
+&\approx 348
+\end{align*}
+
+. . .
+
+$\rightarrow$ to estimate an effect size of at least 0.3 points (with $\sigma$ = 2) with 80\% power at the 5\% level we need a sample size of roughly 350 individuals
+
+## Sample size and power
+
+**Example:** What's the sample size needed to detect an effect of 0.3 points in life satisfaction ($\sigma$ = 2) with 80% power at $\alpha$ = 0.05?
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+**`R` computation using the formula:**
 
 ```{r}
 delta <- 0.3   # minimum effect to detect
 sigma <- 2.0   # population SD (estimated from data)
 
-# Critical values for α = 0.05 (two-sided) and power = 0.80 (β = 0.20)
+# Critical values for α = 0.05 (two-sided)
+# and power = 0.80 (β = 0.20)
 z_alpha2 <- qnorm(0.975)   # z_{1-α/2} ≈ 1.96
+z_alpha2
+
 z_beta   <- qnorm(0.80)    # z_{1-β}   ≈ 0.84
+z_beta
 
 # Required n
 n_manual <- ((z_alpha2 + z_beta) / (delta / sigma))^2
-cat("z_{1-α/2} =", round(z_alpha2, 3), "\n")
-cat("z_{1-β}   =", round(z_beta, 3), "\n")
-cat("n =", ceiling(n_manual), "\n")
+n_manual
 ```
 
-. . .
+:::
+
+::: {.column width="50%" .fragment}
 
 **Verify with `power.t.test()`:**
 
 ```{r}
-power.t.test(delta = delta, sd = sigma, power = 0.80,
-             sig.level = 0.05, type = "one.sample")
+power.t.test(delta = delta, sd = sigma,
+             power = 0.80,
+             sig.level = 0.05,
+             type = "one.sample")
 ```
+
+:::
+:::
+
+. . .
 
 We need [**n = `r ceiling(n_manual)`**]{.hi_purple} observations.
 
+## Your turn! #7 {.slide_task}
 
-# Practical guidelines {.slide_inverse #guidelines}
+{{< countdown "10:00" top=0 right=0 >}}
+
+You are planning a study on life satisfaction in France. Based on previous research, you assume $\sigma = 2.0$.
+
+**Part 1: Compute power**
+
+A previous study found $\bar{x} = 6.8$. You want to test $H_0: \mu = 7.0$ at $\alpha = 0.05$ with $n = 80$ observations. What is the power of this test to detect the true effect?
+
+1. Compute power manually using the formula (use `qt` and `pnorm`)
+2. Verify with `power.t.test()`
+
+**Part 2: Minimum sample size**
+
+You want to design a new study to detect a difference of at least 0.4 points from $\mu_0 = 7.0$ with 80% power at $\alpha = 0.05$.
+
+1. Compute the required $n$ manually using the formula (use `qnorm`)
+2. Verify with `power.t.test()` (and round up)
 
 ## Today's lecture
 
@@ -2957,102 +3033,59 @@ We need [**n = `r ceiling(n_manual)`**]{.hi_purple} observations.
 
 [**9. Practical guidelines**](#guidelines)
 
+# Practical guidelines {.slide_inverse #guidelines}
+
 ## Choosing the right test
 
-<table style="width:100%; border-collapse:collapse; font-size:0.85em; font-family:inherit;">
+<table style="width:100%; border-collapse:collapse; font-size:0.76em; font-family:inherit;">
   <thead>
     <tr style="background:#2C3E50; color:white;">
-      <th style="padding:8px 12px; text-align:left; width:35%;">Research question</th>
-      <th style="padding:8px 12px; text-align:left; width:32%;">Test</th>
-      <th style="padding:8px 12px; text-align:left; width:33%;">R function</th>
+      <th style="padding:6px 10px; text-align:left; width:24%;">Research question</th>
+      <th style="padding:6px 10px; text-align:left; width:20%;">Test</th>
+      <th style="padding:6px 10px; text-align:left; width:32%;">Test statistic</th>
+      <th style="padding:6px 10px; text-align:left; width:24%;">R function</th>
     </tr>
   </thead>
   <tbody>
     <tr style="background:#EBF5FB;">
-      <td style="padding:7px 12px; border-left:4px solid #3498DB;"><strong>One group</strong><br><span style="color:#555;">Mean vs. a value</span></td>
-      <td style="padding:7px 12px;">One-sample t-test</td>
-      <td style="padding:7px 12px;"><code>t.test(x, mu = ...)</code></td>
+      <td style="padding:5px 10px; border-left:4px solid #3498DB;"><strong>One group</strong><br><span style="color:#555;">Mean vs. a value</span></td>
+      <td style="padding:5px 10px;">One-sample t-test</td>
+      <td style="padding:5px 10px;">$t = \dfrac{\bar{x} - \mu_0}{s/\sqrt{n}}$</td>
+      <td style="padding:5px 10px;"><code>t.test(x, mu = ...)</code></td>
     </tr>
     <tr style="background:#D6EAF8;">
-      <td style="padding:7px 12px; border-left:4px solid #3498DB;"><strong>One group</strong><br><span style="color:#555;">Proportion vs. a value</span></td>
-      <td style="padding:7px 12px;">One-sample proportion test</td>
-      <td style="padding:7px 12px;"><code>prop.test(x, n, p = ...)</code></td>
+      <td style="padding:5px 10px; border-left:4px solid #3498DB;"><strong>One group</strong><br><span style="color:#555;">Proportion vs. a value</span></td>
+      <td style="padding:5px 10px;">One-sample proportion test</td>
+      <td style="padding:5px 10px;">$z = \dfrac{\hat{p} - p_0}{\sqrt{p_0(1-p_0)/n}}$</td>
+      <td style="padding:5px 10px;"><code>prop.test(x, n, p = ...)</code></td>
     </tr>
     <tr style="background:#EAFAF1;">
-      <td style="padding:7px 12px; border-left:4px solid #27AE60;"><strong>Two groups (independent)</strong><br><span style="color:#555;">Compare means</span></td>
-      <td style="padding:7px 12px;">Two-sample t-test (Welch's)</td>
-      <td style="padding:7px 12px;"><code>t.test(y ~ x, data = ...)</code></td>
+      <td style="padding:5px 10px; border-left:4px solid #27AE60;"><strong>Two groups (indep.)</strong><br><span style="color:#555;">Compare means</span></td>
+      <td style="padding:5px 10px;">Two-sample t-test (Welch's)</td>
+      <td style="padding:5px 10px;">$t = \dfrac{\bar{x}_1 - \bar{x}_2}{\sqrt{s_1^2/n_1 + s_2^2/n_2}}$</td>
+      <td style="padding:5px 10px;"><code>t.test(y ~ x, data = ...)</code></td>
     </tr>
     <tr style="background:#D5F5E3;">
-      <td style="padding:7px 12px; border-left:4px solid #27AE60;"><strong>Two groups (independent)</strong><br><span style="color:#555;">Compare proportions</span></td>
-      <td style="padding:7px 12px;">Two-sample proportion test</td>
-      <td style="padding:7px 12px;"><code>prop.test(x, n)</code></td>
+      <td style="padding:5px 10px; border-left:4px solid #27AE60;"><strong>Two groups (indep.)</strong><br><span style="color:#555;">Compare proportions</span></td>
+      <td style="padding:5px 10px;">Two-sample proportion test</td>
+      <td style="padding:5px 10px;">$z = \dfrac{\hat{p}_1 - \hat{p}_2}{\sqrt{\hat{p}(1-\hat{p})(1/n_1+1/n_2)}}$</td>
+      <td style="padding:5px 10px;"><code>prop.test(x, n)</code></td>
     </tr>
     <tr style="background:#FEF9E7;">
-      <td style="padding:7px 12px; border-left:4px solid #F39C12;"><strong>Two groups (paired)</strong><br><span style="color:#555;">Compare means</span></td>
-      <td style="padding:7px 12px;">Paired t-test</td>
-      <td style="padding:7px 12px;"><code>t.test(x, y, paired = TRUE)</code></td>
+      <td style="padding:5px 10px; border-left:4px solid #F39C12;"><strong>Two groups (paired)</strong><br><span style="color:#555;">Compare means</span></td>
+      <td style="padding:5px 10px;">Paired t-test</td>
+      <td style="padding:5px 10px;">$t = \dfrac{\bar{d}}{s_d/\sqrt{n}}$</td>
+      <td style="padding:5px 10px;"><code>t.test(x, y, paired = TRUE)</code></td>
     </tr>
     <tr style="background:#FDEDEC;">
-      <td style="padding:7px 12px; border-left:4px solid #E74C3C;"><strong>Categorical association</strong><br><span style="color:#555;">Test independence</span></td>
-      <td style="padding:7px 12px;">Chi-square test</td>
-      <td style="padding:7px 12px;"><code>chisq.test(table(x, y))</code></td>
+      <td style="padding:5px 10px; border-left:4px solid #E74C3C;"><strong>Categorical association</strong><br><span style="color:#555;">Test independence</span></td>
+      <td style="padding:5px 10px;">Chi-square test</td>
+      <td style="padding:5px 10px;">$\chi^2 = \sum_{i,j} \dfrac{(O_{ij}-E_{ij})^2}{E_{ij}}$</td>
+      <td style="padding:5px 10px;"><code>chisq.test(table(x, y))</code></td>
     </tr>
   </tbody>
 </table>
 
-## Common mistakes to avoid {.smaller}
-
-:::{.callout-warning}
-## Pitfalls
-
-1. [**Using paired test for independent data (or vice versa)**]{.hi-red}
-   - Always check: Are observations matched/paired?
-
-2. [**Confusing "fail to reject" with "accept $H_0$"**]{.hi-red}
-   - Absence of evidence ≠ evidence of absence
-
-3. [**Cherry-picking one-sided vs two-sided after seeing data**]{.hi-red}
-   - Decide before analyzing!
-
-4. [**Only reporting "significant" or "not significant"**]{.hi-red}
-   - Always report: effect size, CI, p-value, sample size
-
-5. [**Using chi-square with expected frequencies < 5**]{.hi-red}
-   - Check assumptions! Use Fisher's exact test if needed
-
-6. [**Interpreting p-value as probability $H_0$ is true**]{.hi-red}
-   - P-value is P(data | $H_0$), not P($H_0$ | data)
-
-7. [**Ignoring practical significance**]{.hi-red}
-   - Statistical significance ≠ practical importance
-:::
-
-## Statistical vs practical significance
-
-A result can be [**statistically significant**]{.hi-red} but [**not practically meaningful**]{.hi_blue}.
-
-. . .
-
-**Example:** With n = 10,000, we find that life satisfaction differs by gender:
-
-- Men: 7.00, Women: 7.05
-- Difference = 0.05, p = 0.001, 95% CI: [0.02, 0.08]
-
-. . .
-
-**Interpretation:**
-
-- ✅ [Statistically significant]{.hi-red}: p < 0.05
-- ❌ [Practically meaningful?]{.hi_blue} A 0.05 difference on a 0-10 scale is tiny!
-
-. . .
-
-:::{.callout-tip}
-Always consider both:
-1. Is the effect statistically significant? (p-value)
-2. Is the effect large enough to matter? (effect size, CI)
-:::
 
 ## The ASA statement on p-values
 
