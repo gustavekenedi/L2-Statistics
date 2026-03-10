@@ -545,7 +545,7 @@ power.t.test(delta = abs(mu1 - mu0), sd = sigma, n = n,
              sig.level = alpha, type = "one.sample")
 ```
 
-With $n = 80$ the power is modest (~60%) — this study is underpowered to reliably detect a 0.2-point difference.
+With $n = 80$ the power is modest (~60%). This study is underpowered to reliably detect a 0.2-point difference.
 
 ---
 
@@ -577,4 +577,4 @@ power.t.test(delta = delta, sd = sigma2, power = power_target,
              sig.level = alpha, type = "one.sample")
 ```
 
-The formula gives $n \approx$ `r ceiling(n_manual)` while `power.t.test()` returns a slightly larger value due to using the exact non-central t-distribution rather than the normal approximation. Always round up and use `power.t.test()` for the final answer.
+The formula gives $n \approx$ `r ceiling(n_manual)` while `power.t.test()` returns a slightly larger value due to using the exact non-central t-distribution rather than the normal approximation.
