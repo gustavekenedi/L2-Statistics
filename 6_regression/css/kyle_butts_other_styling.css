@@ -1,0 +1,127 @@
+/* Subheader styles */
+.subheader {
+  font-size: 1.3em;
+  font-weight: 600;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.subheader_coral {
+  color: var(--color-coral);
+}
+
+.subheader_kelly {
+  color: var(--color-kelly);
+}
+
+.subheader_purple {
+  color: var(--color-purple);
+}
+
+.subheader_cranberry {
+  color: var(--color-cranberry);
+}
+
+/* Emphasis styles */
+.bf {
+  font-weight: bold;
+}
+
+.it {
+  font-style: italic;
+}
+
+.mono {
+  font-family: 'Courier New', monospace;
+  background-color: #f5f5f5;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.ex {
+  font-style: italic;
+}
+
+/* Slide backgrounds */
+.reveal .slide_clear {
+  background: white;
+}
+
+.reveal .slide_middle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+/* Table styling */
+.gt_table {
+  margin: 20px auto;
+  border-collapse: collapse;
+}
+
+.gt_table td, .gt_table th {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.gt_table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+
+
+/* Lists */
+.reveal ul {
+  margin-left: 1em;
+}
+
+.reveal li {
+  margin: 0.3em 0;
+}
+
+/* Callout boxes */
+.callout-note {
+  border-left: 4px solid var(--color-kelly);
+  padding: 10px 20px;
+  margin: 20px 0;
+  background-color: #f9f9f9;
+}
+
+.callout-warning {
+  border-left: 4px solid var(--color-coral);
+  padding: 10px 20px;
+  margin: 20px 0;
+  background-color: #fffbf0;
+}
+
+.callout-important {
+  border-left: 4px solid var(--color-cranberry);
+  padding: 10px 20px;
+  margin: 20px 0;
+  background-color: #fff5f5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .reveal h1, .reveal h2 {
+    font-size: 1.5em;
+  }
+  
+  .reveal p, .reveal li {
+    font-size: 0.8em;
+  }
+}
+
+/* Print styles */
+@media print {
+  .reveal {
+    width: 100%;
+  }
+  
+  .reveal slide {
+    page-break-after: always;
+  }
+}

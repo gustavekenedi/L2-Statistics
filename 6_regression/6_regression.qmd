@@ -1,0 +1,1504 @@
+---
+title: "Lecture 6: Regression Analysis"
+subtitle: "L2 - Statistics"
+author: "Gustave Kenedi"
+date: today
+format:
+  revealjs:
+    self-contained: true
+    css: css/custom-styles.css
+    theme: [simple, css/custom.scss]
+    highlight-style: github
+    html-math-method: mathjax
+    slide-number: true
+    footer: "Lecture 6: Regression Analysis"
+    logo: img/logo_cy_transparent.png
+    code-overflow: wrap
+    execute:
+      echo: true
+      eval: true
+      warning: false
+      message: false
+editor: source
+editor_options:
+  chunk_output_type: console
+---
+
+```{r}
+#| echo: false
+#| output: false
+#| cache: false
+
+source("../assets/r/common_loading.R")
+library(haven)
+library(broom)
+
+# Set theme for all plots
+theme_set(theme_minimal(base_size = 14) +
+            theme(plot.title = element_text(face = "bold", color = "#2D3E50"),
+                  plot.subtitle = element_text(color = "#666666"),
+                  panel.grid.minor = element_blank(),
+                  axis.line = element_line(),
+                  axis.ticks = element_line(),
+                  panel.grid.major = element_line(color = "#E9ECEF"),
+                  axis.title = element_text(face = "bold")
+                  ))
+
+# Color palette
+colors <- c(
+  primary = "#2D3E50",
+  secondary = "#E74C3C",
+  accent = "#3498DB",
+  success = "#27AE60",
+  warning = "#F39C12",
+  purple = "#9B59B6",
+  teal = "#1ABC9C"
+)
+
+# Load Angrist-Lavy data
+grades <- read_dta("https://www.dropbox.com/s/wwp2cs9f0dubmhr/grade5.dta?dl=1")
+```
+
+## Recap quiz
+
+![](img/wooclap_quiz.png)
+
+Or click here: [link to Wooclap](https://app.wooclap.com/L2STATHP?from=instruction-slide)
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How can we quantify and test the relationship between two numeric variables?
+:::
+
+. . .
+
+<p style = "margin-bottom: 1cm;"></p>
+
+[**1. Motivation & data**](#motivation)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. The Simple Linear Regression model](#slr_model)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. Ordinary Least Squares estimation](#ols)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Goodness of fit ($R^2$)](#r2)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Inference: standard errors & the $t$-test](#inference)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Reading regression output](#output)
+
+
+# Motivation & data {.slide_inverse #motivation}
+
+## Why regression?
+
+So far in this course we have learned to:
+
+. . .
+
+- **Describe** distributions of a single variable (mean, variance, histograms)
+
+. . .
+
+- **Quantify uncertainty** around estimates (confidence intervals)
+
+. . .
+
+- **Test hypotheses** about population parameters (t-tests, z-tests)
+
+. . .
+
+**But we haven't yet answered:** *How do two variables relate to each other and how can we use one to predict the other?*
+
+. . .
+
+:::{.callout-insight}
+[**Regression**]{.hi_purple} is the workhorse tool for answering exactly this question. It lets us: **summarise** a relationship with a line, **estimate** the average change in $y$ for a one-unit change in $x$, and **test** whether that relationship is statistically significant.
+:::
+
+## Class size and student performance
+
+**A classic policy question:** Does reducing class size improve student learning?
+
+. . .
+
+- Smaller classes cost money (more teachers, more classrooms) but may improve outcomes.
+- Class size reduction has been at the heart of education policy debates for decades.
+
+. . .
+
+**Our empirical application:** [Angrist & Lavy (1999)](http://piketty.pse.ens.fr/files/AngristLavy1999.pdf)
+
+:::{.callout-note}
+## The dataset
+Test scores and class/school characteristics for **5th graders** (10/11 years old) in Jewish public elementary schools in **Israel in 1991**.
+
+- $n \approx 2{,}000$ classes
+- National standardised tests in **mathematics** and **reading** (Hebrew), scaled 1–100
+- Key variables: `classize` (class size), `avgmath` (avg. math score), `avgverb` (avg. verbal score)
+:::
+
+## Your turn! #1 {.slide_task}
+
+{{< countdown "07:00" top=0 right=0 >}}
+
+1. Load the data below as `grades`. *(Hint: `read_dta()` from the `haven` package reads Stata `.dta` files.)*
+
+```{r}
+#| eval: false
+library(haven)
+grades <- read_dta("https://www.dropbox.com/s/wwp2cs9f0dubmhr/grade5.dta?dl=1")
+```
+
+2. Describe the dataset:
+   - What is the unit of observation (what does each row represent)?
+   - How many observations are there?
+   - View the dataset. What variables do we have?
+   - Use `skim()` from the `skimr` package on `classize`, `avgmath`, and `avgverb`. *(Hint: `select()` the three variables and pipe to `skim()`.)*
+
+3. Do you have any prior intuitions about the relationship between class size and student achievement? What would you do to get a first visual insight?
+
+4. Compute the correlation between `classize` and both `avgmath` and `avgverb`. Is the relationship positive/negative? Strong/weak?
+
+## Class size and student performance: scatter plots
+
+```{r}
+#| echo: false
+#| fig-height: 4.5
+#| fig-width: 10
+
+library(patchwork)
+
+p_math <- ggplot(grades, aes(x = classize, y = avgmath)) +
+  geom_point(alpha = 0.4, size = 1.5, color = colors["primary"]) +
+  labs(x = "Class size", y = "Average score (1–100)",
+       title = "Mathematics") +
+  scale_x_continuous(limits = c(0, 45)) +
+  scale_y_continuous(limits = c(0, 100))
+
+p_verb <- ggplot(grades, aes(x = classize, y = avgverb)) +
+  geom_point(alpha = 0.4, size = 1.5, color = colors["accent"]) +
+  labs(x = "Class size", y = "",
+       title = "Reading (Hebrew)") +
+  scale_x_continuous(limits = c(0, 45)) +
+  scale_y_continuous(limits = c(0, 100))
+
+p_math + p_verb
+```
+
+. . .
+
+**What do you notice?** Is there a clear pattern?
+
+. . .
+
+→ For simplicity, we will **focus on mathematics** for the rest of this lecture.
+
+## Correlation
+
+Recall from Lecture 2: [**correlation**]{.hi_purple} measures the *linear* association between two variables, $r \in [-1, 1]$.
+
+```{r}
+cor(grades$classize, grades$avgmath)
+```
+
+. . .
+
+:::{.callout-note}
+The correlation is slightly positive: larger classes are *weakly* associated with *higher* math scores. Surprising?
+:::
+
+. . .
+
+Correlation gives us a single number, but it doesn't answer:
+
+- By *how much* does the average math score change with a 1-student increase in class size?
+- Is this relationship statistically different from zero?
+
+→ We need **regression**.
+
+## Class size and math score: which line fits best?
+
+```{r}
+#| echo: false
+#| fig-height: 4.5
+#| fig-width: 9
+
+mean_math <- mean(grades$avgmath, na.rm = TRUE)
+
+ggplot(grades, aes(x = classize, y = avgmath)) +
+  geom_point(alpha = 0.3, size = 1.5, color = colors["primary"]) +
+  geom_hline(yintercept = mean_math,
+             color = colors["secondary"], linewidth = 1.5, linetype = "dashed") +
+  annotate("text", x = 2, y = mean_math + 3,
+           label = paste0("slope = 0"), color = colors["secondary"],
+           size = 4, hjust = 0, vjust = -1, fontface = "bold") +
+  labs(x = "Class size", y = "Average math score",
+       title = "Option 1: flat line — math scores don't change with class size",
+       subtitle = "Each point is one class, Angrist & Lavy (1999)") +
+  scale_x_continuous(limits = c(0, 45)) +
+  scale_y_continuous(limits = c(0, 100))
+```
+
+. . .
+
+But the correlation is [positive]{.hi_purple} so we should have a positive [slope]{.hi_blue}
+
+## Class size and math score: which line fits best?
+
+```{r}
+#| echo: false
+#| fig-height: 4.5
+#| fig-width: 9
+
+ggplot(grades, aes(x = classize, y = avgmath)) +
+  geom_point(alpha = 0.3, size = 1.5, color = colors["primary"]) +
+  geom_abline(intercept = 52, slope = 0.65,
+              color = colors["success"], linewidth = 1.5) +
+  annotate("text", x = 2, y = 52 + 0.65 * 2 + 3,
+           label = "slope = +0.65", color = colors["success"],
+           size = 4, hjust = 0, vjust = -1, fontface = "bold") +
+  labs(x = "Class size", y = "Average math score",
+       title = "Option 2: positive slope — larger classes score higher?",
+       subtitle = "Each point is one class, Angrist & Lavy (1999)") +
+  scale_x_continuous(limits = c(0, 45)) +
+  scale_y_continuous(limits = c(0, 100))
+```
+
+. . .
+
+Positive relationship, but perhaps too [steep]{.hi_purple}? $\rightarrow$ we need a **principled rule**
+
+## What makes a line "good"?
+
+Intuitively, a good line should be **close to the data points**: the vertical gaps between each actual score and the predicted score should be small.
+
+. . .
+
+```{r}
+#| echo: false
+#| fig-height: 3.5
+#| fig-width: 9
+
+# Compare two lines: bad (flat) vs "better" (positive slope)
+b0_bad <- mean_math; b1_bad <- 0
+b0_ok  <- 52;        b1_ok  <- 0.65
+
+set.seed(99)
+grades_sub <- grades %>%
+  filter(!is.na(classize), !is.na(avgmath)) %>%
+  slice_sample(n = 150, replace = FALSE) %>%
+  mutate(
+    yhat_bad = b0_bad + b1_bad * classize,
+    yhat_ok  = b0_ok  + b1_ok  * classize
+  )
+
+p_bad <- ggplot(grades_sub, aes(x = classize, y = avgmath)) +
+  geom_segment(aes(xend = classize, yend = yhat_bad),
+               color = colors["secondary"], alpha = 0.5) +
+  geom_point(alpha = 0.3, size = 1.2, color = colors["primary"]) +
+  geom_hline(yintercept = b0_bad, color = colors["secondary"],
+             linewidth = 1.2, linetype = "dashed") +
+  labs(x = "Class size", y = "Avg. math score",
+       title = "Flat line: large gaps") +
+  scale_x_continuous(limits = c(0, 45)) +
+  scale_y_continuous(limits = c(0, 100))
+
+p_ok <- ggplot(grades_sub, aes(x = classize, y = avgmath)) +
+  geom_segment(aes(xend = classize, yend = yhat_ok),
+               color = colors["success"], alpha = 0.5) +
+  geom_point(alpha = 0.3, size = 1.2, color = colors["primary"]) +
+  geom_abline(intercept = b0_ok, slope = b1_ok,
+              color = colors["success"], linewidth = 1.2) +
+  labs(x = "Class size", y = "",
+       title = "Sloped line: smaller gaps") +
+  scale_x_continuous(limits = c(0, 45)) +
+  scale_y_continuous(limits = c(0, 100))
+
+p_bad + p_ok
+```
+
+. . .
+
+The sloped line *looks* better, but why exactly? And how do we find the *best* possible line? → **Ordinary Least Squares (OLS)** answers this formally.
+
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How can we quantify and test the relationship between two numeric variables?
+:::
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[1. Motivation & data](#motivation)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**2. The Simple Linear Regression model**](#slr_model)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. Ordinary Least Squares estimation](#ols)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Goodness of fit ($R^2$)](#r2)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Inference: standard errors & the $t$-test](#inference)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Reading regression output](#output)
+
+# Simple Linear Regression {.slide_inverse #slr_model}
+
+## From scatter plot to a line
+
+We want to **summarise** the relationship between class size $(x)$ and average math score $(y)$ with a line.
+
+. . .
+
+:::{.callout-important}
+## Two variables
+- [**Outcome (dependent) variable**]{.hi_purple}: $y_i \rightarrow$ *average math score* of class $i$
+- [**Explanatory (independent) variable**]{.hi_blue}: $x_i \rightarrow$ *class size* of class $i$
+:::
+
+. . .
+
+A line with **intercept** $\hat{\beta}_0$ and **slope** $\hat{\beta}_1$ predicts:
+
+$$\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1 x_i$$
+
+. . .
+
+- $\hat{y}_i$ is our **prediction** of $y_i$ given $x_i$
+- **Which** line? There are infinitely many $\rightarrow$ we need a rule to pick the best one.
+
+## Intercept and slope: a refresher
+
+```{r}
+#| echo: false
+#| fig-height: 4.5
+#| fig-width: 9
+
+b0_ex <- 10; b1_ex <- 6
+df_line <- data.frame(x = seq(0, 9, by = 0.1))
+df_line$y <- b0_ex + b1_ex * df_line$x
+
+ggplot(df_line, aes(x = x, y = y)) +
+  geom_line(linewidth = 1.5, color = colors["secondary"]) +
+  geom_hline(yintercept = 0, linewidth = 0.3) +
+  geom_vline(xintercept = 0, linewidth = 0.3) +
+  # Intercept: double-headed arrow from 0 to b0 at x = 0
+  annotate("segment", x = 0, xend = 0, y = 0, yend = b0_ex,
+           arrow = arrow(length = unit(0.3, "cm"), ends = "both"),
+           color = colors["accent"], linewidth = 1.2) +
+  annotate("text", x = 0.2, y = b0_ex / 2,
+           label = "hat(beta)[0]", parse = TRUE,
+           color = colors["accent"], size = 5, hjust = 0) +
+  # Slope: horizontal run of 1, then vertical rise of b1, at x = 4
+  annotate("segment", x = 4, xend = 5,
+           y = b0_ex + 4 * b1_ex, yend = b0_ex + 4 * b1_ex,
+           color = colors["success"], linewidth = 1.2,
+           arrow = arrow(length = unit(0.25, "cm"), ends = "last")) +
+  annotate("text", x = 4.5, y = b0_ex + 4 * b1_ex - 2.5,
+           label = "+1", color = colors["success"], size = 4.5, hjust = 0.5) +
+  annotate("segment", x = 5, xend = 5,
+           y = b0_ex + 4 * b1_ex, yend = b0_ex + 5 * b1_ex,
+           color = colors["success"], linewidth = 1.2,
+           arrow = arrow(length = unit(0.25, "cm"), ends = "last")) +
+  annotate("text", x = 5.2, y = b0_ex + 4.5 * b1_ex,
+           label = "hat(beta)[1]", parse = TRUE,
+           color = colors["success"], size = 5, hjust = 0) +
+  labs(x = "x", y = expression(hat(y)),
+       title = expression(hat(y) == hat(beta)[0] + hat(beta)[1] * x)) +
+  scale_x_continuous(limits = c(-0.3, 9), breaks = 0:9) +
+  scale_y_continuous(limits = c(0, 65),
+                     breaks = c(0, b0_ex, 30, 50),
+                     labels = c("0", expression(hat(beta)[0]), "30", "50"))
+```
+
+. . .
+
+| | Definition |
+|:--|:--|
+| **Intercept** $\hat{\beta}_0$ | Predicted value of $y$ when $x = 0$ |
+| **Slope** $\hat{\beta}_1$ | Predicted change in $y$ for a **1-unit** increase in $x$ |
+
+## If $x$ perfectly explained $y$...
+
+```{r}
+#| echo: false
+#| fig-height: 4.5
+#| fig-width: 9
+
+reg0 <- lm(avgmath ~ classize, grades)
+
+grades_perfect <- data.frame(
+  classize = grades$classize,
+  avgmath  = fitted(reg0)
+)
+
+ggplot(grades_perfect, aes(x = classize, y = avgmath)) +
+  geom_point(alpha = 0.5, size = 2, color = colors["primary"]) +
+  geom_smooth(method = "lm", se = FALSE, color = colors["secondary"],
+              linewidth = 1.5) +
+  labs(x = "Class size", y = "Average math score",
+       title = "Perfect fit: every point lies exactly on the line",
+       subtitle = "If class size fully determined math scores, there would be no scatter") +
+  scale_x_continuous(limits = c(0, 45)) +
+  scale_y_continuous(limits = c(0, 100))
+```
+
+. . .
+
+In this world: $y_i = \hat{\beta}_0 + \hat{\beta}_1 x_i \rightarrow$ **no unexplained variation**.
+
+## The residual
+
+In practice, a student's math score depends on many things beyond class size.
+
+:::: {.columns}
+
+::: {.column width="55%"}
+```{r}
+#| echo: false
+#| fig-height: 4
+#| fig-width: 6
+
+aug0 <- augment(reg0)
+set.seed(42)
+samp <- aug0[sample(nrow(aug0), 300), ]
+
+ggplot(samp, aes(x = classize, y = avgmath)) +
+  geom_point(alpha = 0.3, size = 2, color = colors["primary"]) +
+  geom_smooth(method = "lm", se = FALSE, color = colors["secondary"],
+              linewidth = 1.5) +
+  geom_segment(aes(xend = classize, yend = .fitted),
+               alpha = 0.5, color = colors["secondary"]) +
+  labs(x = "Class size", y = "Average math score",
+       title = "Reality: points scatter around the line",
+       subtitle = "Red segments = gaps between actual and predicted") +
+  scale_x_continuous(limits = c(0, 45)) +
+  scale_y_continuous(limits = c(0, 100))
+```
+:::
+
+::: {.column width="45%" .fragment}
+
+<p style="margin-top: 1.5cm;"></p>
+
+We call each gap a [**residual**]{.hi_purple}:
+
+$$e_i = y_i - \hat{y}_i$$
+
+The actual value decomposes as:
+
+$$\boxed{y_i = \underbrace{\hat{\beta}_0 + \hat{\beta}_1 x_i}_{\text{prediction}} + \underbrace{e_i}_{\text{residual}}}$$
+
+:::
+
+::::
+
+. . .
+
+:::{.callout-note}
+The residual $e_i$ captures everything that affects $y_i$ **other than** $x_i$ (talent, family background, teaching quality, etc).
+:::
+
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How can we quantify and test the relationship between two numeric variables?
+:::
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[1. Motivation & data](#motivation)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. The Simple Linear Regression model](#slr_model)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**3. Ordinary Least Squares estimation**](#ols)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Goodness of fit ($R^2$)](#r2)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Inference: standard errors & the $t$-test](#inference)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Reading regression output](#output)
+
+# OLS Estimation {.slide_inverse #ols}
+
+## Which line? The OLS criterion
+
+We need a rule to choose $(\hat{\beta}_0, \hat{\beta}_1)$. A natural goal: make the residuals as **small as possible**.
+
+. . .
+
+**Problem with summing residuals directly:** positive and negative errors cancel.
+
+. . .
+
+**Solution:** Minimise the **Sum of Squared Residuals (SSR)**:
+
+$$\text{SSR} = \sum_{i=1}^n e_i^2 = \sum_{i=1}^n (y_i - \hat{\beta}_0 - \hat{\beta}_1 x_i)^2$$
+
+. . .
+
+:::{.callout-important}
+## Ordinary Least Squares (OLS) Definition
+[**OLS**]{.hi_purple} chooses $(\hat{\beta}_0, \hat{\beta}_1)$ to **minimise** the sum of squared residuals.
+:::
+
+## OLS: squared residuals visually
+
+```{r}
+#| echo: false
+#| fig-height: 4.5
+#| fig-width: 10
+
+# Averaged data (one point per class size)
+grades_avg_cs <- grades %>%
+  group_by(classize) %>%
+  summarise(avgmath_cs = mean(avgmath, na.rm = TRUE))
+
+# OLS line (for reference)
+reg_avg  <- lm(avgmath_cs ~ classize, grades_avg_cs)
+b0_ols   <- coef(reg_avg)[1]
+b1_ols   <- coef(reg_avg)[2]
+
+# Flat line (slope = 0, intercept = mean)
+b0_flat  <- mean(grades_avg_cs$avgmath_cs)
+b1_flat  <- 0
+
+dat_flat <- grades_avg_cs %>%
+  mutate(fitted = b0_flat + b1_flat * classize,
+         resid  = avgmath_cs - fitted)
+ssr_flat <- round(sum(dat_flat$resid^2))
+
+ggplot(dat_flat, aes(x = classize, y = avgmath_cs)) +
+  geom_rect(aes(
+    xmin = classize,
+    xmax = classize + abs(resid) * 0.65,
+    ymin = pmin(avgmath_cs, fitted),
+    ymax = pmax(avgmath_cs, fitted)),
+    fill = colors["secondary"], alpha = 0.35) +
+  geom_point(size = 2, color = colors["primary"]) +
+  geom_hline(yintercept = b0_flat,
+             color = colors["secondary"], linewidth = 1.5) +
+  scale_x_continuous(limits = c(5, 55)) +
+  scale_y_continuous(limits = c(35, 90)) +
+  labs(x = "Class size", y = "Avg. math score (by class size)",
+       title = paste0("Flat line (slope = 0) — SSR = ", format(ssr_flat, big.mark = ",")),
+       subtitle = "Each square's area = squared residual for that point")
+```
+
+## OLS: squared residuals visually
+
+```{r}
+#| echo: false
+#| fig-height: 4.5
+#| fig-width: 10
+
+# Too steep (slope = 1.5)
+b0_steep <- mean(grades_avg_cs$avgmath_cs) - 1.5 * mean(grades_avg_cs$classize)
+b1_steep <- 1.5
+
+dat_steep <- grades_avg_cs %>%
+  mutate(fitted = b0_steep + b1_steep * classize,
+         resid  = avgmath_cs - fitted)
+ssr_steep <- round(sum(dat_steep$resid^2))
+
+ggplot(dat_steep, aes(x = classize, y = avgmath_cs)) +
+  geom_rect(aes(
+    xmin = classize,
+    xmax = classize + abs(resid) * 0.65,
+    ymin = pmin(avgmath_cs, fitted),
+    ymax = pmax(avgmath_cs, fitted)),
+    fill = colors["warning"], alpha = 0.35) +
+  geom_point(size = 2, color = colors["primary"]) +
+  geom_abline(intercept = b0_steep, slope = b1_steep,
+              color = colors["warning"], linewidth = 1.5) +
+  scale_x_continuous(limits = c(5, 55)) +
+  scale_y_continuous(limits = c(35, 90)) +
+  labs(x = "Class size", y = "Avg. math score (by class size)",
+       title = paste0("Too steep (slope = 1.5) — SSR = ", format(ssr_steep, big.mark = ",")),
+       subtitle = "Each square's area = squared residual for that point")
+```
+
+## OLS: squared residuals visually
+
+```{r}
+#| echo: false
+#| fig-height: 4.5
+#| fig-width: 10
+
+aug_avg  <- augment(reg_avg)
+ssr_ols  <- round(sum(aug_avg$.resid^2))
+
+ggplot(aug_avg, aes(x = classize, y = avgmath_cs)) +
+  geom_rect(aes(
+    xmin = classize,
+    xmax = classize + abs(.resid) * 0.65,
+    ymin = pmin(avgmath_cs, .fitted),
+    ymax = pmax(avgmath_cs, .fitted)),
+    fill = colors["success"], alpha = 0.35) +
+  geom_point(size = 2, color = colors["primary"]) +
+  geom_smooth(method = "lm", se = FALSE,
+              color = colors["success"], linewidth = 1.5) +
+  scale_x_continuous(limits = c(5, 55)) +
+  scale_y_continuous(limits = c(35, 90)) +
+  labs(x = "Class size", y = "Avg. math score (by class size)",
+       title = paste0("OLS line — SSR = ", format(ssr_ols, big.mark = ","), " — minimum"),
+       subtitle = "Each square's area = squared residual for that point")
+```
+
+## OLS coefficient formulas
+
+Solving the minimisation problem algebraically yields unique formulas:
+
+. . .
+
+:::{.callout-important}
+## OLS formulas
+$$\hat{\beta}_1 = \frac{Cov(x,y)}{Var(x)} = \frac{\sum_{i=1}^n (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^n (x_i - \bar{x})^2}$$
+
+$$\hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \cdot \bar{x}$$
+:::
+
+. . .
+
+**Key observations:**
+
+- $\hat{\beta}_1$ is the ratio of the *covariance* of $x$ and $y$ to the *variance* of $x$
+- The line always passes through the point $(\bar{x}, \bar{y})$: the means of both variables
+- The formulas have unique solutions
+
+## OLS in R: `lm()`
+
+```{r}
+#| echo: true
+
+reg <- lm(avgmath ~ classize, data = grades)
+reg
+```
+
+. . .
+
+So our estimated line is:
+
+$$\widehat{\text{avg. math score}}_i = `r round(coef(reg)[1], 2)` + `r round(coef(reg)[2], 2)` \times \text{class size}_i$$
+
+## Interpreting OLS coefficients
+
+$$\widehat{\text{avg. math score}}_i = `r round(coef(reg)[1], 2)` + `r round(coef(reg)[2], 2)` \times \text{class size}_i$$
+
+. . .
+
+:::{.callout-important}
+## Interpretation rules
+- [**Intercept** $\hat{\beta}_0$]{.hi_purple}: The *predicted* average math score when class size = 0.
+  - Here: $\hat{\beta}_0 = `r round(coef(reg)[1], 2)`$, not economically meaningful (class size = 0 is impossible), but mathematically necessary.
+
+- [**Slope** $\hat{\beta}_1$]{.hi_blue}: The *predicted* change in average math score *associated with* a **1-student increase** in class size.
+  - Here: $\hat{\beta}_1 = `r round(coef(reg)[2], 2)`$, a 1-student increase in class size is **associated** with a `r round(coef(reg)[2], 2)` point increase in average math score, on average.
+:::
+
+. . .
+
+:::{.callout-warning}
+## Correlation ≠ Causation
+We use the word **associated**, not *causes*. This positive relationship does not mean larger classes *improve* performance; there may be confounding factors.
+:::
+
+## Making predictions
+
+$$\widehat{\text{avg. math score}}_i = `r round(coef(reg)[1], 2)` + `r round(coef(reg)[2], 2)` \times \text{class size}_i$$
+
+. . .
+
+**Q:** What is the predicted average math score for a class of **30 students**?
+
+. . .
+
+$$\hat{y}_{x=30} = `r round(coef(reg)[1], 2)` + `r round(coef(reg)[2], 2)` \times 30 = `r round(coef(reg)[1] + coef(reg)[2]*30, 2)`$$
+
+. . .
+
+**Q:** For a class of **20 students**?
+
+$$\hat{y}_{x=20} = `r round(coef(reg)[1], 2)` + `r round(coef(reg)[2], 2)` \times 20 = `r round(coef(reg)[1] + coef(reg)[2]*20, 2)`$$
+
+. . .
+
+**Q:** What is the predicted *difference* between a class of 30 and a class of 20?
+
+$$\hat{y}_{x=30} - \hat{y}_{x=20} = \hat{\beta}_1 \times (30-20) = `r round(coef(reg)[2], 2)` \times 10 = `r round(coef(reg)[2]*10, 2)`$$
+
+This is just $\hat{\beta}_1$ times the difference in $x$!
+
+## Properties of OLS estimates
+
+OLS residuals and predictions have useful algebraic properties:
+
+. . .
+
+1. **Residuals sum to zero:** $\displaystyle\sum_{i=1}^n e_i = 0$
+
+. . .
+
+2. **Predictions average to $\bar{y}$:** $\displaystyle\frac{1}{n}\sum_{i=1}^n \hat{y}_i = \bar{y}$
+
+. . .
+
+3. **Residuals are uncorrelated with $x$:** $Cov(x_i, e_i) = 0$ (by construction)
+
+. . .
+
+4. **Residuals are uncorrelated with $\hat{y}$:** $Cov(\hat{y}_i, e_i) = 0$
+
+. . .
+
+:::{.callout-note}
+These properties hold **by construction** for any OLS line: they are not assumptions about the world, just algebraic facts that follow from the minimisation.
+:::
+
+## Your turn! #2 {.slide_task}
+
+{{< countdown "10:00" top=0 right=0 >}}
+
+1. Regress `avgmath` on `classize` using `lm()`. Store the result as `reg_math`. Interpret both coefficients.
+
+2. Compute $\hat{\beta}_1$ manually using the formula $\hat{\beta}_1 = Cov(x, y) / Var(x)$. *(Hint: use `cov()` and `var()`.)*  Then compute $\hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}$. Do they match?
+
+3. What is the predicted average math score for a class of 25 students? Of 35 students?
+
+4. Repeat steps 1 and 3 for `avgverb` (verbal scores). Store the result as `reg_verb`. How do the results compare?
+
+5. Add the regression line to your scatter plot from Your Turn #1. *(Hint: use `geom_smooth(method = "lm", se = FALSE)`.)*
+
+## Class size and math score: OLS fit
+
+```{r}
+#| echo: false
+#| fig-height: 5
+#| fig-width: 9
+
+reg <- lm(avgmath ~ classize, data = grades)
+
+ggplot(grades, aes(x = classize, y = avgmath)) +
+  geom_point(alpha = 0.3, size = 1.8, color = colors["primary"]) +
+  geom_smooth(method = "lm", se = FALSE,
+              color = colors["secondary"], linewidth = 1.5) +
+  annotate("text", x = 2, y = 95,
+           label = expression(hat(y) == hat(beta)[0] + hat(beta)[1] * x),
+           color = colors["secondary"], size = 5, hjust = 0) +
+  annotate("text", x = 2, y = 88,
+           label = paste0("  = ", round(coef(reg)[1], 2),
+                          " + ", round(coef(reg)[2], 3), " × classize"),
+           color = colors["secondary"], size = 4.5, hjust = 0) +
+  labs(x = "Class size", y = "Average math score",
+       title = "OLS regression line: class size and math performance",
+       subtitle = "Each point is one class, Angrist & Lavy (1999)") +
+  scale_x_continuous(limits = c(0, 45)) +
+  scale_y_continuous(limits = c(0, 100))
+```
+
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How can we quantify and test the relationship between two numeric variables?
+:::
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[1. Motivation & data](#motivation)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. The Simple Linear Regression model](#slr_model)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. Ordinary Least Squares estimation](#ols)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**4. Goodness of fit ($R^2$)**](#r2)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Inference: standard errors & the $t$-test](#inference)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Reading regression output](#output)
+
+# Goodness of Fit ($R^2$) {.slide_inverse #r2}
+
+## How well does the model fit?
+
+**Key question:** How much of the variation in $y$ does our model (the $x$ variable) explain?
+
+. . .
+
+Recall: $y_i = \hat{y}_i + e_i$
+
+This gives us a **variance decomposition**:
+
+$$\underbrace{Var(y)}_{\text{Total variation}} = \underbrace{Var(\hat{y})}_{\text{Explained}} + \underbrace{Var(e)}_{\text{Unexplained}}$$
+
+. . .
+
+In terms of sums of squares:
+
+$$\underbrace{\sum_{i=1}^n (y_i - \bar{y})^2}_{\text{Sum of Squares Total =}SST} = \underbrace{\sum_{i=1}^n (\hat{y}_i - \bar{y})^2}_{\text{Sum of Squares Explained} = SSE} + \underbrace{\sum_{i=1}^n e_i^2}_{\text{Sum of Squared Residuals = }SSR}$$
+
+## $R^2$: the coefficient of determination
+
+:::{.callout-important}
+## Definition
+$$R^2 = \frac{SSE}{SST} = 1 - \frac{SSR}{SST} \in [0, 1]$$
+
+$R^2$ is the **fraction of the total variation in $y$ explained by the regression model**.
+:::
+
+. . .
+
+```{r}
+summary(reg)$r.squared
+```
+
+. . .
+
+**Interpretation:** Our class size variable explains `r round(summary(reg)$r.squared * 100, 1)`% of the variation in average math scores across classes.
+
+. . .
+
+:::{.callout-warning}
+## Two important warnings
+
+1. Low $R^2$ does **not** mean the regression is useless; in social sciences, $R^2 < 0.1$ is common. Causal identification matters more than fit.
+2. High $R^2$ does **not** mean the relationship is causal.
+:::
+
+## $R^2$ and correlation (in simple regression)
+
+In simple linear regression, $R^2$ equals the **squared correlation** between $x$ and $y$:
+
+$$R^2 = r_{xy}^2$$
+
+```{r}
+cor(grades$classize, grades$avgmath)^2
+summary(reg)$r.squared
+```
+
+. . .
+
+This confirms: the model explains only about `r round(summary(reg)$r.squared * 100, 1)`% of the variation. Class size alone is not a great predictor of math scores.
+
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How can we quantify and test the relationship between two numeric variables?
+:::
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[1. Motivation & data](#motivation)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. The Simple Linear Regression model](#slr_model)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. Ordinary Least Squares estimation](#ols)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Goodness of fit ($R^2$)](#r2)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**5. Inference: standard errors & the $t$-test**](#inference)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[6. Reading regression output](#output)
+
+# Inference: Standard Errors & the $t$-test {.slide_inverse #inference}
+
+## Why do we need inference?
+
+Our OLS estimate [$\hat{\beta}_1 = `r round(coef(reg)[2], 3)`$]{.hi_blue} was computed from **one sample** of Israeli classrooms in 1991.
+
+. . .
+
+If we had drawn a **different sample** (different schools, different year), we would get a [different estimate]{.hi_purple}.
+
+. . .
+
+:::{.callout-insight}
+**The fundamental question:** Is the estimated relationship [real]{.hi_purple}? Could we have observed $\hat{\beta}_1 = `r round(coef(reg)[2], 3)`$ simply by [chance]{.hi_blue}, even if there were truly **no** relationship between class size and math scores in the population?
+:::
+
+. . .
+
+To answer this, we need to know the **sampling distribution** of $\hat{\beta}_1$: how much it varies across samples.
+
+. . .
+
+This is exactly the framework from Lectures 4–5! The tool is the [**standard error**]{.hi_purple}.
+
+## The population model
+
+We distinguish between:
+
+. . .
+
+| | Sample | Population |
+|---|---|---|
+| Model | $y_i = \hat{\beta}_0 + \hat{\beta}_1 x_i + e_i$ | $y_i = \beta_0 + \beta_1 x_i + \varepsilon_i$ |
+| Parameters | $\hat{\beta}_0, \hat{\beta}_1$ (estimated) | $\beta_0, \beta_1$ (unknown, true) |
+| Errors | $e_i$ (residuals) | $\varepsilon_i$ (true error term) |
+
+. . .
+
+**Goal:** Use $\hat{\beta}_1$ to make inference about the true population parameter $\beta_1$.
+
+. . .
+
+For $\hat{\beta}_1$ to be a useful estimator of $\beta_1$, we want two things:
+
+| Property | Meaning |
+|:--|:--------|
+| [**Unbiasedness**]{.hi_purple} | $\hat{\beta}_1$ is correct *on average*: $E[\hat{\beta}_1] = \beta_1$ |
+| [**Precision**]{.hi_blue} | $\hat{\beta}_1$ does not vary too much across samples: small $Var(\hat{\beta}_1)$ |
+
+. . .
+
+The **standard error** addresses precision. You will discuss **bias** next year.
+<!-- ## Bias: when does OLS get it wrong? -->
+
+<!-- $\hat{\beta}_1$ is unbiased when the errors $\varepsilon_i$ are uncorrelated with $x_i$, i.e. when nothing in $\varepsilon_i$ is systematically related to class size. -->
+
+<!-- . . . -->
+
+<!-- In our data, this is unlikely: schools with larger classes tend to be in poorer areas, and disadvantaged students tend to score lower regardless of class size. The error $\varepsilon_i$ (which contains socioeconomic background, teaching quality, etc.) is probably [negatively correlated]{.hi_purple} with class size. -->
+
+<!-- . . . -->
+
+<!-- :::{.callout-warning} -->
+<!-- ## Omitted variable bias -->
+<!-- When a variable that affects $y$ is omitted from the regression **and** is correlated with $x$, the OLS estimate $\hat{\beta}_1$ is **biased**: it picks up the effect of the omitted variable as well as the true effect of $x$. This likely explains why our coefficient is positive despite the expected negative effect of class size. -->
+<!-- ::: -->
+
+<!-- . . . -->
+
+<!-- Addressing bias requires careful research design — randomised experiments, natural experiments, instrumental variables. That is the realm of **econometrics**. -->
+
+## The variance of $\hat{\beta}_1$
+
+One can show that:
+
+$$Var(\hat{\beta}_1) = \frac{\sigma^2}{SST_x} = \frac{\sigma^2}{\sum_i(x_i-\bar{x})^2}$$
+
+where $\sigma^2 = Var(\varepsilon_i)$ is the variance of the population error and $SST_x = \sum_i(x_i - \bar{x})^2$ is the total variation in $x$.
+
+. . .
+
+**Intuition:** $Var(\hat{\beta}_1)$ is smaller when the errors are less noisy (small $\sigma^2$) and when $x$ varies a lot across observations (large $SST_x$): both make the slope easier to pin down.
+
+. . .
+
+:::{.callout-note}
+This formula assumes observations are **independent** and that error variance is **constant** across values of $x$. Violations of either are covered in econometrics. See [the formal derivation here](https://statproofbook.github.io/P/slr-olsvar.html) if you are curious.
+:::
+
+## Estimating $\sigma^2$: the residual standard error
+
+The true $\sigma^2 = Var(\varepsilon_i)$ is unknown, so we estimate it from the residuals $e_i$.
+
+. . .
+
+**Why not just use $\frac{1}{n}\sum e_i^2$?** Because $e_i = y_i - \hat{\beta}_0 + \hat{\beta}_1 x_i$ and we "lose" **2 degrees of freedom** by estimate $\hat{\beta}_0$ and $\hat{\beta}_1$.
+
+. . .
+
+$$\hat{\sigma}^2 = \frac{SSR}{n - 2} = \frac{\sum_{i=1}^n e_i^2}{n-2}$$
+
+$$\hat{\sigma} = \sqrt{\frac{SSR}{n-2}} \quad \text{(residual standard error)}$$
+
+Dividing by $n-2$ instead of $n$ makes $\hat{\sigma}^2$ an **unbiased** estimator of $\sigma^2$.
+
+## The standard error formula
+
+Plugging $\hat{\sigma}^2$ into the variance formula:
+
+$$\widehat{Var}(\hat{\beta}_1) = \frac{\hat{\sigma}^2}{SST_x} = \frac{SSR / (n-2)}{\sum_{i=1}^n (x_i - \bar{x})^2}$$
+
+. . .
+
+:::{.callout-important}
+## Standard error of $\hat{\beta}_1$
+$$SE(\hat{\beta}_1) = \sqrt{\widehat{Var}(\hat{\beta}_1)} = \frac{\hat{\sigma}}{\sqrt{SST_x}} = \sqrt{\frac{SSR / (n-2)}{\sum_{i=1}^n (x_i-\bar{x})^2}}$$
+:::
+
+. . .
+
+We write $SE(\hat{\beta}_1)$ rather than $SD(\hat{\beta}_1)$ to remind ourselves this is an **estimate** of the standard deviation of $\hat{\beta}_1$'s sampling distribution.
+
+## Three drivers of $SE(\hat{\beta}_1)$
+
+$$SE(\hat{\beta}_1) = \frac{\hat{\sigma}}{\sqrt{SST_x}} = \frac{\sqrt{SSR/(n-2)}}{\sqrt{\sum_i (x_i - \bar{x})^2}}$$
+
+. . .
+
+| Driver | Intuition | Direction |
+|:---------------------------|:----------------------------------------------|:-------:|
+| **More noise** ($\uparrow \hat{\sigma}$) | Harder to isolate signal from noise | $SE$ ↑ |
+| **More spread in $x$** ($\uparrow SST_x$) | More variation in $x$ to pin down the slope | $SE$ ↓ |
+| **More data** ($\uparrow n$) | $\hat{\sigma}$ stays stable (SSR grows, but divided by $n-2$); $\sqrt{SST_x}$ grows like $\sqrt{n}$ | $SE$ ↓ |
+
+## Computing $SE(\hat{\beta}_1)$ in R
+
+Let's verify the formula step by step:
+
+```{r}
+reg    <- lm(avgmath ~ classize, data = grades)
+n      <- nrow(grades)
+SSR    <- sum(residuals(reg)^2)
+SST_x  <- sum((grades$classize - mean(grades$classize))^2)
+
+sigma_hat <- sqrt(SSR / (n - 2))       # residual standard error
+SE_beta1  <- sigma_hat / sqrt(SST_x)   # SE of slope
+```
+
+```{r}
+#| echo: false
+cat("sigma_hat:", round(sigma_hat, 4), "\n")
+cat("SE(beta1) by hand:", round(SE_beta1, 4), "\n")
+cat("SE(beta1) from lm(): ", round(summary(reg)$coefficients[2, 2], 4), "\n")
+```
+
+. . .
+
+They match! The formula and `lm()` give the same answer.
+
+## Your turn! #3 {.slide_task}
+
+{{< countdown "10:00" top=0 right=0 >}}
+
+Using `reg_reading <- lm(avgverb ~ classize, grades)`:
+
+1. Extract the vector of residuals with `residuals(reg_reading)`. Compute the **SSR** $= \sum_i e_i^2$.
+
+2. Compute $\hat{\sigma} = \sqrt{SSR / (n-2)}$ where $n$ = `nrow(grades)`.
+
+3. Compute $SST_x = \sum_i (x_i - \bar{x})^2$ using `classize`.
+
+4. Compute $SE(\hat{\beta}_1)$ using the formula. Then compare with `summary(reg_reading)$coefficients[2, 2]`.
+
+5. **Thinking question:** Suppose you repeated the regression but restricted to only classes of size 20–25 (much less variation in $x$). Would you expect $SE(\hat{\beta}_1)$ to be larger or smaller? Why?
+
+
+# Hypothesis Testing & the $t$-statistic {.slide_inverse}
+
+## The default hypothesis test
+
+By default, statistical software tests:
+
+$$H_0: \beta_1 = 0 \qquad \text{vs} \qquad H_A: \beta_1 \neq 0$$
+
+. . .
+
+**Interpretation:** Under $H_0$, class size has **no linear relationship** with math scores in the population.
+
+. . .
+
+We ask: *how likely is it to observe our estimate $\hat{\beta}_1 = `r round(coef(reg)[2], 3)`$ if the true $\beta_1$ were zero?*
+
+. . .
+
+To answer this, we need the **sampling distribution** of $\hat{\beta}_1$ under $H_0$.
+
+## The $t$-statistic
+
+The general formula standardises the distance between our estimate and the hypothesised value: $t = \frac{\hat{\beta}_1 - \beta_1^0}{SE(\hat{\beta}_1)},$ where $\beta_1^0$ is the null hypothesis value.
+
+For $H_0: \beta_1 = 0$, this simplifies to: $t = \frac{\hat{\beta}_1}{SE(\hat{\beta}_1)}$
+
+. . .
+
+**Interpretation:** The $t$-statistic counts *how many standard errors* our estimate lies from zero.
+
+. . .
+
+Under $H_0$, this follows a $t$-distribution with $n-2$ degrees of freedom:
+
+$$\boxed{t = \frac{\hat{\beta}_1}{SE(\hat{\beta}_1)} \sim t_{n-2} \quad \text{under } H_0}$$
+
+## Why $t_{n-2}$ and not the standard normal?
+
+. . .
+
+Recall from Lecture 5: when we **estimate** $\sigma$ from the data (using $\hat{\sigma}$), there is extra uncertainty.
+
+. . .
+
+- If $\sigma$ were **known**, we'd use $\frac{\hat{\beta}_1 - \beta_1^0}{\sigma/\sqrt{SST_x}} \sim N(0,1)$
+- Since $\sigma$ is **unknown** and estimated by $\hat{\sigma}$, we use a $t_{n-2}$ distribution
+
+. . .
+
+:::{.callout-note}
+## Good news for large samples
+When $n$ is large (say $n > 100$), $t_{n-2} \approx N(0,1)$. In our data with $n \approx 2{,}000$, the difference is negligible.
+:::
+
+. . .
+
+The **degrees of freedom** $n - 2$ reflect that we estimated $\hat{\beta}_0$ and $\hat{\beta}_1$ from the data (2 parameters, 2 df lost).
+
+## Computing the $t$-statistic
+
+```{r}
+reg <- lm(avgmath ~ classize, grades)
+beta1_hat <- coef(reg)[2]
+SE_beta1 <- summary(reg)$coefficients[2, 2]
+t_stat <- beta1_hat / SE_beta1
+```
+
+```{r}
+#| echo: false
+cat("beta1_hat:", round(beta1_hat, 4), "\n")
+cat("SE(beta1):", round(SE_beta1, 4), "\n")
+cat("t-stat:   ", round(t_stat, 3), "\n")
+```
+
+. . .
+
+$t = `r round(coef(reg)[2], 4)` / `r round(summary(reg)$coefficients[2,2], 4)` = `r round(coef(reg)[2] / summary(reg)$coefficients[2,2], 2)`$
+
+Our estimate is **`r abs(round(coef(reg)[2] / summary(reg)$coefficients[2,2], 1))` standard errors** away from zero.
+
+## The $p$-value
+
+```{r}
+#| echo: false
+#| fig-height: 3.5
+#| fig-width: 9
+
+df    <- n - 2
+t_obs <- abs(t_stat)
+t_crit_plot <- qt(0.975, df = df)
+x_t   <- seq(-6, 6, length.out = 1000)
+y_t   <- dt(x_t, df = df)
+df_t  <- data.frame(x = x_t, y = y_t)
+
+ggplot(df_t, aes(x = x, y = y)) +
+  geom_line(linewidth = 1, color = colors["primary"]) +
+  labs(x = "t-statistic", y = "Density",
+       title = expression(paste("Sampling distribution of ", t, " under ", H[0], ": ", beta[1], " = 0")),
+       subtitle = "If H0 is true, our t-statistic is just one draw from this distribution") +
+  scale_x_continuous(limits = c(-10, 10))
+```
+
+## The $p$-value
+
+```{r}
+#| echo: false
+#| fig-height: 3.5
+#| fig-width: 9
+
+ggplot(df_t, aes(x = x, y = y)) +
+  geom_line(linewidth = 1, color = colors["primary"]) +
+  geom_area(data = subset(df_t, x >= t_crit_plot),  fill = colors["accent"], alpha = 0.4) +
+  geom_area(data = subset(df_t, x <= -t_crit_plot), fill = colors["accent"], alpha = 0.4) +
+  geom_vline(xintercept = c(-t_crit_plot, t_crit_plot), linetype = "dashed",
+             color = colors["accent"], linewidth = 1) +
+  annotate("text", x =  t_crit_plot + 0.15, y = 0.06, label = paste0("+", round(t_crit_plot, 2)),
+           hjust = 0, size = 3.8, color = colors["accent"]) +
+  annotate("text", x = -t_crit_plot - 0.15, y = 0.06, label = paste0(round(-t_crit_plot, 2)),
+           hjust = 1, size = 3.8, color = colors["accent"]) +
+  labs(x = "t-statistic", y = "Density",
+       title = expression(paste("Rejection region at ", alpha, " = 5%")),
+       subtitle = "Blue shaded area = 5% — we reject H0 if |t| falls in this region") +
+  scale_x_continuous(limits = c(-10, 10))
+```
+
+## The $p$-value
+
+```{r}
+#| echo: false
+#| fig-height: 3.2
+#| fig-width: 9
+
+p_value <- 2 * pt(-abs(t_stat), df = df)
+
+ggplot(df_t, aes(x = x, y = y)) +
+  geom_line(linewidth = 1, color = colors["primary"]) +
+  geom_area(data = subset(df_t, x >= t_crit_plot),  fill = colors["accent"], alpha = 0.3) +
+  geom_area(data = subset(df_t, x <= -t_crit_plot), fill = colors["accent"], alpha = 0.3) +
+  geom_area(data = subset(df_t, x >= t_obs),  fill = colors["secondary"], alpha = 0.6) +
+  geom_area(data = subset(df_t, x <= -t_obs), fill = colors["secondary"], alpha = 0.6) +
+  geom_vline(xintercept = c(-t_crit_plot, t_crit_plot), linetype = "dashed",
+             color = colors["accent"], linewidth = 0.8) +
+  geom_vline(xintercept = c(-t_obs, t_obs), linetype = "solid",
+             color = colors["secondary"], linewidth = 1.1) +
+  annotate("text", x = t_obs + 0.15, y = 0.16,
+           label = paste0("t = ", round(t_obs, 1)), hjust = 0, size = 4,
+           color = colors["secondary"], fontface = "bold") +
+  labs(x = "t-statistic", y = "Density",
+       title = expression(paste("Our observed t-statistic vs. the rejection region")),
+       subtitle = "Red area = p-value  |  Blue dashes = ±1.96 (5% critical values)") +
+  scale_x_continuous(limits = c(-10, 10))
+```
+
+. . .
+
+$$p\text{-value} = P\left(|t_{n-2}| \geq |t_\text{obs}|\right)$$
+
+```{r}
+p_value <- 2 * pt(-abs(t_stat), df = df)
+```
+
+```{r}
+#| echo: false
+cat("p-value:", format(p_value, scientific = TRUE, digits = 3), "\n")
+```
+
+## Decision rule and conclusion
+
+At significance level $\alpha = 0.05$:
+
+. . .
+
+| | |
+|---|-----------|
+| **p-value** | `r format(p_value, scientific = TRUE, digits = 2)` |
+| **Reject $H_0$?** | Yes — $p < 0.05$ |
+| **Conclusion** | There is strong statistical evidence that class size is **significantly associated** with average math scores |
+
+. . .
+
+**Rule of thumb:** If $|t| > 2$ (more precisely, $|t| > t^*_{0.025, n-2} \approx 1.96$ for large $n$), we reject $H_0$ at the 5% level.
+
+Here $|t| = `r round(abs(t_stat), 1)`$: well above 2.
+
+. . .
+
+:::{.callout-warning}
+Statistical significance ≠ practical significance. A coefficient can be statistically significant but economically tiny (especially with large $n$). Always report the magnitude and the SE alongside the p-value!
+:::
+
+## Confidence interval for $\beta_1$
+
+A 95% CI for $\beta_1$:
+
+$$CI_{95\%} = \left[\hat{\beta}_1 \pm t^*_{0.025,\, n-2} \cdot SE(\hat{\beta}_1)\right]$$
+
+For large $n$, $t^*_{0.025,\, n-2} \approx 1.96$.
+
+```{r}
+t_crit <- qt(0.975, df = n - 2)
+
+CI_low  <- beta1_hat - t_crit * SE_beta1
+CI_high <- beta1_hat + t_crit * SE_beta1
+```
+
+```{r}
+#| echo: false
+cat("95% CI: [", round(CI_low, 3), ",", round(CI_high, 3), "]\n")
+```
+
+. . .
+
+**Interpretation:** We are 95% confident that the true $\beta_1$ lies between `r round(CI_low, 3)` and `r round(CI_high, 3)`.
+
+. . .
+
+Notice: the CI does **not** include 0, which is consistent with rejecting $H_0: \beta_1 = 0$ at the 5% level.
+
+## Your turn! #4 {.slide_task}
+
+{{< countdown "12:00" top=0 right=0 >}}
+
+Now apply everything we covered to the **verbal (reading) score** regression.
+
+1. Run `reg_verb <- lm(avgverb ~ classize, data = grades)` and print `summary(reg_verb)`.
+
+2. From the output, identify the estimate, SE, $t$-statistic, and p-value for `classize`. What do they tell you?
+
+3. Verify the $t$-statistic manually: compute `coef(reg_verb)[2] / summary(reg_verb)$coefficients[2, 2]`.
+
+4. Compute a **95% confidence interval** for $\beta_1$ by hand using `qt(0.975, df = nrow(grades) - 2)`.
+
+5. Is the effect of class size on verbal scores statistically significant at the 5% level? How does it compare in magnitude to the math regression?
+
+6. *(Bonus)* A classmate argues: "Since both coefficients are positive, larger classes **cause** better outcomes." What is wrong with this interpretation? Name at least one potential confounder.
+
+
+## Today's lecture
+
+:::{.callout-insight}
+**The big question:** How can we quantify and test the relationship between two numeric variables?
+:::
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[1. Motivation & data](#motivation)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[2. The Simple Linear Regression model](#slr_model)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[3. Ordinary Least Squares estimation](#ols)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[4. Goodness of fit ($R^2$)](#r2)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[5. Inference: standard errors & the $t$-test](#inference)
+
+<p style = "margin-bottom: .5cm;"></p>
+
+[**6. Reading regression output**](#output)
+
+# Reading Regression Output {.slide_inverse #output}
+
+## `summary()` output
+
+```{r}
+summary(reg)
+```
+
+## Anatomy of the regression table
+
+```{r}
+#| echo: false
+
+summ <- as.data.frame(round(summary(reg)$coefficients, 4))
+knitr::kable(summ, format = "html") %>%
+  kableExtra::kable_styling(font_size = 20)
+```
+
+. . .
+
+| Column | Meaning |
+|:------------|:------------------------------------------------|
+| `Estimate` | OLS coefficient $\hat{\beta}_k$ |
+| `Std. Error` | $SE(\hat{\beta}_k)$: estimated SD of the sampling distribution of $\hat{\beta}_k$ |
+| `t value` | $t = \hat{\beta}_k / SE(\hat{\beta}_k)$: test statistic for $H_0: \beta_k = 0$ |
+| `Pr(>|t|)` | Two-sided p-value for $H_0: \beta_k = 0$ |
+
+. . .
+
+Significance codes: `***` ($p < 0.001$), `**` ($p < 0.01$), `*` ($p < 0.05$), `.` ($p < 0.1$)
+
+## `tidy()` from `broom`: cleaner output
+
+```{r}
+library(broom)
+tidy(reg, conf.int = TRUE, conf.level = 0.95)
+```
+
+. . .
+
+`tidy()` returns a data frame: much easier to work with programmatically.
+
+The `conf.low` and `conf.high` columns give the 95% CI directly.
+
+## Putting it all together: Angrist & Lavy
+
+```{r}
+#| echo: true
+
+reg_math  <- lm(avgmath ~ classize, grades)
+reg_verb  <- lm(avgverb ~ classize, grades)
+
+tidy(reg_math, conf.int = TRUE) %>% filter(term == "classize")
+tidy(reg_verb, conf.int = TRUE) %>% filter(term == "classize")
+```
+
+. . .
+
+**Math:** $\hat{\beta}_1 = `r round(coef(reg_math)[2], 3)`$ (SE = `r round(summary(reg_math)$coefficients[2,2], 3)`, $p < 0.001$)
+
+**Verbal:** $\hat{\beta}_1 = `r round(coef(reg_verb)[2], 3)`$ (SE = `r round(summary(reg_verb)$coefficients[2,2], 3)`)
+
+. . .
+
+Both positive and statistically significant; but this doesn't mean larger classes *cause* better outcomes (confounders!).
+
+# Wrapping up {.slide_inverse}
+
+## What we covered today
+
+:::{.callout-insight}
+**Simple Linear Regression: the full workflow**
+:::
+
+. . .
+
+1. **Model:** $y_i = \hat{\beta}_0 + \hat{\beta}_1 x_i + e_i$: summarises a linear relationship with a line
+
+2. **OLS:** Minimises $\sum e_i^2$ → unique formulas for $\hat{\beta}_0$ and $\hat{\beta}_1$
+
+3. **Goodness of fit:** $R^2 = 1 - SSR/SST$: fraction of variation explained
+
+4. **Standard error:** $SE(\hat{\beta}_1) = \hat{\sigma} / \sqrt{SST_x}$: quantifies sampling uncertainty
+
+5. **$t$-test:** $t = \hat{\beta}_1 / SE(\hat{\beta}_1) \sim t_{n-2}$ under $H_0: \beta_1 = 0$
+
+6. **Confidence interval:** $\hat{\beta}_1 \pm t^*_{0.025} \cdot SE(\hat{\beta}_1)$
+
+## Looking ahead
+
+. . .
+
+**Today's limitation:** we only included class size. But other variables (% disadvantaged students, school type, etc.) are correlated with both class size *and* performance.
+
+. . .
+
+→ **Next year:** **Multiple regression**: control for multiple variables simultaneously, isolate the effect of class size, and understand **omitted variable bias** formally.
+
+. . .
+
+:::{.callout-note}
+## The bigger picture
+Regression is a tool for *description* and *prediction*. To make **causal claims**, we need careful research designs: randomised experiments, natural experiments, instrumental variables, regression discontinuity... This is the realm of [econometrics]{.hi_purple} and [causal inference]{.hi_blue}!
+:::
+
+# Thanks for a great semester! {.slide_inverse}

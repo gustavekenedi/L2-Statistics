@@ -1,0 +1,283 @@
+---
+title: "Lecture 6: Regression Analysis — Exercise Solutions"
+subtitle: "L2 - Statistics"
+author: "Gustave Kenedi"
+date: today
+format:
+  pdf:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    colorlinks: true
+    geometry: margin=2.5cm
+    highlight-style: github
+execute:
+  echo: true
+  eval: true
+  warning: false
+  message: false
+editor: source
+---
+
+```{r setup}
+#| echo: false
+library(tidyverse)
+library(haven)
+library(broom)
+library(skimr)
+library(knitr)
+
+grades <- read_dta("https://www.dropbox.com/s/wwp2cs9f0dubmhr/grade5.dta?dl=1")
+```
+
+---
+
+# Your Turn \#1: Getting to know the data
+
+## Question 1: Load the data
+
+```{r}
+library(haven)
+grades <- read_dta("https://www.dropbox.com/s/wwp2cs9f0dubmhr/grade5.dta?dl=1")
+```
+
+## Question 2: Describe the dataset
+
+```{r}
+# Unit of observation and number of observations
+nrow(grades)
+ncol(grades)
+names(grades)
+```
+
+Each row corresponds to **one class** in a Jewish public elementary school in Israel in 1991. There are **`r nrow(grades)` classes** in the dataset.
+
+Key variables: `classize` = number of students in the class; `avgmath` = average maths test score (0–100); `avgverb` = average verbal (reading) test score (0–100); `disadvantaged` = % of students from disadvantaged backgrounds; `religious` = 1 if the school is religious.
+
+```{r}
+library(skimr)
+grades %>%
+  select(classize, avgmath, avgverb) %>%
+  skim()
+```
+
+Key takeaways:
+
+- Average class size: ~29 students, ranging from 5 to 45.
+- Average math score: ~67; average verbal score: ~68, both out of 100.
+- Both scores have substantial variation (sd ≈ 14).
+
+## Question 3: Prior intuitions and first visual insight
+
+**Prior intuition:** Most people (and educational research) would expect *smaller* classes to be associated with *better* performance — more teacher attention, easier classroom management, etc.
+
+**First insight:** A scatter plot of class size against test scores is the natural starting point.
+
+```{r}
+#| fig-height: 4
+#| fig-width: 10
+
+library(patchwork)
+
+p_math <- ggplot(grades, aes(x = classize, y = avgmath)) +
+  geom_point(alpha = 0.4, size = 1.5) +
+  labs(x = "Class size", y = "Avg. math score", title = "Mathematics") +
+  theme_minimal(base_size = 12)
+
+p_verb <- ggplot(grades, aes(x = classize, y = avgverb)) +
+  geom_point(alpha = 0.4, size = 1.5) +
+  labs(x = "Class size", y = "Avg. verbal score", title = "Reading") +
+  theme_minimal(base_size = 12)
+
+p_math + p_verb
+```
+
+Both scatter plots show a weak, slightly positive cloud of points — **contrary to our prior intuition**.
+
+## Question 4: Correlations
+
+```{r}
+cor(grades$classize, grades$avgmath, use = "complete.obs")
+cor(grades$classize, grades$avgverb, use = "complete.obs")
+```
+
+Both correlations are small and **positive** ($\approx +0.1$ to $+0.2$). The associations are weak, and in the "wrong" direction if we expected smaller classes to improve performance. This is almost certainly due to confounding: larger classes tend to be in wealthier urban schools that also have better-performing students for other reasons.
+
+---
+
+# Your Turn \#2: Simple OLS regression
+
+## Question 1: Regress `avgmath` on `classize`
+
+```{r}
+reg_math <- lm(avgmath ~ classize, grades)
+reg_math
+```
+
+**Intercept** $\hat{\beta}_0 = `r round(coef(reg_math)[1], 2)`$: The predicted average math score when class size is 0. Mathematically necessary but not meaningful (class size = 0 is impossible).
+
+**Slope** $\hat{\beta}_1 = `r round(coef(reg_math)[2], 3)`$: A 1-student increase in class size is associated, on average, with a `r round(coef(reg_math)[2], 3)`-point **increase** in average math score. This positive sign reflects confounding, not a causal effect.
+
+## Question 2: Manual computation of coefficients
+
+```{r}
+b1_manual <- cov(grades$classize, grades$avgmath, use = "complete.obs") /
+             var(grades$classize, na.rm = TRUE)
+b0_manual <- mean(grades$avgmath, na.rm = TRUE) -
+             b1_manual * mean(grades$classize, na.rm = TRUE)
+
+cat("b1 (manual):", round(b1_manual, 4), "\n")
+cat("b0 (manual):", round(b0_manual, 4), "\n")
+cat("b1 from lm():", round(coef(reg_math)[2], 4), "\n")
+cat("b0 from lm():", round(coef(reg_math)[1], 4), "\n")
+```
+
+The manually computed coefficients match exactly.
+
+## Question 3: Predictions
+
+```{r}
+b0 <- coef(reg_math)[1]
+b1 <- coef(reg_math)[2]
+
+pred_25 <- b0 + b1 * 25
+pred_35 <- b0 + b1 * 35
+
+cat("Predicted avg. math score for class size 25:", round(pred_25, 2), "\n")
+cat("Predicted avg. math score for class size 35:", round(pred_35, 2), "\n")
+```
+
+## Question 4: Verbal score regression
+
+```{r}
+reg_verb <- lm(avgverb ~ classize, grades)
+reg_verb
+```
+
+```{r}
+pred_verb_25 <- coef(reg_verb)[1] + coef(reg_verb)[2] * 25
+pred_verb_35 <- coef(reg_verb)[1] + coef(reg_verb)[2] * 35
+cat("Verbal score, class size 25:", round(pred_verb_25, 2), "\n")
+cat("Verbal score, class size 35:", round(pred_verb_35, 2), "\n")
+```
+
+The slope for verbal scores ($\hat{\beta}_1 \approx `r round(coef(reg_verb)[2], 3)`$) is similar in sign and magnitude to the math slope. Both suggest a weak positive association.
+
+## Question 5: Add regression line to scatter plot
+
+```{r}
+#| fig-height: 4
+#| fig-width: 8
+
+ggplot(grades, aes(x = classize, y = avgmath)) +
+  geom_point(alpha = 0.35, size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "#E74C3C", linewidth = 1.5) +
+  labs(x = "Class size", y = "Avg. math score",
+       title = "OLS regression line: avg. math score on class size") +
+  theme_minimal(base_size = 12)
+```
+
+---
+
+# Your Turn \#3: Standard Errors
+
+## Questions 1–4: Computing $SE(\hat{\beta}_1)$ step by step
+
+```{r}
+reg_reading <- lm(avgverb ~ classize, grades)
+
+n     <- nrow(grades)
+e     <- residuals(reg_reading)
+SSR   <- sum(e^2)
+SST_x <- sum((grades$classize - mean(grades$classize))^2)
+
+sigma_hat <- sqrt(SSR / (n - 2))          # residual standard error
+SE_b1     <- sigma_hat / sqrt(SST_x)      # SE of slope
+
+cat("n           =", n, "\n")
+cat("SSR         =", round(SSR, 2), "\n")
+cat("SST_x       =", round(SST_x, 2), "\n")
+cat("sigma_hat   =", round(sigma_hat, 4), "\n")
+cat("SE(b1) formula:", round(SE_b1, 5), "\n")
+cat("SE(b1) lm():   ", round(summary(reg_reading)$coefficients[2, 2], 5), "\n")
+```
+
+The formula and `lm()` give identical results. ✓
+
+## Question 5: Effect of restricting $x$ variation
+
+**Thinking question:** Restricting to classes of size 20–25 drastically reduces the variation in `classize`. Since $SE(\hat{\beta}_1) = \hat{\sigma}/\sqrt{SST_x}$, a smaller $SST_x$ directly inflates the SE: with almost no spread in $x$, the data contain very little information about the slope.
+
+We can verify this empirically:
+
+```{r}
+grades_restricted <- grades %>% filter(classize >= 20 & classize <= 25)
+
+reg_restricted <- lm(avgverb ~ classize, grades_restricted)
+
+cat("SE(b1) full data:  ", round(summary(reg_reading)$coefficients[2, 2], 4), "\n")
+cat("SE(b1) restricted: ", round(summary(reg_restricted)$coefficients[2, 2], 4), "\n")
+```
+
+The SE is **much larger** when $x$ has less variation, confirming the formula.
+
+---
+
+# Your Turn \#4: Inference for verbal scores
+
+## Question 1: Run the regression and read `summary()`
+
+```{r}
+reg_verb <- lm(avgverb ~ classize, data = grades)
+summary(reg_verb)
+```
+
+## Question 2: Identify the key components
+
+For the `classize` coefficient:
+
+- **Estimate** $\hat{\beta}_1$: `r round(coef(reg_verb)[2], 4)` — a 1-student increase in class size is associated with a `r round(coef(reg_verb)[2], 4)`-point increase in average verbal score.
+- **SE**: `r round(summary(reg_verb)$coefficients[2, 2], 4)` — the estimated standard deviation of the sampling distribution of $\hat{\beta}_1$.
+- **$t$-statistic**: `r round(summary(reg_verb)$coefficients[2, 3], 3)` — the estimate is about `r round(summary(reg_verb)$coefficients[2, 3], 1)` standard errors above zero.
+- **p-value**: `r format(summary(reg_verb)$coefficients[2, 4], scientific = TRUE, digits = 2)` — very strong evidence against $H_0: \beta_1 = 0$.
+
+## Question 3: Verify the $t$-statistic manually
+
+```{r}
+b1_est <- coef(reg_verb)[2]
+se_est <- summary(reg_verb)$coefficients[2, 2]
+df     <- nrow(grades) - 2
+
+t_manual <- b1_est / se_est
+
+cat("t-statistic (manual):", round(t_manual, 3), "\n")
+cat("t-statistic (lm):    ", round(summary(reg_verb)$coefficients[2, 3], 3), "\n")
+```
+
+Both match. ✓
+
+## Question 4: 95% Confidence Interval
+
+```{r}
+t_crit_95 <- qt(0.975, df = df)   # 95% CI uses the 97.5th percentile (two-sided)
+
+CI_low_95  <- b1_est - t_crit_95 * se_est
+CI_high_95 <- b1_est + t_crit_95 * se_est
+
+cat("95% CI: [", round(CI_low_95, 4), ",", round(CI_high_95, 4), "]\n")
+cat("Does the interval include 0?", CI_low_95 < 0 & CI_high_95 > 0, "\n")
+```
+
+The 95% CI does **not** include 0, consistent with rejecting $H_0: \beta_1 = 0$ at the 5% significance level.
+
+## Question 5: Statistical significance and comparison with math
+
+The p-value is far below 0.05, so the effect is statistically significant at the 5% level. The magnitude of the slope for verbal scores ($\hat{\beta}_1 \approx `r round(coef(reg_verb)[2], 3)`$) is similar to that for math scores ($\hat{\beta}_1 \approx `r round(coef(lm(avgmath ~ classize, grades))[2], 3)`$). Both are small in magnitude and positive — in the "wrong" direction relative to our prior expectation.
+
+## Question 6 (Bonus): Causal interpretation critique
+
+The claim "larger classes *cause* better outcomes" is **incorrect** for at least two reasons:
+
+1. **Regression gives association, not causation.** The positive coefficient simply tells us that larger classes tend to have higher average scores in this sample; it does not tell us *why*.
+
+2. **Omitted variable bias.** A plausible confounder is school wealth or location: wealthier urban schools tend to have *both* larger classes *and* better-performing students (more resources, more educated parents). Class size therefore picks up part of the positive effect of school wealth on performance. Once we control for socioeconomic disadvantage, the coefficient on class size is expected to shrink or even turn negative.
