@@ -12,9 +12,9 @@
 | Lecture 4: Sampling and inferential statistics | [HTML](https://raw.githack.com/gustavekenedi/L2-Statistics/master/3_sampling_inferential_stats/3_sampling_inferential_stats.html) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/3_sampling_inferential_stats/3_sampling_inferential_stats.pdf) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/3_sampling_inferential_stats/tasks_solutions.pdf)
 | Lecture 5: Confidence intervals | [HTML](https://raw.githack.com/gustavekenedi/L2-Statistics/master/4_confidence_intervals/4_confidence_intervals.html) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/4_confidence_intervals/4_confidence_intervals.pdf) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/4_confidence_intervals/tasks_solutions.pdf)
 | Lecture 6: Hypothesis testing | [HTML](https://raw.githack.com/gustavekenedi/L2-Statistics/master/5_hypothesis_testing/5_hypothesis_testing.html) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/5_hypothesis_testing/5_hypothesis_testing.pdf) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/5_hypothesis_testing/tasks_solutions.pdf)
-| Lecture 7: Statistical power | [HTML]() | [PDF]() |
-| Lecture 8: Correlation and causality | [HTML]() | [PDF]() |
-| Lecture 9: Linear regression | [HTML]() | [PDF]() |
+# | Lecture 7: Statistical power | [HTML]() | [PDF]() |
+# | Lecture 8: Correlation and causality | [HTML]() | [PDF]() |
+| Lecture 7: Regression analysis | [HTML](https://raw.githack.com/gustavekenedi/L2-Statistics/master/6_regression/6_regression.html#/title-slide) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/6_regression/6_regression.pdf) | [PDF](https://github.com/gustavekenedi/L2-Statistics/blob/master/6_regression/tasks_solutions.qmd)
 
 The suggested reading list can be found [here]().
 
