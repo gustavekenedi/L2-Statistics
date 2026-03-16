@@ -1,0 +1,366 @@
+\documentclass[a4paper,french,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[francais, english]{babel}
+\usepackage[round]{natbib}
+\usepackage{hyperref}
+\usepackage{bibentry} %références complètes dans le texte
+\usepackage{titlesec}
+\usepackage[a4paper,margin=1.25in]{geometry}
+\usepackage{colortbl}
+\renewcommand{\thesection}{\Alph{section}}
+\titleformat{\section}
+{\normalfont\Large\bfseries}{\thesection}{1em}{}
+\usepackage{float, caption}
+
+\title{Applications of econometrics II\\Syllabus}
+
+\author{ Maëlys de la Rupelle, THEMA\\ Gustave Kenedi, THEMA }
+\date{}
+
+\begin{document}
+\nobibliography{bib}
+\bibliographystyle{frplainnat}
+\selectlanguage{english}
+
+\maketitle
+
+\section{Goals of the course}
+This course aims to provide students with a training in quantitative analysis reproducing papers published in different fields of applied econometrics as development economics, political economy, urban economics, economics of science or economics of education. The course aims to improve the understanding of the methods used in applied econometrics with a strong focus on identification and an introduction to non linear models.  
+
+\section{Content of each session}
+The course is composed of two blocks. The first 12 hours are about identification and are given by Maelys de la Rupelle, the following 15 hours are about IV, duration analysis, non linear models, machine learning and times series and are given by Gustave Kenedi. Each session will include a lecture, a presentation of research papers, or/and a problem set. 
+
+\section{Course evaluation}
+Students will be graded on 
+\begin{itemize}
+  \item 2 presentations (1 for each block) (50\%) 
+  \item An applied research project exploiting a natural experiment (50\%) 
+\end{itemize}
+\subsection*{Students presentations}
+Groups of 3 students will be assigned a presentation in each block. They will have to read and present a paper in 10 minutes. 
+%They will have to read a paper and/or solve a problem set and present their results in 15 minutes. 
+The other students should also read the introduction of the required papers. 
+For the first block : students have to solve the tutorial and hand in their homework by Wednesdays. 
+
+\subsection*{A research project using a natural experiment}
+Half of the assessment will be based on a research project designed to initiate students to the conduct of an empirical investigation. To simplify the formulation of the research question, this exercise will be focused on natural experiments. You will have to choose a natural experiment and progressively conduct a research project performing the steps described in Table \ref{tab:my_label}, providing regular written feedback to the teachers following the calendar. Reports must be written with LateX. You have to hand in intermediate reports by Sundays. 
+ 
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{lcc}
+     \hline \hline 
+   Step  & To hand in & date \\
+ \hline 
+   1 - The research topic & Identification of a natural experiment & 12-01 \\ 
+			& and list of potential outcomes \\ 
+      2 - Data & Find a relevant dataset and discuss alternative datasets & 19-01 \\ 
+      & if availability is uncertain \\ 
+    3 - Literature review & Identify important papers, & 26-01 \\
+    & discuss endogeneity concerns &\\
+    & and propose an identification strategy \\
+        4- Collective brain storming & Pick up and discuss two proposals & 16-02 \\
+        & (mini referee report)  \\
+        5- Descriptive statistics & Provide a description of the datasets & 02-03 \\
+        6 - Analysis &Perform the main analysis & 09-03 \\
+        7 - Robustness checks & Perform robustness checks & 16-03 \\
+        8 - Intermediate report & Hand in the intermediate report & 13-04 \\ 
+        9 - Final report & Hand in the final report& 11-05 \\
+
+       \hline \hline 
+  \end{tabular}
+  \caption{Calendar of the research project}
+  \label{tab:my_label}
+\end{table}
+
+\begin{enumerate}
+  \item In the first step, you will have to identify a natural experiment you would like to analyze and think about potential outcomes to look at.\\
+  You should identify this experiment and describe its characteristics (timing, conditions, relevant empirical method, etc...). Any natural experiment can be chosen; however you should have some confidence in your capacity to exploit this natural experiment with one of the empirical method studied in class. You should also make sure that you will be able to gather the appropriate datasets to develop your empirical analysis (half a page max). 
+  \item In the second step, you should identify the relevant datasets, describe the various variables you need. If some datasets are available to researchers only, do not hesitate to ask your professor whether they can access them. Data constraints may lead you to slightly modify your research question. Your report should be in two part, the first should describe the natural experiment and how you can exploit it. The second part should present the datasets available develop your empirical analysis exploiting the specific features of the chosen natural experiment (half a page max). 
+  \item In the third step, students should (i) provide an overview of the literature and (ii) propose an identification strategy to answer the question of interest with the chosen natural experiment. (i) You should identify the main applied papers that rely on a similar natural experiment, summarize their main findings in a table (outcome variable, result, in a very concise way) and discuss their identification strategy. Note that you do not need to read everything: to complete the table reading the abstracts + introductions is often enough (1 or 2 pages max). (ii) You should propose an identification strategy (including the equations to estimate) and discuss its underlying assumptions.
+  \item In the fourth step we will gather all research ideas together and circulate the documents in the classroom. You will pick up two proposals (excluding yours) and discuss them. The idea is to be critical and constructive: what are the challenges and caveats of the proposed identification strategy? Do you see an alternative way to solve endogeneity concerns? (1 page max). 
+  \item In the fifth step, you should create the dataset required to implement your estimations and provide the methodology to gather these datasets. Once the dataset is built, you should provide descriptive statistics (tables, charts, maps...) on your variables of interest (4 to 5 pages max). 
+  \item In the sixth step, you should perform your main analysis and present your first results (2 pages max).
+  \item In the seventh step, you should perform the robustness checks usually required in the literature (4 pages max). 
+  \item In the eighth step, you should write an intermediate report following the standard structure of an applied economic paper (Introduction/Literature review/Data/Identification strategy/Results/Conclusion/Appendix with robustness checks). Provide also a clean repository allowing to reproduce your results (i.e., allowing to create and clean the dataset, and to perform the analysis). 
+  \item Using the feedbacks provided by your professors write the final report
+
+\end{enumerate}
+
+\section{References}
+
+
+
+ \subsection*{Textbooks}
+
+\begin{itemize}
+  \item Wooldridge, 2010, \textit{Econometric Analysis of Cross Section and Panel Data}, MIT Press, 2nd Edition
+
+\item Angrist and Pischke, \textit{Mostly Harmless Econometrics}
+
+\item Wooldrigde, \textit{Introductory Econometrics : a Modern Approach} (also available in French : Introduction à l'Econométrie)
+\end{itemize}
+
+\subsection*{Online references}
+
+\begin{itemize}
+  \item Scott Cunningham, \href{https://mixtape.scunning.com/}{Causal Inference : the Mixtape}.
+
+
+\item \href{https://openknowledge.worldbank.org/bitstream/handle/10986/25030/9781464807794.pdf}{Gertler et al, 2016, Impact Evaluation in Practice}
+A good read if you have a limited background in econometrics/maths and struggle to understand what the various methods do.
+
+\item Abadie, Cattaneo, 2018, \href{https://economics.mit.edu/sites/default/files/publications/ARE-typo-Fig4-corrected.pdf}{ Econometric Methods for Program Evaluation}, \textit{Annual Review of Economics}
+
+\end{itemize}
+
+\clearpage
+\begin{center}
+  {\Large\textbf{Block I: Ma\"elys de la Rupelle}}
+\end{center}
+
+
+\renewcommand{\thesection}{\Roman{section}}
+\titleformat{\section}
+{\normalfont\Large\bfseries}{Session ~\thesection}{1em}{}
+
+
+\setcounter{section}{0}
+\section{Introduction}
+
+\subsection*{Goal of the session}
+Introduction and overview of different ways to tackle endogeneity issues
+
+\subsection*{Material}
+\href{https://drive.google.com/file/d/1ABhEP1lyRy6EWVe2SDktLEU31ITRWoGd/view?usp=sharing}{Slides}
+
+\subsection*{Related readings}
+\begin{itemize}
+ %  \item Jyotsna Jalan and E. Somanathan, 2008, The Importance of Being Informed: Experimental Evidence on Demand for Environmental Quality, \textit{Journal of Develoment Economics}
+
+
+\item Chen Yi, Fan Ziying, Gu Xiaomin, and Li-An Zhou, 2020, \href{https://drive.google.com/file/d/1roSyv93LtwQiRobf--JainsU03z8DaXg/view?usp=sharing}{Arrival of Young Talent : the Send-Down Movement and Rural Education in China}, \textit{American Economic Review}
+
+
+\item Gordon B. Dahl, Christina Felfe, Paul Frijters, \& Helmut Rainer, 2022, \href{https://econweb.ucsd.edu/~gdahl/papers/immigrant-girls.pdf}{Caught between Cultures: Unintended Consequences of Improving Opportunity for Immigrant Girls}, \textit{Review of Economic Studies}
+\end{itemize}
+ 
+\section{Regression Discontinuity Design I }
+
+\subsection*{Goal of the session}
+Understand how to implement a regression discontinuity design
+
+\subsection*{Material}
+\href{https://drive.google.com/file/d/1pmKzG96bdtQOGU45Wa09zPYIWUIc1JS_/view}{Slides}
+
+\href{https://drive.google.com/file/d/1XVn5QBkIeNRYkiLOTeBSfEalr5Iy5ngp/view}{Tutorial}
+
+\subsection*{Related readings}
+\begin{itemize}
+  \item David S. Lee \& Thomas Lemieux, 2010. \href{https://drive.google.com/open?id=1FJiN_YSZH52cWtqsGiQjgG7go8Gdeuky}{Regression Discontinuity Designs in Economics}, \textit{Journal of Economic Literature},American Economic Association, vol. 48(2), \textbf{pages 281 to 335}
+
+\item Cattaneo, Idrobo and Titiunik (2019): \href{https://drive.google.com/file/d/11oKBeMhaS0dvEI03okyuMYDllMhLfRyH/view?usp=sharing}{A Practical Introduction to Regression Discontinuity Designs: Foundations}. Cambridge Elements: Quantitative and Computational Methods for Social Science, Cambridge University Press.
+\textbf{p 40 to p50 and p88 to p107}
+
+  %\item tutorial - see here :
+  
+  %\url{https://sites.google.com/site/delarupellemaelys/cours/applications-of-econometrics}
+\end{itemize}
+
+
+
+\subsection*{Additional references}
+
+\begin{itemize}
+  \item Andrew C. Eggers, Ronny Freier, Veronica Grembi and Tommaso Nannicini, 2018. \href{https://drive.google.com/file/d/1iXKOoPy21cAyEY13W7wRR7X1E3FoxcJX/view?usp=sharing}{Regression Discontinuity Designs Based on Population Thresholds: Pitfalls and Solutions}, \textit{American Journal of Political Science}, vol. 62(1), pages 210-229, January.
+\item Guido Imbens \& Karthik Kalyanaraman, 2012, \href{https://drive.google.com/open?id=1sQPUUmZAiE9LDIN_kYshvlPcQvLzsGa7}{Optimal Bandwith Choice}, \textit{Review of Economic Studies}
+
+\item Justin McCrary, 2008, \href{https://drive.google.com/open?id=1uQtAy-h9ihbWR1je0vi7fg4kjjUMzvtu}{Manipulation of the running variable in the regression discontinuity design : A density test}, \textit{Journal of Econometrics}
+\end{itemize}
+
+\section{Regression Discontinuity Design II }
+\subsection*{Goal of the session}
+Understand the Fuzzy Design and the Kink Design
+
+\subsection*{Material}
+\href{https://drive.google.com/file/d/1unA_f7DVyF3c-rC_mKHyfhqfYS7STKs3/view}{Slides}
+
+\href{https://drive.google.com/file/d/14oxjya-fe9xPgOaAUwPSs6CSAdE8ZQLu/view}{Tutorial}
+
+
+\subsection*{Related readings}
+\begin{itemize}
+
+ \item Sam Asher, Paul Novosad, 2020, \href{http://paulnovosad.com/pdf/asher-novosad-roads.pdf}{Rural Roads and Local Economic Development}, \textit{American Economic Review} 110:3 
+  \item Landais, Camille. 2015, \href{https://drive.google.com/file/d/1YlpybUxWDs7uXR-LCtJLfktJoOPemYp8/view?usp=share_link}{Assessing the Welfare Effects of Unemployment Benefits Using the Regression Kink Design}, \textit{American Economic Journal: Economic Policy}, 7 (4): 243-78.
+  \item Giuseppe Albanese, Guglielmo Barone and Guido De Blasio, Populist voting and losers’ discontent: Does redistribution matter?, 2022, 
+  \textit{European Economic Review}, 141
+ \end{itemize}
+ 
+\section{Propensity Score Matching and Inverse Probability Weighting}
+
+%\subsection{Goal of the session}
+\subsection*{Material}
+
+\href{https://drive.google.com/file/d/1K7rZGZbwHmji-Seg5CF4z6tsvB6IUDw5/view?usp=share_link}{Slides}
+
+\href{https://drive.google.com/file/d/19jxtcuSbF6FkDqyji7Aqlm1wlfCjXcpj/view?usp=share_link}{Tutorial} 
+\subsection*{References}
+\begin{itemize}
+
+\item Marco Caliendo and Sabine Kopeinig, 2008. \href{http://ftp.iza.org/dp1588.pdf}{Some Practical Guidance for the Implementation of Propensity Score Matching}. \textit{Journal of Economic Surveys}, 22 (1): 31-72.
+ \end{itemize}
+ 
+
+
+\subsection*{Related readings}
+
+\begin{itemize}
+\item Rajeev H. Dehejia and Sadek Wahba, 1999, \href{https://drive.google.com/file/d/1Umssr3OadMwOC-KyyuK7HYlnC17J4zor/view?usp=sharing}{Causal Effects in Nonexperimental Studies:Reevaluating the Evaluation of Training Programs}. \textit{Journal of the American Statistical Association} 94(448): 1053-1062.
+
+\item Toke Aidt and Raphaël Franck, 2015, \href{https://drive.google.com/open?id=1WW4kW_5CYWrQffazCx1uIukYBvK1Ibbd}{Democratization Under the Threat of Revolution: Evidence From the Great Reform Act of 1832}. \textit{Econometrica}, Volume: 83 Issue 2
+
+
+
+
+\item David McKenzie, John Gibson and Steve Stillman, 2010. \href{https://drive.google.com/open?id=1_5TcTRD8YCi12LhVJh5ZJWl4xsPokTg0}{How Important Is Selection? Experimental vs. Non-experimental Measures of the Income Gains from Migration}, \textit{Journal of the European Economic Association} Volume: 8 Issue 4, ISSN: 1542-4766
+\item  Manuel Funke, Moritz Schularick and Christoph Trebesch. 2023. \href{https://drive.google.com/file/d/1CIJBv8KWCTudYXeV12RivfiU_4BQEf4z/view?usp=drive_link}{Populist Leaders and the Economy}, \textit{American Economic Review}, 113 (12): 3249–88. 
+\end{itemize}
+
+
+\section{Grouped Patterns of Heterogeneity in Panel Data}
+
+\subsection{Material}
+
+\href{https://drive.google.com/file/d/1zrpNTI5htR9Kx4fyABAbOwpF0NLFtHgQ/view}{Slides}
+\subsection*{References}
+
+\begin{itemize}
+\item Stephane Bonhomme and Elena Manresa, 2015, \href{https://drive.google.com/file/d/16Gk7Pu8xRlKyw4PBf6dLifyxv_q6Js-Q/view?usp=share_link}{Grouped Patterns of Heterogeneity in Panel Data}, \textit{Econometrica}
+
+
+\end{itemize}
+
+\section{Diff-in-Diff with Heterogenous Treatment Effects}
+\begin{itemize}
+
+\item de Chaisemartin d'Haultfoeuille, forthcoming,\href{https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3980758}{Two-Way Fixed Effects and Differences-in-Differences with Heterogeneous Treatment Effects: A Survey} \textit{ Econometrics Journal }
+
+\item de Chaisemartin d'Haultfoeuille, 2020, \href{https://drive.google.com/file/d/1D93ltJUirR4zIqJZfSTwSLrA-6rSZpTJ/view?usp=sharing}{Two-way fixed effects estimators with heterogeneous treatment effects}, \textit{American Economic Review}, vol. 110, no. 9,(pp. 2964-96).
+
+\item Goodman-Bacon, 2021, \href{https://drive.google.com/file/d/1gUg7INdzM9A1d1OqCFZjLg9a-BAxMBzf/view}{Difference-in-Differences with Variation in Treatment Timing}, \textit{Journal of Econometrics} 
+\end{itemize}
+%\section{IV}
+
+%\subsection{Goal of the session}
+
+
+%\subsection{References}
+%\begin{itemize}
+%\item Jennifer Alix-Garcia and Emily Sellars, LaborScarcity, Land Tenure, and Historical Legacy: Evidence from Mexico, 2018. \textit{Journal of Development Economics}, 135: 504-506
+
+
+
+%\item Liu Xuepeng, Mary Lovely and Jan Ondrich, 2010. The Location Decisionsof Foreign Investors in China: Untangling the Effect of Wages Using a Control Function Approach. \textit{Review of Economics and Statistics} Volume: 92 Issue 1
+
+%\end{itemize}
+
+\clearpage 
+\begin{center} 
+  {\Large\textbf{Block II: Gustave Kenedi}}
+\end{center}
+
+\renewcommand{\thesection}{\Roman{section}}
+\titleformat{\section}
+{\normalfont\Large\bfseries}{Topic ~\thesection}{1em}{}
+
+\section{Instrumental Variables (Session n°1)}
+
+\subsection{References}
+
+\begin{itemize}
+	\item Angrist, Joshua D., and Alan B. Krueger. 1991. ``Does compulsory school attendance affect schooling and earnings?'' \textit{The Quarterly Journal of Economics}, 106 (4): 979-1014.
+	\item Stevenson, Megan T. 2018. ``Distortion of Justice: How the Inability to Pay Bail Affects Case Outcomes.'' \textit{The Journal of Law, Economics, and Organization}, 34 (4): 511–542.
+\end{itemize}
+
+\subsection{Papers for Students' Presentations}
+
+\begin{itemize}
+	\item Jackson, C. Kirabo, and Henry S. Schneider. 2011. ``Do Social Connections Reduce Moral Hazard? Evidence from the New York City Taxi Industry.'' \textit{ American Economic Journal: Applied Economics}, 3 (3): 244-67.
+	\item Kearney, Melissa S., and Phillip B. Levine. 2015. ``Media Influences on Social Outcomes: The Impact of MTV's 16 and Pregnant on Teen Childbearing.'' \textit{American Economic Review}, 105 (12): 3597-3632.
+	\item Wolfram Schlenker, and W. Reed Walker. 2016. ``Airports, Air Pollution, and Contemporaneous Health.'' \textit{The Review of Economic Studies}, 83 (2): 768–809.
+	\item Aizer, Anna, Janet Currie, Peter Simon, and Patrick Vivier. 2018. ``Do Low Levels of Blood Lead Reduce Children's Future Test Scores?'' \textit{American Economic Journal: Applied Economics}, 10 (1): 307-41.
+\end{itemize}
+
+\section{Non linear models (Session n°3)} 
+
+\subsection{References}
+
+\begin{itemize}
+	\item Angrist, Joshua, and Victor Lavy. 2009. ``The Effects of High Stakes High School Achievement Awards: Evidence from a Randomized Trial.'' \textit{American Economic Review}, 99(4): 1384-1414.
+	\item Azoulay, Pierre, Christian Fons-Rosen, and Joshua S. Graff Zivin. 2019. ``Does Science Advance One Funeral at a Time?'' \textit{American Economic Review}, 109(8): 2889-2920.
+\end{itemize}
+
+\subsection{Papers for Students' Presentations}
+
+\begin{itemize}
+	\item Babcock, Linda, Maria P. Recalde, Lise Vesterlund, and Laurie Weingart. 2017. ``Gender Differences in Accepting and Receiving Requests for Tasks with Low Promotability.'' \textit{American Economic Review}, 107(3): 714-47.
+	\item Abdulkadiroğlu, Atila, Parag A. Pathak, Jonathan Schellenberg, and Christopher R. Walters. 2020. ``Do Parents Value School Effectiveness?'' \textit{American Economic Review}, 110(5): 1502-39.
+	\item Bostwick, Valerie K., and Bruce A. Weinberg. 2022. ``Nevertheless She Persisted? Gender Peer Effects in Doctoral STEM Programs.'' \textit{Journal of Labor Economics}, 40(2): 397-436. 
+	\item Goñi, Marc. 2022. ``Assortative Matching at the Top of the Distribution: Evidence from the World's Most Exclusive Marriage Market.'' \textit{American Economic Journal: Applied Economics}, 14(3): 445-87.
+\end{itemize}
+
+\section{Duration Analysis (Sessions n°3 \& n°4)}
+
+\subsection{References}
+
+\begin{itemize}
+	%\item van den Berg, G. J., and van der Klaauw, B. 2006. ``Counseling and Monitoring of Unemployed Workers: Theory and Evidence from a Controlled Social Experiment.'' \textit{International Economic Review}, 47(3): 895-936.
+	\item Landaud, Fanny. 2021. ``From Employment to Engagement? Stable Jobs, Temporary Jobs, and Cohabiting Relationships.'' \textit{Labour Economics}, 73(C).
+\end{itemize}
+
+\subsection{Papers for Students' Presentations}
+
+\begin{itemize}
+	\item Abbring, Jaap H., Gerard J. van den Berg, and Jan C. van Ours. 2005. ``The Effect of Unemployment Insurance Sanctions on the Transition Rate from Unemployment to Employment.'' \textit{Economic Journal}, 115(505): 602-30.
+	\item van Ours, Jan C. 2006. ``Cannabis, Cocaine and Jobs.'' \textit{Journal of Applied Econometrics}, 21(7): 897-917.
+	\item de Graaf-Zijl, Marloes, Gerard J. van den Berg, and Arjan Heyma. 2011. ``Stepping Stones for the Unemployed: The Effect of Temporary Jobs on the Duration until (Regular) Work.'' \textit{Journal of Population Economics}, 24(1): 107-39.
+	\item Moschion, Julie, and Jan C. van Ours. 2022. ``Do Early Episodes of Depression and Anxiety Make Homelessness More Likely?'' \textit{Journal of Economic Behavior and Organization}, 202(October): 654-74.
+\end{itemize}
+
+\section{Machine Learning (Session n°4)}
+
+\subsection{References}
+
+\begin{itemize}
+	 \item Belloni, Alexandre, Victor Chernozhukov, and Christian Hansen. 2014. ``High-Dimensional Methods and Inference on Structural and Treatment Effects.'' Journal of Economic Perspectives, 28(2): 29-50.
+	 \item Mullainathan, Sendhil, and Jann Spiess. 2017. ``Machine Learning: An Applied Econometric Approach.'' \textit{Journal of Economic Perspectives}, 31(2): 87-106.
+	%\item Donohue, John J., and Steven D. Levitt. 2001. ``The Impact of Legalized Abortion on Crime.'' \textit{The Quarterly Journal of Economics}, 116.2(2001): 379-420.
+	%\item Foote, Christopher L., and Christopher F. Goetz. 2088. ``The Impact of Legalized Abortion on Crime: Comment.'' \textit{The Quarterly Journal of Economics}, 123.1(2008): 407-423.
+	%\item Varian, Hal R. 2014. ``Big Data: New Tricks for Econometrics.'' \textit{Journal of Economic Perspectives}, 28(2): 3-28.
+	%\item Donohue, John J., and Steven Levitt. 2020. ``The Impact of Legalized Abortion on Crime over the Last Two Decades.'' \textit{American Law and Economics Review}, 22.2(2020): 241-302.
+\end{itemize}
+
+\subsection{Papers for Students' Presentations}
+
+\begin{itemize}
+	\item Gilchrist, D. Sheppard, and Emily G. Sands. 2016. ``Something to Talk About: Social Spillovers in Movie Consumption'' \textit{Journal of Political Economy}, 124(5).
+	\item Davis, Jonathan M. V., and Sara B. Heller. 2017. ``Using Causal Forests to Predict Treatment Heterogeneity: An Application to Summer Jobs.'' \textit{American Economic Review}, 107(5): 546–50.
+	\item Oster, Emily. 2018. ``Diabetes and Diet: Purchasing Behavior Change in Response to Health Information.'' \textit{American Economic Journal: Applied Economics}, 10(4): 308-48.
+	\item Deryugina, Tatyana, Garth Heutel, Nolan H. Miller, David Molitor, and Julian Reif. 2019. ``The Mortality and Medical Costs of Air Pollution: Evidence from Changes in Wind Direction.'' \textit{American Economic Review}, 109(12): 4178-4219.
+\end{itemize}
+
+\section{Introduction to Time Series (Session n°5)}
+
+\subsection{Papers for Students' Presentations}
+
+\begin{itemize}
+	\item Jayachandran, Seema, Adriana Lleras-Muney, and Kimberly V. Smith. 2010. ``Modern Medicine and the Twentieth Century Decline in Mortality: Evidence on the Impact of Sulfa Drugs.'' \textit{American Economic Journal: Applied Economics}, 2(2): 118–46.
+	\item Mertens, Karel, and Jose Luis Montiel Olea. 2018. ``Marginal Tax Rates and Income: New Time Series Evidence.'' \textit{Quarterly Journal of Economics}, 133(4): 1803–84.
+	\item Baltussen, Guido, Sjoerd van Bekkum, and Zhi Da. 2019. ``Indexing and Stock Market Serial Dependence around the World.'' \textit{Journal of Financial Economics}, 132(1): 26–48.
+	\item Kim, Dongwoo, and Young Jun Lee. 2022. ``Vaccination Strategies and Transmission of COVID-19: Evidence across Advanced Countries.'' \textit{Journal of Health Economics}, 82(March).
+\end{itemize}
+
+\end{document}
+
+
+
